@@ -32,6 +32,7 @@ Em conflito visual, `design_system.html` prevalece sobre o Resider. Em conflito 
 - [Projeto Supabase da Etapa 4](supabase-project-stage-4.md)
 - [Handoff da Etapa 4](handoff-stage-4.md)
 - [Handoff da Etapa 5](handoff-stage-5.md)
+- [Evidência HTTP de segurança do staging](staging-http-security-evidence.md)
 - [Registro de custos, cotas e gatilhos de upgrade](cost-and-quota-ledger.md)
 
 ## Registros de decisão

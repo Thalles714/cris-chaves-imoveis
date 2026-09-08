@@ -58,6 +58,7 @@
 		"check:cloudflare:staging": "pnpm build:staging && wrangler deploy --dry-run",
 		"check:sensitive-data": "node scripts/check-sensitive-data.mjs",
 		"check:stage2-security": "node scripts/check-stage2-security.mjs",
+		"check:staging-security": "node scripts/check-staging-http-security.mjs",
 		"deploy": "pnpm deploy:staging",
 		"deploy:staging": "pnpm build:staging && wrangler deploy",
 		"dev": "react-router dev",
