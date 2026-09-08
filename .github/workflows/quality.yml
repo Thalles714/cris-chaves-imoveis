@@ -62,7 +62,9 @@ jobs:
 
   verify:
     name: Lint, tests, build and browser checks
-    runs-on: ubuntu-24.04
+    # Pixel snapshots are intentionally reviewed and versioned on Windows.
+    # Keep this runner aligned with the committed `*-win32.png` baselines.
+    runs-on: windows-2025
     timeout-minutes: 25
     env:
       CI: "true"
@@ -115,7 +117,7 @@ jobs:
         run: pnpm check:client-boundary
 
       - name: Install the pinned Playwright browser
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install chromium
 
       - name: Run browser and accessibility checks
         run: pnpm test:e2e
