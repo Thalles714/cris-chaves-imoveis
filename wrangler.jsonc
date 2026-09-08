@@ -48,6 +48,41 @@
 		},
 	],
 	"env": {
+		"staging": {
+			// Provision secrets before enabling the public workers.dev route.
+			"workers_dev": false,
+			"vars": {
+				"APP_ENV": "preview",
+				"PUBLIC_WHATSAPP_NUMBER": "5551999996129",
+				"PUBLIC_CRECI": "CRECI-RS 89448",
+			},
+			"ratelimits": [
+				{
+					"name": "CONTACT_RATE_LIMITER",
+					"namespace_id": "2468037",
+					"simple": {
+						"limit": 5,
+						"period": 60,
+					},
+				},
+				{
+					"name": "ADMIN_AUTH_RATE_LIMITER",
+					"namespace_id": "2468038",
+					"simple": {
+						"limit": 8,
+						"period": 60,
+					},
+				},
+				{
+					"name": "ADMIN_MUTATION_RATE_LIMITER",
+					"namespace_id": "2468039",
+					"simple": {
+						"limit": 30,
+						"period": 60,
+					},
+				},
+			],
+		},
 		"test": {
 			"vars": {
 				"APP_ENV": "test",

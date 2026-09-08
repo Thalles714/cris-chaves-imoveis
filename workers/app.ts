@@ -1,6 +1,7 @@
 import { createRequestHandler, RouterContextProvider } from "react-router";
 
 import { cloudflareContext } from "../app/lib/cloudflare-context";
+import { readServerEnvironment } from "../app/lib/env/server-env.server";
 import {
 	applySecurityHeaders,
 	createCspNonce,
@@ -14,9 +15,12 @@ const requestHandler = createRequestHandler(
 export default {
 	async fetch(request, env, ctx) {
 		const cspNonce = createCspNonce();
+		const { appEnvironment } = readServerEnvironment(
+			env as unknown as Readonly<Record<string, unknown>>,
+		);
 		const routerContext = new RouterContextProvider();
 		routerContext.set(cloudflareContext, { cspNonce, env, ctx });
 		const response = await requestHandler(request, routerContext);
-		return applySecurityHeaders(request, response, cspNonce);
+		return applySecurityHeaders(request, response, cspNonce, appEnvironment);
 	},
 } satisfies ExportedHandler<Env>;
