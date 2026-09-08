@@ -31,7 +31,15 @@ Essa autorização permite hardening, QA, preparação de infraestrutura e ensai
 - `pnpm audit --audit-level high` incluído no comando agregado e no workflow, bloqueando vulnerabilidades altas ou críticas;
 - scan local existente cobre segredos, e-mail, telefone, CPF, CRECI não autorizado, chave privilegiada e fronteira cliente/servidor, inclusive bundle e source maps.
 
-O responsável autorizou um repositório público no GitHub Free para manter custo zero e habilitar branch protection, required checks, CodeQL e secret scanning gratuitos. Antes do primeiro push, a inspeção encontrou o e-mail administrativo no documento atual e nos dois commits locais; a referência atual foi redigida e o histórico público será iniciado por uma raiz limpa, mantendo o histórico anterior somente em uma referência local não enviada.
+O responsável autorizou um repositório público no GitHub Free para manter custo zero e habilitar branch protection, required checks, CodeQL e secret scanning gratuitos. O repositório público foi criado em <https://github.com/Thalles714/cris-chaves-imoveis>. Antes do primeiro push, a inspeção encontrou o e-mail administrativo no documento atual e nos dois commits locais; a referência atual foi redigida e o histórico público foi iniciado por uma raiz limpa. O histórico anterior permanece somente na referência local `codex/pre-public-history`, que não foi enviada ao GitHub.
+
+A branch `main` está protegida inclusive para administradores, sem force push ou exclusão e com histórico linear, resolução obrigatória de conversas e atualização estrita antes da integração. Os três controles obrigatórios são:
+
+- `Rebuild and test Supabase policies`;
+- `Lint, tests, build and browser checks`;
+- `Analyze JavaScript and TypeScript`.
+
+Dependabot security updates, secret scanning, push protection e relato privado de vulnerabilidade estão habilitados. A consulta após a primeira análise encontrou zero alertas de segredo e zero alertas do CodeQL.
 
 ### Cloudflare revalidado
 
@@ -54,6 +62,10 @@ O inventário encontrou scripts inline legítimos do React Router, boot de apar�
 - 16 cenários públicos da CSP atualizados e aprovados em desktop e mobile, sem evento `securitypolicyviolation`;
 - inspeção HTTP independente da home: `200`, CSP obrigatória, Report-Only ausente, `base-uri 'none'`, `unsafe-inline` ausente de `script-src`, sete scripts com nonce idêntico ao header e nonce diferente entre respostas.
 - o primeiro runner limpo do GitHub revelou que o lint dependia dos tipos do React Router já presentes no workspace local; o comando foi corrigido para executar `typegen` antes do ESLint, eliminando a dependência implícita de estado local.
+- o primeiro ensaio visual no Ubuntu revelou que as referências de pixel eram específicas do Windows; o job visual foi alinhado ao executor `windows-2025`, enquanto o banco permaneceu isolado no Ubuntu;
+- a execução `34173608793` do quality gate foi aprovada integralmente: reconstrução das 15 migrations, lint SQL, 52 testes pgTAP, contrato de publicação, auditoria de dependências, formatação, lint, tipos, 242 testes unitários/arquiteturais, build, fronteira do bundle e 38 testes E2E;
+- a execução `34173608800` do CodeQL foi aprovada para JavaScript/TypeScript;
+- finais de linha passaram a ser normalizados por `.gitattributes`, eliminando diferenças de checkout entre Windows e Linux.
 
 Depois que o usuário habilitou a depuração remota, o `browser-harness` repetiu a inspeção assistida e registrou seis quadros em `stage5-csp-final`. A home chegou ao estado `complete`, com título e H1 corretos, React Router hidratado, JSON-LD presente, sete scripts com nonce e nenhuma violação de CSP ou erro de runtime. O seletor de aparência respondeu após a hidratação e aplicou o Black com persistência, classe própria e fundo `#050607`.
 
@@ -62,19 +74,17 @@ Depois que o usuário habilitou a depuração remota, o `browser-harness` repeti
 1. desdobrar o ASVS 5.0.0 L2 por identificador exato, com aplicabilidade, evidência e justificativa individual para cada `N/A`;
 2. revisar OWASP Top 10:2025 e executar testes negativos HTTP, IDOR/BOLA/BOPLA, CSRF, XSS, upload e ZAP em staging;
 3. concluir a matriz de navegador da CSP obrigatória com nonce e inspecionar violações reais em staging;
-4. criar e proteger o repositório GitHub, ligar required checks e os recursos de segurança compatíveis com visibilidade e plano aprovados;
-5. isolar staging e produção em Cloudflare/Supabase e validar secrets, redirects, SMTP, logs, cotas, alertas e rollback;
-6. selecionar e configurar domínio, origem canônica, DNS e TLS sem habilitar serviço pago;
-7. aprovar RPO/RTO, retenção, responsável, criptografia e destino off-site; executar backup real de banco e mídia e restore isolado medido;
-8. concluir runbooks de incidente, conta, segredo, rollback, restore e indisponibilidade de fornecedor;
-9. fechar inventário LGPD, bases legais, retenções, canal do titular e textos jurídicos com validação humana apropriada;
-10. completar matriz visual, acessibilidade, Lighthouse, SEO e conteúdo final;
-11. remover/arquivar todos os placeholders e confirmar catálogo inicial conforme aprovação final;
-12. realizar go/no-go humano, registrar evidências e só então executar o go-live.
+4. isolar staging e produção em Cloudflare/Supabase e validar secrets, redirects, SMTP, logs, cotas, alertas e rollback;
+5. selecionar e configurar domínio, origem canônica, DNS e TLS sem habilitar serviço pago;
+6. aprovar RPO/RTO, retenção, responsável, criptografia e destino off-site; executar backup real de banco e mídia e restore isolado medido;
+7. concluir runbooks de incidente, conta, segredo, rollback, restore e indisponibilidade de fornecedor;
+8. fechar inventário LGPD, bases legais, retenções, canal do titular e textos jurídicos com validação humana apropriada;
+9. completar matriz visual, acessibilidade, Lighthouse, SEO e conteúdo final;
+10. remover/arquivar todos os placeholders e confirmar catálogo inicial conforme aprovação final;
+11. realizar go/no-go humano, registrar evidências e só então executar o go-live.
 
 ## Bloqueios humanos atuais
 
-- conta/organização, nome, visibilidade e titularidade do repositório GitHub;
 - titularidade futura caso o repositório seja transferido da conta pessoal `Thalles714` para uma organização do cliente;
 - nome público final ainda não registrado como aprovado no checklist;
 - domínio a comprar, titularidade e origem canônica;
