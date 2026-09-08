@@ -8,7 +8,7 @@
 
 O único custo recorrente autorizado é o domínio. O projeto precisa de SSR, loaders/actions, site público e painel administrativo no mesmo código, com execução próxima ao runtime de produção durante o desenvolvimento.
 
-A documentação oficial atual da Cloudflare apresenta React Router v8 como framework full-stack de primeira classe com Cloudflare Vite plugin, SSR e deploy no Workers. No plano Free, os limites atuais relevantes são 100.000 invocações dinâmicas/dia, 10 ms de CPU por invocação, 128 MB de memória, 50 subrequests por invocação, 3 MB de Worker comprimido, 64 variáveis por Worker e 20.000 arquivos estáticos por versão. Assets estáticos que não invocam o Worker são gratuitos e ilimitados em requisições; SSR invoca o Worker.
+A documentação oficial atual da Cloudflare apresenta React Router v8 como framework full-stack de primeira classe com Cloudflare Vite plugin, SSR e deploy no Workers. No plano Free, os limites atuais relevantes são 100.000 invocações dinâmicas/dia, 10 ms de CPU por invocação, 128 MB de memória, 50 subrequests por invocação, 64 MiB por Worker, 64 variáveis por Worker e 20.000 arquivos estáticos por versão. Assets estáticos que não invocam o Worker são gratuitos e ilimitados em requisições; SSR invoca o Worker. Os 10 ms do plano Free são impostos pela plataforma: `limits.cpu_ms` serve para aumentar o limite no plano Paid e é rejeitado no Free.
 
 ## Decisão
 

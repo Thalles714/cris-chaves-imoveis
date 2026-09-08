@@ -43,7 +43,7 @@ Dependabot security updates, secret scanning, push protection e relato privado d
 
 ### Cloudflare revalidado
 
-As configurações permanecem no Workers Free, com `cpu_ms: 10`, observabilidade habilitada, amostragem de 10%, três rate limiters e source maps enviados para diagnóstico da plataforma. A documentação oficial foi revalidada no início desta etapa: 100.000 requests/dia, 10 ms de CPU por request, 128 MB de memória, 50 subrequests e 20.000 static assets no Free. O limite atual de upload do Worker é maior que o registrado no ADR-0001 e deverá ser corrigido no registro de custos/limites, sem relaxar o limite observado no dry-run.
+As configurações permanecem no Workers Free, com o limite de 10 ms de CPU imposto pela plataforma, observabilidade habilitada, amostragem de 10%, três rate limiters e source maps enviados para diagnóstico da plataforma. A documentação oficial foi revalidada no início desta etapa: 100.000 requests/dia, 10 ms de CPU por request, 128 MB de memória, 50 subrequests e 20.000 static assets no Free. O limite atual é 64 MiB por Worker. O primeiro deploy fechado confirmou que `limits.cpu_ms` é uma opção exclusiva para aumentar o limite no plano Paid; a opção foi removida, sem aceitar upgrade ou cobrança.
 
 Não houve deploy nesta abertura. Staging, produção, domínio, TLS, fail mode, alertas e verificação real de logs continuam pendentes.
 

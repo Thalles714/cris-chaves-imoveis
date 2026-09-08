@@ -1,3 +1,5 @@
+/// <reference path="../.react-router/types/+server-build.d.ts" />
+
 import { createRequestHandler, RouterContextProvider } from "react-router";
 
 import { cloudflareContext } from "../app/lib/cloudflare-context";
