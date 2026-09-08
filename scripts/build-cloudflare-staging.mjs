@@ -32,6 +32,9 @@ const checks = [
 	[config.vars?.APP_ENV === "preview", "APP_ENV=preview"],
 	[config.workers_dev === true, "rota workers.dev habilitada"],
 	[config.preview_urls === false, "URLs de preview por versão desativadas"],
+	[config.observability?.redact_query_string === true, "query string redigida nos logs"],
+	[config.observability?.logs?.persist === false, "persistência de logs desativada"],
+	[config.observability?.traces?.persist === false, "persistência de traces desativada"],
 	[
 		JSON.stringify(actualSecrets) === JSON.stringify([...expectedSecrets].sort()),
 		"segredos obrigatórios",
@@ -49,5 +52,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-	"Build de staging verificado: Worker, ambiente, rota, previews, secrets e rate limits corretos.",
+	"Build de staging verificado: Worker, ambiente, rota, previews, telemetria, secrets e rate limits corretos.",
 );
