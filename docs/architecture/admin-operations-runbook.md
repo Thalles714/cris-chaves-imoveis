@@ -19,7 +19,7 @@ Este manual descreve o uso previsto da área privada. Ele não autoriza publica�
 
    Enquanto o projeto usa o template hospedado padrão, a rota de convite também aceita a sessão retornada no fragmento, remove os tokens da barra de endereço e os converte imediatamente em cookies SSR `HttpOnly`.
 5. O primeiro usuário é criado pelo responsável operacional e associado uma única vez como `owner` convidado. O bootstrap fica restrito ao ambiente operacional; não se usa chave privilegiada no navegador nem se cria rota pública de bootstrap.
-6. Ao aceitar o convite, a pessoa cria uma senha de pelo menos 9 caracteres, repete exatamente a mesma senha e configura TOTP em um aplicativo autenticador. O painel somente é liberado após AAL2. Uma senha longa e exclusiva continua sendo a recomendação.
+6. Ao aceitar o convite, a pessoa cria uma senha de pelo menos 12 caracteres, repete exatamente a mesma senha e configura TOTP em um aplicativo autenticador. O painel somente é liberado após AAL2. Uma senha longa e exclusiva continua sendo a recomendação.
 
 Referências atuais: [templates de e-mail do Supabase](https://supabase.com/docs/guides/auth/auth-email-templates) e [URLs de redirecionamento](https://supabase.com/docs/guides/auth/redirect-urls).
 
@@ -85,4 +85,4 @@ Referências atuais: [templates de e-mail do Supabase](https://supabase.com/docs
 - [x] Política de reservado/vendido aprovada e aplicada.
 - [x] Exclusão definitiva rejeitada; somente soft delete recuperável.
 - [x] UAT sem assistência concluído e registrado em 7 de setembro de 2026; MFA, cadastro, mídia, revisão, publicação, privacidade, arquivamento e restauração foram aprovados sem dificuldade remanescente.
-- [ ] Backup e restauração testados antes do lançamento, no gate da Etapa 5.
+- [ ] Backup e restauração continuam não operacionais; a ADR-0010 aceita temporariamente o risco de recadastro manual e define os gatilhos de revisão.

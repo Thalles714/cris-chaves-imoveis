@@ -1,6 +1,6 @@
 # ADR-0006 — Backup manual de banco e mídia
 
-- **Status:** aceita com parâmetros operacionais pendentes
+- **Status:** solução futura; bloqueio inicial substituído pela ADR-0010
 - **Data:** 3 de setembro de 2026
 - **Escopo:** continuidade no Supabase Free
 
@@ -27,7 +27,7 @@ Não declarar backup automático no Free. Não guardar a única cópia no mesmo 
 - responsável por executar, verificar, restaurar e apagar;
 - tratamento das credenciais e dados pessoais no backup.
 
-Até esses itens serem aprovados e um restore completo ser medido, o lançamento permanece bloqueado.
+Até esses itens serem aprovados e um restore completo ser medido, esta rotina não pode ser declarada operacional. A ADR-0010 registra a aceitação temporária do risco e substitui somente o bloqueio de lançamento durante a fase inicial de baixo volume.
 
 ## Consequências
 

@@ -72,7 +72,7 @@ export default function AdminPasswordReset({ actionData }: Route.ComponentProps)
 				<p className="admin-auth-card__eyebrow">Recuperação de acesso</p>
 				<h1 id="admin-reset-title">Crie uma nova senha.</h1>
 				<p className="admin-auth-card__intro">
-					Use pelo menos 9 caracteres. Ao concluir, todas as sessões serão encerradas.
+					Use pelo menos 12 caracteres. Ao concluir, todas as sessões serão encerradas.
 				</p>
 				{actionData?.error && (
 					<div className="admin-auth-message" role="alert">
@@ -87,7 +87,7 @@ export default function AdminPasswordReset({ actionData }: Route.ComponentProps)
 							type="password"
 							name="password"
 							autoComplete="new-password"
-							minLength={9}
+							minLength={12}
 							maxLength={128}
 							onInput={validatePasswordConfirmation}
 							required
@@ -100,7 +100,7 @@ export default function AdminPasswordReset({ actionData }: Route.ComponentProps)
 							type="password"
 							name="passwordConfirmation"
 							autoComplete="new-password"
-							minLength={9}
+							minLength={12}
 							maxLength={128}
 							onInput={validatePasswordConfirmation}
 							required

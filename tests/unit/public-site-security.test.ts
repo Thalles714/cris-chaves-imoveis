@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import type { CloudflareContext } from "~/lib/cloudflare-context";
+import { redirectWwwToCanonicalHost } from "~/lib/http/canonical-host.server";
 import {
 	applySecurityHeaders,
 	buildContentSecurityPolicy,
@@ -21,6 +22,33 @@ function cloudflare(bindings: Record<string, unknown>): CloudflareContext {
 }
 
 describe("configuração do site público", () => {
+	it("redireciona somente o host www de produção para a origem canônica", () => {
+		const response = redirectWwwToCanonicalHost(
+			new Request("https://www.crischaves.com.br/imoveis?pagina=2"),
+			{
+				appEnvironment: "production",
+				publicSiteUrl: "https://crischaves.com.br",
+			},
+		);
+		expect(response?.status).toBe(308);
+		expect(response?.headers.get("Location")).toBe(
+			"https://crischaves.com.br/imoveis?pagina=2",
+		);
+
+		expect(
+			redirectWwwToCanonicalHost(new Request("https://crischaves.com.br/"), {
+				appEnvironment: "production",
+				publicSiteUrl: "https://crischaves.com.br",
+			}),
+		).toBeNull();
+		expect(
+			redirectWwwToCanonicalHost(new Request("https://www.crischaves.com.br/"), {
+				appEnvironment: "preview",
+				publicSiteUrl: undefined,
+			}),
+		).toBeNull();
+	});
+
 	it("não publica WhatsApp ou CRECI ausentes", () => {
 		const config = readPublicSiteConfig(
 			new Request("http://localhost:5173/imoveis"),

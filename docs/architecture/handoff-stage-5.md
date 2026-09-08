@@ -8,7 +8,7 @@
 
 O UAT final da Etapa 4 foi aprovado em 7 de setembro de 2026 sem dúvida, erro ou dificuldade remanescente. Na mesma confirmação, o responsável autorizou o encerramento formal da Etapa 4 e o início da Etapa 5.
 
-Essa autorização permite hardening, QA, preparação de infraestrutura e ensaios controlados. Ela não autoriza compra, contratação, alteração de plano gratuito, publicação do domínio, exposição de dados reais ou go-live. O lançamento final continua sujeito a um go/no-go humano explícito.
+Em 8 de setembro de 2026, o responsável confirmou a compra de `crischaves.com.br` e autorizou concluir a preparação e lançar o site assim que os gates técnicos e de segurança forem aprovados. A autorização não inclui contratação de serviço pago nem exposição de dados privados.
 
 ## Baseline recebida da Etapa 4
 
@@ -19,7 +19,7 @@ Essa autorização permite hardening, QA, preparação de infraestrutura e ensai
 - 241 testes unitários/arquiteturais e 32 cenários E2E aprovados;
 - ciclo AAL2 de criação, mídia tratada, publicação, catálogo, página, sitemap, arquivamento e restauração aprovado;
 - marca d'água central `Cris Chaves` e ausência de endereço privado comprovadas;
-- placeholders autorizados apenas para avaliação, com remoção obrigatória antes do go-live.
+- placeholders autorizados apenas para avaliação, com arquivamento obrigatório antes do go-live; o cliente cadastrará os imóveis reais um a um depois do lançamento.
 
 ## Primeiro bloco iniciado
 
@@ -83,9 +83,9 @@ Depois que o usuário habilitou a depuração remota, o `browser-harness` repeti
 1. desdobrar o ASVS 5.0.0 L2 por identificador exato, com aplicabilidade, evidência e justificativa individual para cada `N/A`;
 2. revisar OWASP Top 10:2025 e executar testes negativos HTTP, IDOR/BOLA/BOPLA, CSRF, XSS, upload e ZAP em staging;
 3. concluir a matriz de navegador da CSP obrigatória com nonce e inspecionar violações reais em staging;
-4. isolar staging e produção em Cloudflare/Supabase e validar secrets, redirects, SMTP, logs, cotas, alertas e rollback;
-5. selecionar e configurar domínio, origem canônica, DNS e TLS sem habilitar serviço pago;
-6. aprovar RPO/RTO, retenção, responsável, criptografia e destino off-site; executar backup real de banco e mídia e restore isolado medido;
+4. isolar staging e produção em Cloudflare e validar secrets, redirects, SMTP, logs, cotas, alertas e rollback; o projeto Supabase compartilhado é uma limitação explicitamente registrada até haver orçamento para isolamento;
+5. configurar `crischaves.com.br`, origem canônica, DNS e TLS sem habilitar serviço pago;
+6. manter a rotina futura da ADR-0006 e aplicar a aceitação temporária de risco da ADR-0010 enquanto o volume permitir recadastro manual;
 7. concluir runbooks de incidente, conta, segredo, rollback, restore e indisponibilidade de fornecedor;
 8. fechar inventário LGPD, bases legais, retenções, canal do titular e textos jurídicos com validação humana apropriada;
 9. completar matriz visual, acessibilidade, Lighthouse, SEO e conteúdo final;
@@ -96,15 +96,15 @@ Depois que o usuário habilitou a depuração remota, o `browser-harness` repeti
 
 - titularidade futura caso o repositório seja transferido da conta pessoal `Thalles714` para uma organização do cliente;
 - nome público final ainda não registrado como aprovado no checklist;
-- domínio a comprar, titularidade e origem canônica;
-- RPO, RTO, frequência, retenção, destino cifrado off-site e responsável operacional;
+- titularidade e recuperação das contas operacionais;
+- SMTP próprio ou aceitação documentada da limitação temporária do serviço padrão do Supabase;
 - decisões de leads, analytics/cookies, vídeo externo, retenção de fotos e validação publicitária;
 - conteúdo definitivo, textos legais e remoção dos placeholders;
-- aprovação explícita de go-live.
+- conclusão dos gates técnicos que condicionam a autorização de go-live dada em 8 de setembro de 2026.
 
 ## Regra de saída
 
-A Etapa 5 somente será marcada concluída quando cada controle aplicável tiver evidência reproduzível, o restore real tiver sido aprovado, os ambientes e contas estiverem sob titularidade definida, não houver falha alta/crítica aberta, o conteúdo de produção não contiver placeholder nem dado privado e o responsável registrar um go/no-go explícito.
+A Etapa 5 somente será marcada concluída quando os controles aplicáveis avaliados tiverem evidência reproduzível, as pendências ASVS remanescentes estiverem explicitamente registradas sem alegação indevida de conformidade, os ambientes e contas estiverem sob titularidade definida, não houver falha alta/crítica aberta, o conteúdo público não contiver placeholder ativo nem dado privado e os gates técnicos que condicionam o go-live autorizado estiverem aprovados. A ausência de backup próprio permanece como risco aceito na ADR-0010, não como controle implementado.
 
 ## Continuação em 8 de setembro de 2026
 
