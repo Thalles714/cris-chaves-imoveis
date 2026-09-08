@@ -46,8 +46,10 @@
 	],
 	"env": {
 		"staging": {
-			// Provision secrets before enabling the public workers.dev route.
-			"workers_dev": false,
+			"workers_dev": true,
+			"secrets": {
+				"required": ["SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY", "SUPABASE_SECRET_KEY"],
+			},
 			"vars": {
 				"APP_ENV": "preview",
 				"PUBLIC_WHATSAPP_NUMBER": "5551999996129",
