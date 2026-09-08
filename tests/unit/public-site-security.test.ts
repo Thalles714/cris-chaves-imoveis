@@ -1,3 +1,6 @@
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import type { CloudflareContext } from "~/lib/cloudflare-context";
@@ -71,6 +74,10 @@ describe("cabeçalhos de segurança", () => {
 		expect(policy).not.toContain("script-src 'self' 'unsafe-inline'");
 		expect(secured.headers.has("Content-Security-Policy-Report-Only")).toBe(false);
 		expect(secured.headers.get("X-Content-Type-Options")).toBe("nosniff");
+		expect(secured.headers.get("Cross-Origin-Resource-Policy")).toBe("same-origin");
+		expect(secured.headers.get("Permissions-Policy")).toBe(
+			"camera=(), geolocation=(), microphone=()",
+		);
 		expect(secured.headers.get("Strict-Transport-Security")).toContain(
 			"max-age=31536000",
 		);
@@ -82,6 +89,19 @@ describe("cabeçalhos de segurança", () => {
 			nonce,
 		);
 		expect(local.headers.has("Strict-Transport-Security")).toBe(false);
+	});
+
+	it("aplica headers equivalentes aos assets servidos fora do Worker", async () => {
+		const headers = await readFile(resolve(process.cwd(), "public/_headers"), "utf8");
+		expect(headers).toContain("Cross-Origin-Resource-Policy: same-origin");
+		expect(headers).toContain(
+			"Permissions-Policy: camera=(), geolocation=(), microphone=()",
+		);
+		expect(headers).toContain(
+			"Strict-Transport-Security: max-age=31536000; includeSubDomains",
+		);
+		expect(headers).toContain("X-Content-Type-Options: nosniff");
+		expect(headers).toContain("X-Robots-Tag: noindex, nofollow");
 	});
 
 	it("mantém toda resposta administrativa privada, inclusive erros", () => {
