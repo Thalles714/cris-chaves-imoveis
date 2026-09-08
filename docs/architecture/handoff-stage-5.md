@@ -113,3 +113,12 @@ A Etapa 5 somente será marcada concluída quando cada controle aplicável tiver
 - os 253 requisitos permanecem deliberadamente `pending`; nenhum controle foi declarado atendido somente por existir no inventário;
 - `pnpm check:asvs` valida offline a completude e impede `verified` sem aplicabilidade/evidência ou `not_applicable` sem justificativa individual;
 - a classificação requisito a requisito e o baseline ZAP aprovado continuam necessários antes do gate ASVS.
+
+### Baseline ZAP concluída
+
+- a primeira execução `34181535465` falhou como esperado ao encontrar headers ausentes em Static Assets;
+- o hardening foi integrado pelo PR #10 após aprovação dos gates e publicado no staging como versão `800fcffd-6e32-41ac-bf5d-f510944d6514`;
+- 14 controles HTTP remotos passaram, incluindo três assets servidos fora do Worker;
+- a segunda execução `34182848680` passou em 4m17s;
+- o artifact final contém somente os nove IDs revisados em `.zap/rules.tsv`; HSTS, `nosniff` e Permissions-Policy ausentes deixaram de aparecer;
+- alertas novos ou não classificados continuam bloqueando o workflow.
