@@ -7,6 +7,8 @@
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "cris-chaves-imoveis",
 	"main": "./workers/app.ts",
+	"workers_dev": false,
+	"preview_urls": false,
 	"compatibility_date": "2026-08-31",
 	"compatibility_flags": ["nodejs_compat"],
 	"vars": {
@@ -17,6 +19,15 @@
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 0.1,
+		"redact_query_string": true,
+		"logs": {
+			"invocation_logs": true,
+			"persist": false,
+		},
+		"traces": {
+			"enabled": false,
+			"persist": false,
+		},
 	},
 	"ratelimits": [
 		{
