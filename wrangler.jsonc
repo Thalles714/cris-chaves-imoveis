@@ -14,9 +14,6 @@
 		"PUBLIC_WHATSAPP_NUMBER": "5551999996129",
 		"PUBLIC_CRECI": "CRECI-RS 89448",
 	},
-	"limits": {
-		"cpu_ms": 10,
-	},
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 0.1,
