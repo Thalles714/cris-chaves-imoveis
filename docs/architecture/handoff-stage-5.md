@@ -122,3 +122,10 @@ A Etapa 5 somente será marcada concluída quando cada controle aplicável tiver
 - a segunda execução `34182848680` passou em 4m17s;
 - o artifact final contém somente os nove IDs revisados em `.zap/rules.tsv`; HSTS, `nosniff` e Permissions-Policy ausentes deixaram de aparecer;
 - alertas novos ou não classificados continuam bloqueando o workflow.
+
+### Primeiro fechamento individual ASVS
+
+- `v5.0.0-V3.4.1` foi verificado com HSTS de um ano e `includeSubDomains` em Worker e Static Assets;
+- `v5.0.0-V3.4.4` foi verificado com `X-Content-Type-Options: nosniff` nas mesmas superfícies;
+- cada item aponta para implementação, testes locais, controle HTTP remoto e execução ZAP `34182848680`;
+- estado da matriz: 2 verificados, 0 N/A e 251 pendentes.

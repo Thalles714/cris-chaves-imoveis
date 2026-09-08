@@ -78,3 +78,7 @@ O arquivo [`asvs-5-l2-requirements.json`](asvs-5-l2-requirements.json) contém o
 - `verified` exige aplicabilidade e pelo menos uma evidência reproduzível;
 - `not_applicable` exige justificativa individual;
 - requisitos sem prova permanecem `pending` e continuam bloqueando o fechamento do ASVS.
+
+### Progresso comprovado
+
+Após o hardening e a segunda baseline ZAP do staging, `v5.0.0-V3.4.1` (HSTS) e `v5.0.0-V3.4.4` (`nosniff`) foram marcados `verified`. Ambos têm implementação para Worker e Static Assets, testes locais, controle HTTP remoto e confirmação independente no artifact ZAP. Os outros 251 requisitos permanecem `pending`.
