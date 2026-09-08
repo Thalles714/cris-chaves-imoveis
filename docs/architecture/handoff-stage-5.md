@@ -105,3 +105,11 @@ Depois que o usuário habilitou a depuração remota, o `browser-harness` repeti
 ## Regra de saída
 
 A Etapa 5 somente será marcada concluída quando cada controle aplicável tiver evidência reproduzível, o restore real tiver sido aprovado, os ambientes e contas estiverem sob titularidade definida, não houver falha alta/crítica aberta, o conteúdo de produção não contiver placeholder nem dado privado e o responsável registrar um go/no-go explícito.
+
+## Continuação em 8 de setembro de 2026
+
+- PR #8 integrado após aprovação dos checks obrigatórios e do CodeQL, adicionando o baseline passivo e manual do OWASP ZAP contra o staging, com action fixada por SHA, imagem fixada por digest, permissões mínimas e relatório como artifact;
+- inventário oficial ASVS 5.0.0 L2 gerado a partir da release fixada: 253 IDs únicos, sendo 70 requisitos L1 e 183 L2;
+- os 253 requisitos permanecem deliberadamente `pending`; nenhum controle foi declarado atendido somente por existir no inventário;
+- `pnpm check:asvs` valida offline a completude e impede `verified` sem aplicabilidade/evidência ou `not_applicable` sem justificativa individual;
+- a classificação requisito a requisito e o baseline ZAP aprovado continuam necessários antes do gate ASVS.

@@ -67,3 +67,10 @@ Em conflito visual, `design_system.html` prevalece sobre o Resider. Em conflito 
 - [OWASP ASVS 5.0.0](https://github.com/OWASP/ASVS/releases/tag/v5.0.0_release)
 
 Limites e planos são temporais. Revalidá-los nas fontes oficiais antes de cada provisionamento, mudança de bindings ou lançamento.
+
+## Baseline ASVS executável
+
+- [Escopo inicial e regras de classificação ASVS 5.0.0 L2](asvs-5-l2-initial-matrix.md)
+- [Inventário completo dos 253 requisitos ASVS L2](asvs-5-l2-requirements.json)
+- validação offline: `pnpm check:asvs`
+- sincronização manual com a release oficial fixada: `pnpm sync:asvs`

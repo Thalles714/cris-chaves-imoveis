@@ -86,6 +86,9 @@ jobs:
       - name: Check the Stage 2 security contract
         run: node scripts/check-stage2-security.mjs
 
+      - name: Validate the complete ASVS L2 matrix
+        run: node scripts/check-asvs-l2-matrix.mjs
+
       - name: Check the source client/server boundary
         run: node scripts/check-client-boundaries.mjs
 
