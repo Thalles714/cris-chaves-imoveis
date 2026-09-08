@@ -45,7 +45,7 @@ Dependabot security updates, secret scanning, push protection e relato privado d
 
 As configurações permanecem no Workers Free, com o limite de 10 ms de CPU imposto pela plataforma, observabilidade habilitada, amostragem de 10%, três rate limiters e source maps enviados para diagnóstico da plataforma. A documentação oficial foi revalidada no início desta etapa: 100.000 requests/dia, 10 ms de CPU por request, 128 MB de memória, 50 subrequests e 20.000 static assets no Free. O limite atual é 64 MiB por Worker. O primeiro deploy fechado confirmou que `limits.cpu_ms` é uma opção exclusiva para aumentar o limite no plano Paid; a opção foi removida, sem aceitar upgrade ou cobrança.
 
-Não houve deploy nesta abertura. Staging, produção, domínio, TLS, fail mode, alertas e verificação real de logs continuam pendentes.
+O staging gratuito foi publicado no Worker `cris-chaves-imoveis-staging`, com rota `workers.dev`, variáveis em modo `preview`, três namespaces de rate limit próprios e os três segredos obrigatórios (`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e `SUPABASE_SECRET_KEY`) armazenados como `secret_text`. O primeiro deploy público usou a versão `4fd17cd1-fe0c-4f17-8ca6-745847c48578`, iniciou em 4 ms e enviou 430,85 KiB compactados e 85 assets estáticos. As URLs de preview por versão foram explicitamente desativadas para manter apenas o endpoint de staging necessário. Produção, domínio, fail mode, alertas e verificação real de logs continuam pendentes.
 
 ### CSP e headers
 
@@ -66,6 +66,9 @@ O inventário encontrou scripts inline legítimos do React Router, boot de apar�
 - a execução `34173608793` do quality gate foi aprovada integralmente: reconstrução das 15 migrations, lint SQL, 52 testes pgTAP, contrato de publicação, auditoria de dependências, formatação, lint, tipos, 242 testes unitários/arquiteturais, build, fronteira do bundle e 38 testes E2E;
 - a execução `34173608800` do CodeQL foi aprovada para JavaScript/TypeScript;
 - finais de linha passaram a ser normalizados por `.gitattributes`, eliminando diferenças de checkout entre Windows e Linux.
+- o staging respondeu `200` na home, `302` de `/admin` para `/admin/entrar` e `200` em `robots.txt` e `sitemap.xml`; as quatro respostas apresentaram HSTS, CSP obrigatória com nonce e `X-Robots-Tag: noindex, nofollow`, enquanto as respostas HTML e administrativas permaneceram `private, no-store`;
+- a inspeção real no Chrome confirmou hidratação completa, catálogo com seis placeholders, preservação das características nos anúncios `Sob consulta`, página detalhada, quatro mídias públicas válidas em 1672 × 941 px, marca-d'água central `Cris Chaves` e exposição limitada a bairro/cidade, sem endereço exato;
+- as gravações reproduzíveis dessa validação foram salvas em `stage5-staging-smoke` e `stage5-staging-property` no workspace do `browser-harness`.
 
 Depois que o usuário habilitou a depuração remota, o `browser-harness` repetiu a inspeção assistida e registrou seis quadros em `stage5-csp-final`. A home chegou ao estado `complete`, com título e H1 corretos, React Router hidratado, JSON-LD presente, sete scripts com nonce e nenhuma violação de CSP ou erro de runtime. O seletor de aparência respondeu após a hidratação e aplicou o Black com persistência, classe própria e fundo `#050607`.
 
