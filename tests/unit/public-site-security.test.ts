@@ -94,6 +94,16 @@ describe("cabeçalhos de segurança", () => {
 		expect(secured.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
 	});
 
+	it("impede indexação de toda rota no ambiente de preview", () => {
+		const secured = applySecurityHeaders(
+			new Request("https://staging.example.com/imoveis/demo"),
+			new Response("ok"),
+			nonce,
+			"preview",
+		);
+		expect(secured.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
+	});
+
 	it("gera nonce imprevisível no formato aceito e rejeita valor inseguro", () => {
 		const first = createCspNonce();
 		const second = createCspNonce();

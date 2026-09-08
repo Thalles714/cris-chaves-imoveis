@@ -1,3 +1,5 @@
+import type { AppEnvironment } from "~/lib/env/server-env.server";
+
 function assertValidNonce(nonce: string) {
 	if (!/^[A-Za-z0-9_-]{22}$/u.test(nonce)) {
 		throw new Error("Nonce CSP inválido.");
@@ -36,12 +38,17 @@ export function applySecurityHeaders(
 	request: Request,
 	response: Response,
 	cspNonce: string,
+	appEnvironment: AppEnvironment = "production",
 ) {
 	const secured = new Response(response.body, response);
 	const pathname = new URL(request.url).pathname;
-	if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-		secured.headers.set("Cache-Control", "private, no-store");
+	const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+	const isPreview = appEnvironment === "preview";
+	if (isAdmin || isPreview) {
 		secured.headers.set("X-Robots-Tag", "noindex, nofollow");
+	}
+	if (isAdmin) {
+		secured.headers.set("Cache-Control", "private, no-store");
 	}
 	secured.headers.set("Content-Security-Policy", buildContentSecurityPolicy(cspNonce));
 	secured.headers.set("Cross-Origin-Opener-Policy", "same-origin");
