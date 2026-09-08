@@ -1,0 +1,2 @@
+-- Intentionally empty. Development starts with a real empty catalog.
+-- Database tests create transaction-scoped synthetic rows and roll them back.

@@ -1,0 +1,106 @@
+// @vitest-environment node
+
+import { describe, expect, it, vi } from "vitest";
+
+import {
+	adminMemberDisableInputSchema,
+	adminMemberInviteInputSchema,
+	AdminMemberOperationError,
+	AdminMemberService,
+	type AdminAuthDirectory,
+	type AdminMemberRepository,
+} from "~/modules/members/index.server";
+
+const ownerId = "10000000-0000-4000-8000-000000000001";
+const editorId = "20000000-0000-4000-8000-000000000002";
+const syntheticEmail = ["person", "example.invalid"].join("@");
+
+function repository(): AdminMemberRepository {
+	return {
+		list: vi.fn(async () => []),
+		create: vi.fn(async () => undefined),
+		changeRole: vi.fn(async () => undefined),
+		disable: vi.fn(async () => undefined),
+	};
+}
+
+function directory(): AdminAuthDirectory {
+	return {
+		invite: vi.fn(async () => ({ userId: editorId })),
+		findEmails: vi.fn(async () => new Map()),
+		deleteInvitedUser: vi.fn(async () => undefined),
+	};
+}
+
+describe("admin member management", () => {
+	it("normalizes invite email and accepts only explicit roles", () => {
+		expect(
+			adminMemberInviteInputSchema.parse({
+				email: ` ${syntheticEmail.toUpperCase()} `,
+				role: "editor",
+			}),
+		).toEqual({ email: syntheticEmail, role: "editor" });
+		expect(
+			adminMemberInviteInputSchema.safeParse({
+				email: syntheticEmail,
+				role: "administrator",
+			}).success,
+		).toBe(false);
+	});
+
+	it("requires an explicit confirmation for disabling a member", () => {
+		expect(
+			adminMemberDisableInputSchema.safeParse({
+				userId: editorId,
+				expectedVersion: 2,
+			}).success,
+		).toBe(false);
+	});
+
+	it("creates membership only after the directory invite succeeds", async () => {
+		const members = repository();
+		const authDirectory = directory();
+		const service = new AdminMemberService(members, authDirectory);
+
+		await service.invite({ email: syntheticEmail, role: "editor" });
+
+		expect(authDirectory.invite).toHaveBeenCalledWith(syntheticEmail);
+		expect(members.create).toHaveBeenCalledWith(editorId, "editor");
+	});
+
+	it("compensates an orphaned auth invite when membership creation fails", async () => {
+		const members = repository();
+		members.create = vi.fn(async () => {
+			throw new Error("database unavailable");
+		});
+		const authDirectory = directory();
+		const service = new AdminMemberService(members, authDirectory);
+
+		await expect(
+			service.invite({ email: syntheticEmail, role: "editor" }),
+		).rejects.toMatchObject({ code: "MEMBERSHIP_UNAVAILABLE" });
+		expect(authDirectory.deleteInvitedUser).toHaveBeenCalledWith(editorId);
+	});
+
+	it("blocks ordinary self role changes and self-disable before repository access", async () => {
+		const members = repository();
+		const service = new AdminMemberService(members, directory());
+
+		await expect(
+			service.changeRole(ownerId, {
+				userId: ownerId,
+				role: "editor",
+				expectedVersion: 1,
+			}),
+		).rejects.toEqual(new AdminMemberOperationError("SELF_CHANGE_FORBIDDEN"));
+		await expect(
+			service.disable(ownerId, {
+				userId: ownerId,
+				expectedVersion: 1,
+				confirmation: "confirmed",
+			}),
+		).rejects.toMatchObject({ code: "SELF_CHANGE_FORBIDDEN" });
+		expect(members.changeRole).not.toHaveBeenCalled();
+		expect(members.disable).not.toHaveBeenCalled();
+	});
+});

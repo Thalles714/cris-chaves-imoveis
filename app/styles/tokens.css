@@ -1,0 +1,241 @@
+/* Cris Chaves Design System — canonical mirror v1.1.0 */
+:root {
+	color-scheme: light;
+	--cc-ds-version: "1.1.0";
+	--cc-font-sans: "Geist", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	--cc-font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+
+	--cc-brand-blue: #1778a8;
+	--cc-brand-blue-strong: #105b82;
+	--cc-brand-blue-soft: #a8d5e8;
+	--cc-brand-orange: #c7643f;
+	--cc-brand-orange-strong: #a94a2d;
+
+	--cc-accent: #c7643f;
+	--cc-accent-strong: #a94a2d;
+	--cc-accent-action: var(--cc-accent-strong);
+	--cc-accent-readable: var(--cc-accent-strong);
+	--cc-accent-rgb: 199 100 63;
+	--cc-secondary: #1778a8;
+	--cc-secondary-strong: #105b82;
+	--cc-secondary-rgb: 23 120 168;
+	--cc-ink: #183c49;
+
+	--cc-bg: #f1f3f4;
+	--cc-bg-raised: #ffffff;
+	--cc-bg-muted: #e8edef;
+	--cc-bg-subtle: #f5f7f7;
+	--cc-text: #14343f;
+	--cc-text-muted: #536a72;
+	--cc-text-faint: #65787e;
+	--cc-border: #dce5e7;
+	--cc-border-strong: #c6d2d5;
+	--cc-glass: rgb(241 243 244 / 84%);
+	--cc-scrim: rgb(8 24 30 / 54%);
+
+	--cc-success: #27825a;
+	--cc-success-strong: #35a56f;
+	--cc-warning: #a66818;
+	--cc-warning-strong: #d79032;
+	--cc-error: #b93838;
+	--cc-error-strong: #c84b4b;
+
+	--cc-space-0: 0;
+	--cc-space-1: 0.25rem;
+	--cc-space-2: 0.5rem;
+	--cc-space-3: 0.75rem;
+	--cc-space-4: 1rem;
+	--cc-space-6: 1.5rem;
+	--cc-space-8: 2rem;
+	--cc-space-12: 3rem;
+	--cc-space-16: 4rem;
+
+	--cc-radius-xs: 0.125rem;
+	--cc-radius-sm: 0.25rem;
+	--cc-radius-md: 0.5rem;
+	--cc-radius-lg: 0.875rem;
+	--cc-radius-xl: 1.25rem;
+	--cc-radius-full: 999px;
+
+	--cc-shadow-xs: 0 1px 2px rgb(9 35 45 / 6%);
+	--cc-shadow-sm: 0 8px 28px rgb(12 44 55 / 8%);
+	--cc-shadow-md: 0 20px 58px rgb(8 31 40 / 13%);
+	--cc-focus-ring: 0 0 0 3px rgb(var(--cc-secondary-rgb) / 22%);
+	--cc-focus-outline: 2px solid var(--cc-secondary);
+
+	--cc-grid-columns: 12;
+	--cc-container: 80rem;
+	--cc-gutter: clamp(0.875rem, 3vw, 2.5rem);
+	--cc-header-height: 4.5rem;
+	--cc-touch-target: 2.75rem;
+
+	--cc-duration-instant: 120ms;
+	--cc-duration-fast: 150ms;
+	--cc-duration-base: 220ms;
+	--cc-duration-slow: 320ms;
+	--cc-duration-emphasis: 360ms;
+	--cc-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+	--cc-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	--cc-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+	--cc-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+:root[data-theme="atlantico"] {
+	--cc-accent: #1689b5;
+	--cc-accent-strong: #0e668c;
+	--cc-accent-rgb: 22 137 181;
+	--cc-secondary: #46bdd0;
+	--cc-secondary-strong: #18879b;
+	--cc-secondary-rgb: 70 189 208;
+	--cc-ink: #103b50;
+}
+
+:root[data-theme="araucaria"] {
+	--cc-accent: #2f8a6b;
+	--cc-accent-strong: #21684f;
+	--cc-accent-rgb: 47 138 107;
+	--cc-secondary: #8ca55a;
+	--cc-secondary-strong: #61793b;
+	--cc-secondary-rgb: 140 165 90;
+	--cc-ink: #1d4238;
+}
+
+:root[data-theme="dunas"] {
+	--cc-accent: #b7783d;
+	--cc-accent-strong: #8d5728;
+	--cc-accent-rgb: 183 120 61;
+	--cc-secondary: #73929a;
+	--cc-secondary-strong: #506f77;
+	--cc-secondary-rgb: 115 146 154;
+	--cc-ink: #473a2c;
+}
+
+:root[data-theme="entardecer"] {
+	--cc-accent: #cf5f46;
+	--cc-accent-strong: #a54331;
+	--cc-accent-rgb: 207 95 70;
+	--cc-secondary: #8275ad;
+	--cc-secondary-strong: #5f548c;
+	--cc-secondary-rgb: 130 117 173;
+	--cc-ink: #45323c;
+}
+
+:root[data-theme="grafite"] {
+	--cc-accent: #576c78;
+	--cc-accent-strong: #354a55;
+	--cc-accent-rgb: 87 108 120;
+	--cc-secondary: #9c6c52;
+	--cc-secondary-strong: #744a35;
+	--cc-secondary-rgb: 156 108 82;
+	--cc-ink: #263941;
+}
+
+:root.dark {
+	color-scheme: dark;
+	--cc-bg: #0e171b;
+	--cc-bg-raised: #162328;
+	--cc-bg-muted: #111e23;
+	--cc-bg-subtle: #101a1e;
+	--cc-text: #edf4f4;
+	--cc-text-muted: #a4b3b7;
+	--cc-text-faint: #71858b;
+	--cc-border: #2a3b41;
+	--cc-border-strong: #40545b;
+	--cc-glass: rgb(15 27 32 / 78%);
+	--cc-scrim: rgb(2 8 10 / 72%);
+	--cc-shadow-xs: 0 1px 2px rgb(0 0 0 / 22%);
+	--cc-shadow-sm: 0 12px 36px rgb(0 0 0 / 25%);
+	--cc-shadow-md: 0 24px 72px rgb(0 0 0 / 40%);
+	--cc-accent-readable: color-mix(in srgb, var(--cc-accent) 76%, white);
+}
+
+:root.black {
+	color-scheme: dark;
+	--cc-bg: #050607;
+	--cc-bg-raised: #0b0d10;
+	--cc-bg-muted: #111317;
+	--cc-bg-subtle: #08090b;
+	--cc-text: #f7f9fb;
+	--cc-text-muted: #b5bbc3;
+	--cc-text-faint: #858b94;
+	--cc-border: #252932;
+	--cc-border-strong: #3c424d;
+	--cc-glass: rgb(5 6 7 / 86%);
+	--cc-scrim: rgb(0 0 0 / 78%);
+	--cc-shadow-xs: 0 1px 2px rgb(0 0 0 / 22%);
+	--cc-shadow-sm: 0 12px 36px rgb(0 0 0 / 25%);
+	--cc-shadow-md: 0 24px 72px rgb(0 0 0 / 40%);
+	--cc-accent: #1689ff;
+	--cc-accent-strong: #0b6fe8;
+	--cc-accent-action: #1689ff;
+	--cc-accent-readable: #69b6ff;
+	--cc-accent-rgb: 22 137 255;
+	--cc-secondary: #f7f9fb;
+	--cc-secondary-strong: #dce2e8;
+	--cc-secondary-rgb: 247 249 251;
+	--cc-ink: #050607;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root[data-color-scheme="system"] {
+		color-scheme: dark;
+		--cc-bg: #0e171b;
+		--cc-bg-raised: #162328;
+		--cc-bg-muted: #111e23;
+		--cc-bg-subtle: #101a1e;
+		--cc-text: #edf4f4;
+		--cc-text-muted: #a4b3b7;
+		--cc-text-faint: #71858b;
+		--cc-border: #2a3b41;
+		--cc-border-strong: #40545b;
+		--cc-glass: rgb(15 27 32 / 78%);
+		--cc-scrim: rgb(2 8 10 / 72%);
+		--cc-shadow-xs: 0 1px 2px rgb(0 0 0 / 22%);
+		--cc-shadow-sm: 0 12px 36px rgb(0 0 0 / 25%);
+		--cc-shadow-md: 0 24px 72px rgb(0 0 0 / 40%);
+		--cc-accent-readable: color-mix(in srgb, var(--cc-accent) 76%, white);
+	}
+}
+
+.cc-container {
+	width: min(calc(100% - (var(--cc-gutter) * 2)), var(--cc-container));
+	margin-inline: auto;
+}
+
+.cc-grid {
+	display: grid;
+	grid-template-columns: repeat(var(--cc-grid-columns), minmax(0, 1fr));
+	gap: var(--cc-space-4);
+}
+
+.cc-mono {
+	font-family: var(--cc-font-mono);
+}
+
+:where([class^="cc-"], [class*=" cc-"]) {
+	box-sizing: border-box;
+	font-family: var(--cc-font-sans);
+}
+
+:where([class^="cc-"], [class*=" cc-"]):focus-visible,
+:where([class^="cc-"], [class*=" cc-"]) :focus-visible {
+	outline: var(--cc-focus-outline);
+	outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto !important;
+	}
+
+	.cc-skeleton::after {
+		animation: none;
+	}
+}
+
+@media (prefers-contrast: more) {
+	:root {
+		--cc-border: #809299;
+		--cc-border-strong: #50656d;
+	}
+}

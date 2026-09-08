@@ -1,0 +1,86 @@
+/**
+ * Cloudflare Workers configuration for the project foundation.
+ * Secrets must be created with `wrangler secret put` and never committed.
+ * Free-plan limits: https://developers.cloudflare.com/workers/platform/limits/
+ */
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "cris-chaves-imoveis",
+	"main": "./workers/app.ts",
+	"compatibility_date": "2026-08-31",
+	"compatibility_flags": ["nodejs_compat"],
+	"vars": {
+		"APP_ENV": "production",
+		"PUBLIC_WHATSAPP_NUMBER": "5551999996129",
+		"PUBLIC_CRECI": "CRECI-RS 89448",
+	},
+	"limits": {
+		"cpu_ms": 10,
+	},
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 0.1,
+	},
+	"ratelimits": [
+		{
+			"name": "CONTACT_RATE_LIMITER",
+			"namespace_id": "2468031",
+			"simple": {
+				"limit": 5,
+				"period": 60,
+			},
+		},
+		{
+			"name": "ADMIN_AUTH_RATE_LIMITER",
+			"namespace_id": "2468033",
+			"simple": {
+				"limit": 8,
+				"period": 60,
+			},
+		},
+		{
+			"name": "ADMIN_MUTATION_RATE_LIMITER",
+			"namespace_id": "2468034",
+			"simple": {
+				"limit": 30,
+				"period": 60,
+			},
+		},
+	],
+	"env": {
+		"test": {
+			"vars": {
+				"APP_ENV": "test",
+				"PUBLIC_WHATSAPP_NUMBER": "5551999996129",
+				"PUBLIC_CRECI": "CRECI-RS 89448",
+			},
+			"ratelimits": [
+				{
+					"name": "CONTACT_RATE_LIMITER",
+					"namespace_id": "2468032",
+					"simple": {
+						"limit": 5,
+						"period": 60,
+					},
+				},
+				{
+					"name": "ADMIN_AUTH_RATE_LIMITER",
+					"namespace_id": "2468035",
+					"simple": {
+						"limit": 1000,
+						"period": 60,
+					},
+				},
+				{
+					"name": "ADMIN_MUTATION_RATE_LIMITER",
+					"namespace_id": "2468036",
+					"simple": {
+						"limit": 1000,
+						"period": 60,
+					},
+				},
+			],
+		},
+	},
+	"upload_source_maps": true,
+}

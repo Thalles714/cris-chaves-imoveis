@@ -1,0 +1,5 @@
+# Intentionally contains no Supabase credentials.
+# The test environment must prove that protected routes fail closed without secrets.
+APP_ENV=test
+PUBLIC_WHATSAPP_NUMBER=5551999996129
+PUBLIC_CRECI=CRECI-RS 89448

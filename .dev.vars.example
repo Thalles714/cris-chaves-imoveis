@@ -1,0 +1,18 @@
+# Local Worker bindings. Copy to .dev.vars and keep real values out of Git.
+APP_ENV=development
+
+# Low-privilege project settings. The publishable key is intentionally used
+# even on the server so database and Storage access remain behind GRANT + RLS.
+SUPABASE_URL=https://project-ref.supabase.co
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_replace_me
+# Configure SUPABASE_SECRET_KEY somente via secret local/Cloudflare; nunca no navegador.
+
+# Dados públicos confirmados pelo cliente em 3 de setembro de 2026.
+PUBLIC_SITE_URL=http://localhost:5173
+PUBLIC_WHATSAPP_NUMBER=5551999996129
+PUBLIC_CRECI=CRECI-RS 89448
+
+# O formulário permanece indisponível até existir um destino de entrega aprovado.
+# TURNSTILE_SITE_KEY=replace_me
+# TURNSTILE_SECRET_KEY=replace_me
+# RATE_LIMIT_SALT=replace_with_a_long_random_secret

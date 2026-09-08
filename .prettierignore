@@ -1,0 +1,31 @@
+# Dependencies and generated output
+node_modules/
+build/
+dist/
+.react-router/
+coverage/
+playwright-report/
+test-results/
+worker-configuration.d.ts
+.codex-docx-review/
+.vscode/
+
+# Client source material is preserved verbatim
+assets/
+briefing_export/
+docs/
+app-scaffold*/
+foundation-scaffold/
+react-router-foundation/
+design_system.html
+AGENTS.md
+README.md
+*.docx
+*.jpeg
+*.jpg
+*.png
+*.svg
+*.woff2
+
+# Package-manager metadata
+pnpm-lock.yaml
