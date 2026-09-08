@@ -47,6 +47,7 @@
 	"env": {
 		"staging": {
 			"workers_dev": true,
+			"preview_urls": false,
 			"secrets": {
 				"required": ["SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY", "SUPABASE_SECRET_KEY"],
 			},
