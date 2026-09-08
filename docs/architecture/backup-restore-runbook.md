@@ -1,10 +1,10 @@
 # Runbook manual de backup e restauração
 
 **Estado:** rotina definida; reconstrução local validada, dump criptografado/off-site ainda não executado  
-**Plano:** Supabase Free; não há alegação de backup automático  
+**Plano:** Supabase Free; rotina futura, atualmente adiada pela ADR-0010
 **Escopo:** banco e mídia em conjuntos separados
 
-Este runbook operacionaliza o [ADR-0006](adr/0006-manual-database-and-media-backup.md). O Supabase recomenda `supabase db dump` e cópia off-site para projetos Free; dump do banco não substitui cópia dos objetos do Storage.
+Este runbook descreve a implementação futura da [ADR-0006](adr/0006-manual-database-and-media-backup.md). A [ADR-0010](adr/0010-deferred-operational-backup.md) registra que a rotina não será operada no lançamento inicial e aceita temporariamente o risco de recadastro manual. O documento não é evidência de que exista backup da aplicação.
 
 ## Parâmetros bloqueantes
 
@@ -165,7 +165,7 @@ Em 3 de setembro de 2026, o schema foi reconstruído duas vezes a partir das tr�
 | RPO/RTO observado | NÃO MEDIDO |
 | banco/mídia | SEM EVIDÊNCIA |
 | RLS/Auth/MFA | RLS local validada; restore de Auth/MFA ainda sem evidência |
-| go/no-go | NO-GO até execução e aprovação |
+| go/no-go da rotina de backup | NÃO OPERACIONAL; risco temporário aceito na ADR-0010 |
 
 ## Referências atuais
 

@@ -13,8 +13,12 @@
 	"compatibility_flags": ["nodejs_compat"],
 	"vars": {
 		"APP_ENV": "production",
+		"PUBLIC_SITE_URL": "https://crischaves.com.br",
 		"PUBLIC_WHATSAPP_NUMBER": "5551999996129",
 		"PUBLIC_CRECI": "CRECI-RS 89448",
+	},
+	"secrets": {
+		"required": ["SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY", "SUPABASE_SECRET_KEY"],
 	},
 	"observability": {
 		"enabled": true,

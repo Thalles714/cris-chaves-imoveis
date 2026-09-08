@@ -30,8 +30,8 @@ const recoverySchema = z
 
 const passwordResetSchema = z
 	.object({
-		password: z.string().min(9).max(128),
-		passwordConfirmation: z.string().min(9).max(128),
+		password: z.string().min(12).max(128),
+		passwordConfirmation: z.string().min(12).max(128),
 	})
 	.strict()
 	.refine(({ password, passwordConfirmation }) => password === passwordConfirmation, {

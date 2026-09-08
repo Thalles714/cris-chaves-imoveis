@@ -203,18 +203,18 @@ describe("administrative authentication flow", () => {
 		).rejects.toMatchObject({ code: "RECOVERY_SESSION_REQUIRED" });
 	});
 
-	it("requires at least nine matching password characters", async () => {
+	it("requires at least twelve matching password characters", async () => {
 		const valid = createFlow();
 		await expect(
 			valid.flow.updatePassword({
-				password: "A1!bcDef9",
-				passwordConfirmation: "A1!bcDef9",
+				password: "A1!bcDef9$xy",
+				passwordConfirmation: "A1!bcDef9$xy",
 			}),
 		).resolves.toBeUndefined();
 
 		for (const input of [
-			{ password: "A1!bcDe8", passwordConfirmation: "A1!bcDe8" },
-			{ password: "A1!bcDef9", passwordConfirmation: "A1!bcDef0" },
+			{ password: "A1!bcDef9$x", passwordConfirmation: "A1!bcDef9$x" },
+			{ password: "A1!bcDef9$xy", passwordConfirmation: "A1!bcDef0$xy" },
 		]) {
 			const invalid = createFlow();
 			await expect(invalid.flow.updatePassword(input)).rejects.toMatchObject({

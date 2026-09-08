@@ -19,27 +19,27 @@ function renderPasswordReset() {
 }
 
 describe("administrative password reset form", () => {
-	it("requires two matching passwords with at least nine characters", () => {
+	it("requires two matching passwords with at least twelve characters", () => {
 		renderPasswordReset();
 		const password = screen.getByLabelText("Nova senha");
 		const confirmation = screen.getByLabelText("Confirmar nova senha");
 
-		expect(password).toHaveAttribute("minlength", "9");
-		expect(confirmation).toHaveAttribute("minlength", "9");
+		expect(password).toHaveAttribute("minlength", "12");
+		expect(confirmation).toHaveAttribute("minlength", "12");
 		expect(password).toHaveAttribute("maxlength", "128");
 		expect(confirmation).toHaveAttribute("maxlength", "128");
 		expect(password).toHaveAttribute("autocomplete", "new-password");
 		expect(confirmation).toHaveAttribute("autocomplete", "new-password");
 
-		fireEvent.input(password, { target: { value: "A1!bcDef9" } });
-		fireEvent.input(confirmation, { target: { value: "A1!bcDef0" } });
+		fireEvent.input(password, { target: { value: "A1!bcDef9$xy" } });
+		fireEvent.input(confirmation, { target: { value: "A1!bcDef0$xy" } });
 		expect(confirmation).toBeInvalid();
 		expect(confirmation).toHaveProperty(
 			"validationMessage",
 			"As senhas precisam ser exatamente iguais.",
 		);
 
-		fireEvent.input(confirmation, { target: { value: "A1!bcDef9" } });
+		fireEvent.input(confirmation, { target: { value: "A1!bcDef9$xy" } });
 		expect(confirmation).toBeValid();
 	});
 });
