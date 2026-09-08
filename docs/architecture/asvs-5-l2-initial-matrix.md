@@ -68,3 +68,13 @@ Estes IDs oficiais são especialmente ligados às fronteiras já decididas; a li
 3. Falha alta/crítica ou controle L2 essencial sem evidência bloqueia lançamento.
 4. Automação não é apresentada como pentest profissional.
 5. A matriz final deve cobrir o arquivo oficial completo da versão 5.0.0, preservando IDs versionados.
+
+## Inventário completo e reproduzível
+
+O arquivo [`asvs-5-l2-requirements.json`](asvs-5-l2-requirements.json) contém os 253 requisitos oficiais dos níveis 1 e 2, identificados pela versão. O estado inicial de todos é `pending`; o inventário não equivale a aprovação.
+
+- `pnpm sync:asvs` baixa novamente a release oficial fixada e preserva classificações já registradas;
+- `pnpm check:asvs` valida o artefato local sem rede e sem alterá-lo;
+- `verified` exige aplicabilidade e pelo menos uma evidência reproduzível;
+- `not_applicable` exige justificativa individual;
+- requisitos sem prova permanecem `pending` e continuam bloqueando o fechamento do ASVS.
