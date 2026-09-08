@@ -53,6 +53,7 @@ O inventário encontrou scripts inline legítimos do React Router, boot de apar�
 - dry-run do Wrangler aprovado: 430,86 KiB compactados, 85 static assets e somente os bindings gratuitos previstos;
 - 16 cenários públicos da CSP atualizados e aprovados em desktop e mobile, sem evento `securitypolicyviolation`;
 - inspeção HTTP independente da home: `200`, CSP obrigatória, Report-Only ausente, `base-uri 'none'`, `unsafe-inline` ausente de `script-src`, sete scripts com nonce idêntico ao header e nonce diferente entre respostas.
+- o primeiro runner limpo do GitHub revelou que o lint dependia dos tipos do React Router já presentes no workspace local; o comando foi corrigido para executar `typegen` antes do ESLint, eliminando a dependência implícita de estado local.
 
 Depois que o usuário habilitou a depuração remota, o `browser-harness` repetiu a inspeção assistida e registrou seis quadros em `stage5-csp-final`. A home chegou ao estado `complete`, com título e H1 corretos, React Router hidratado, JSON-LD presente, sete scripts com nonce e nenhuma violação de CSP ou erro de runtime. O seletor de aparência respondeu após a hidratação e aplicou o Black com persistência, classe própria e fundo `#050607`.
 
