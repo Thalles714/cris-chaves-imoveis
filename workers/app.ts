@@ -1,3 +1,6 @@
+// Wrangler's generated GlobalProps imports this module before the framework
+// declaration is visible to project-reference builds.
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="../.react-router/types/+server-build.d.ts" />
 
 import { createRequestHandler, RouterContextProvider } from "react-router";
