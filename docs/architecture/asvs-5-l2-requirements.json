@@ -493,9 +493,15 @@
       "section": "Browser Security Mechanism Headers",
       "level": 1,
       "description": "Verify that a Strict-Transport-Security header field is included on all responses to enforce an HTTP Strict Transport Security (HSTS) policy. A maximum age of at least 1 year must be defined, and for L2 and up, the policy must apply to all subdomains as well.",
-      "status": "pending",
-      "applicability": "",
-      "evidence": [],
+      "status": "verified",
+      "applicability": "Todas as respostas HTTPS do Worker e dos Static Assets, incluindo documentos, redirects, erros, scripts, manifest e ícones.",
+      "evidence": [
+        "app/lib/http/security-headers.server.ts — HSTS max-age=31536000 com includeSubDomains em respostas HTTPS do Worker",
+        "public/_headers — mesma política HSTS nos Static Assets servidos fora do Worker",
+        "tests/unit/public-site-security.test.ts — contratos automatizados para respostas dinâmicas e arquivo de headers estáticos",
+        "scripts/check-staging-http-security.mjs — verificação remota de respostas dinâmicas, favicon, manifest e JavaScript versionado",
+        "docs/architecture/zap-staging-evidence.md — execução 34182848680 sem o alerta ZAP 10035 após remediação"
+      ],
       "justification": ""
     },
     "v5.0.0-V3.4.2": {
@@ -526,9 +532,15 @@
       "section": "Browser Security Mechanism Headers",
       "level": 2,
       "description": "Verify that all HTTP responses contain an 'X-Content-Type-Options: nosniff' header field. This instructs browsers not to use content sniffing and MIME type guessing for the given response, and to require the response's Content-Type header field value to match the destination resource. For example, the response to a request for a style is only accepted if the response's Content-Type is 'text/css'. This also enables the use of the Cross-Origin Read Blocking (CORB) functionality by the browser.",
-      "status": "pending",
-      "applicability": "",
-      "evidence": [],
+      "status": "verified",
+      "applicability": "Todas as respostas HTTP do Worker e dos Static Assets rastreadas pelo catálogo, administração, mídia e arquivos públicos.",
+      "evidence": [
+        "app/lib/http/security-headers.server.ts — X-Content-Type-Options nosniff aplicado às respostas do Worker",
+        "public/_headers — nosniff aplicado aos Static Assets servidos diretamente pela Cloudflare",
+        "tests/unit/public-site-security.test.ts — contratos automatizados para respostas dinâmicas e headers estáticos",
+        "scripts/check-staging-http-security.mjs — verificação remota de respostas dinâmicas, favicon, manifest e JavaScript versionado",
+        "docs/architecture/zap-staging-evidence.md — execução 34182848680 sem o alerta ZAP 10021 após remediação"
+      ],
       "justification": ""
     },
     "v5.0.0-V3.4.5": {
