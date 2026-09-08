@@ -34,6 +34,16 @@ COEP `require-corp` não foi habilitado porque o produto usa frames cross-origin
 
 ## Estado
 
-Remediação implementada e validada localmente. O aceite depende de deploy controlado no staging, repetição do teste HTTP e uma segunda execução ZAP sem alertas não classificados.
+Remediação publicada no staging como versão `800fcffd-6e32-41ac-bf5d-f510944d6514`. O comando `pnpm check:staging-security` aprovou 14 controles sem credenciais ou mutação, incluindo favicon, manifest e JavaScript versionado com os headers completos.
+
+A segunda execução ZAP, `34182848680`, foi aprovada em 8 de setembro de 2026 após 4 minutos e 17 segundos. A inspeção do artifact confirmou 15 grupos de alerta pertencentes exatamente aos nove IDs justificados em `.zap/rules.tsv`. Não houve ID novo ou alerta não classificado.
+
+Os achados corrigidos desapareceram do relatório:
+
+- `10021` — `X-Content-Type-Options Header Missing`: ausente;
+- `10035` — `Strict-Transport-Security Header Not Set`: ausente;
+- `10063` — `Permissions Policy Header Not Set`: ausente.
+
+**Resultado do gate:** baseline ZAP do staging aprovada, com exceções explícitas, versionadas e protegidas por teste arquitetural. Isso não substitui pentest profissional nem encerra isoladamente o ASVS L2.
 
 Fontes: [headers de Static Assets do Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/headers/) e [configuração oficial do ZAP Baseline Action](https://github.com/zaproxy/action-baseline/blob/master/README.md).
