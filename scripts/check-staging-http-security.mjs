@@ -39,6 +39,26 @@ function assertPreviewHeaders(response) {
 	assert.equal(response.headers.get("x-content-type-options"), "nosniff");
 	assert.equal(response.headers.get("x-frame-options"), "DENY");
 	assert.equal(response.headers.get("cross-origin-opener-policy"), "same-origin");
+	assert.equal(response.headers.get("cross-origin-resource-policy"), "same-origin");
+	assert.equal(
+		response.headers.get("permissions-policy"),
+		"camera=(), geolocation=(), microphone=()",
+	);
+}
+
+function assertStaticAssetHeaders(response) {
+	assert.match(
+		response.headers.get("strict-transport-security") ?? "",
+		/max-age=31536000/iu,
+	);
+	assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+	assert.equal(response.headers.get("x-frame-options"), "DENY");
+	assert.equal(response.headers.get("cross-origin-resource-policy"), "same-origin");
+	assert.equal(
+		response.headers.get("permissions-policy"),
+		"camera=(), geolocation=(), microphone=()",
+	);
+	assert.match(response.headers.get("x-robots-tag") ?? "", /\bnoindex\b/iu);
 }
 
 const home = await request("/");
@@ -57,6 +77,19 @@ assert.match(homeHtml, /Sob consulta/u);
 assert.match(homeHtml, /Dormitórios/u);
 assert.match(homeHtml, /Banheiros/u);
 record("home, headers e catálogo", home);
+
+const staticAssetPaths = [
+	"/favicon.ico",
+	"/site.webmanifest",
+	homeHtml.match(/(?:src|href)=["'](\/assets\/[^"']+\.js)["']/u)?.[1],
+].filter(Boolean);
+assert.equal(staticAssetPaths.length, 3, "a home deve referenciar um asset JavaScript");
+for (const path of staticAssetPaths) {
+	const asset = await request(path);
+	assert.equal(asset.status, 200);
+	assertStaticAssetHeaders(asset);
+}
+results.push("assets estáticos com headers completos: 3");
 
 const admin = await request("/admin");
 assert.equal(admin.status, 302);

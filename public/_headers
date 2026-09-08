@@ -1,0 +1,10 @@
+/*
+  Cross-Origin-Resource-Policy: same-origin
+  Permissions-Policy: camera=(), geolocation=(), microphone=()
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+
+https://cris-chaves-imoveis-staging.thallestleal.workers.dev/*
+  X-Robots-Tag: noindex, nofollow

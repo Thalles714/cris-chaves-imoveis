@@ -52,6 +52,7 @@ export function applySecurityHeaders(
 	}
 	secured.headers.set("Content-Security-Policy", buildContentSecurityPolicy(cspNonce));
 	secured.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+	secured.headers.set("Cross-Origin-Resource-Policy", "same-origin");
 	secured.headers.set("Permissions-Policy", "camera=(), geolocation=(), microphone=()");
 	secured.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 	secured.headers.set("X-Content-Type-Options", "nosniff");

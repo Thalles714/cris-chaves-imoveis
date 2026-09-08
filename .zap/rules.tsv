@@ -1,0 +1,11 @@
+# Expected findings reviewed after run 34181535465.
+# Unlisted alerts remain WARN and fail the workflow through fail_action=true.
+10202	IGNORE	(Anti-CSRF tokens: every state-changing action validates same-origin Origin; public forms are disabled)
+90004	IGNORE	(Cross-origin isolation: COEP require-corp would break approved third-party frames; CORP is asserted separately)
+10111	IGNORE	(Authentication request identified: expected login endpoint, protected by generic errors and rate limiting)
+10094	IGNORE	(Base64 disclosure: CSP nonces and compiled asset strings, not credentials)
+120000	IGNORE	(Browser storage: only appearance preferences and React Router scroll positions; no sensitive data)
+10049	IGNORE	(Cache classification: deliberate no-store for HTML/admin and public revalidation for static assets)
+10015	IGNORE	(Cache re-examination: deliberate cache policy asserted by automated tests)
+90005	IGNORE	(Sec-Fetch request headers are browser-supplied and absent from ZAP's synthetic requests)
+10031	IGNORE	(Potential XSS: framework output encoding plus marker tests show no executable reflection)
