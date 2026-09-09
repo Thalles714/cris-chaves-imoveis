@@ -173,3 +173,21 @@ O novo segredo está funcionalmente validado. O responsável aposentou a chave s
 - o scanner local continuou sem encontrar segredo ou dado pessoal no repositório.
 
 O bloqueador de rotação da chave privilegiada está encerrado.
+
+### Preparação controlada do domínio
+
+- zona `crischaves.com.br` criada na conta Cloudflare como `full`, plano `Free Website` e importação automática desativada;
+- a zona recebeu `daphne.ns.cloudflare.com` e `dave.ns.cloudflare.com`, sem registros DNS importados;
+- o DS/DNSSEC anterior foi removido no Registro.br mantendo inicialmente `a.auto.dns.br` e `b.auto.dns.br`;
+- a fonte do Registro.br confirmou zero DS; resolvedores públicos ainda podem preservar o DS anterior durante o TTL de cache;
+- a primeira tentativa de substituir os nameservers foi recusada com `q-refused` porque a zona Cloudflare ainda estava `initializing`; nenhuma troca parcial ocorreu;
+- as rotas de produção para o domínio raiz e `www` foram adicionadas ao `wrangler.jsonc` como Custom Domains;
+- o verificador do build passou a exigir as rotas esperadas e o dry-run aprovou 86 assets, 433,42 KiB compactados e ausência de deploy;
+- o arquivo temporário `.dev.vars` do artefato foi removido e o scanner continuou limpo.
+- o Registro.br informou uma transição temporária após a remoção do DNSSEC e bloqueou corretamente novas delegações até o fim do contador;
+- `@cloudflare/vite-plugin` e `wrangler` foram atualizados dentro das versões compatíveis e `sharp` foi fixado em `0.35.4` para encerrar o alerta de alta severidade publicado em 8 de setembro de 2026;
+- a auditoria de dependências voltou a indicar zero vulnerabilidades conhecidas;
+- o gate local completo foi aprovado: 51 arquivos/264 testes unitários, contrato de publicação, build, fronteira cliente/servidor e 32 testes E2E, com 6 variações móveis intencionalmente ignoradas;
+- o ambiente `test` passou a declarar `routes: []`, evitando herdar e reassociar os domínios de produção em um deploy acidental.
+
+A próxima ação somente deve ocorrer após o contador de transição do Registro.br terminar: repetir a troca para os nameservers Cloudflare, confirmar a delegação pública, aguardar a ativação da zona e então preparar os segredos e o primeiro deploy de produção.

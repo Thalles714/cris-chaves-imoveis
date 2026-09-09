@@ -68,6 +68,14 @@ Na conclusão da revisão local, a migration 16 ainda não havia sido aplicada n
 - a página pública exibiu apenas bairro/cidade e a mensagem de preservação do endereço exato, sem dado privado;
 - chave secreta antiga aposentada manualmente pelo responsável;
 - após a revogação, os 14 controles HTTP voltaram a passar, o painel AAL2 permaneceu funcional e o Worker manteve somente os três nomes de segredo esperados.
+- zona `crischaves.com.br` criada na Cloudflare no plano gratuito, sem importação de registros;
+- DNSSEC antigo removido na origem do Registro.br; o DS ainda pode aparecer temporariamente em caches públicos durante o TTL;
+- troca dos nameservers foi recusada corretamente enquanto a zona Cloudflare ainda estava `initializing`, portanto os hosts antigos permaneceram ativos;
+- rotas de Custom Domain para raiz e `www` foram versionadas e o dry-run de produção foi aprovado sem deploy.
+- o Registro.br confirmou uma janela temporária de transição após a remoção do DNSSEC; a delegação externa permanece bloqueada até o contador terminar;
+- um alerta de alta severidade publicado para `sharp < 0.35.4` foi eliminado com override mínimo para `0.35.4`; a auditoria voltou a informar zero vulnerabilidades conhecidas;
+- o gate completo passou com 51 arquivos e 264 testes unitários, contrato de publicação com rollback, 32 cenários E2E aprovados e 6 variações intencionalmente ignoradas;
+- o ambiente de testes recebeu `routes: []`, impedindo que uma publicação acidental desse ambiente reassocie os Custom Domains de produção.
 
 ## Bloqueadores antes do go-live
 

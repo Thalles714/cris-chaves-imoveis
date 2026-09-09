@@ -9,6 +9,16 @@
 	"main": "./workers/app.ts",
 	"workers_dev": false,
 	"preview_urls": false,
+	"routes": [
+		{
+			"pattern": "crischaves.com.br",
+			"custom_domain": true,
+		},
+		{
+			"pattern": "www.crischaves.com.br",
+			"custom_domain": true,
+		},
+	],
 	"compatibility_date": "2026-08-31",
 	"compatibility_flags": ["nodejs_compat"],
 	"vars": {
@@ -100,6 +110,10 @@
 			],
 		},
 		"test": {
+			"routes": [],
+			"secrets": {
+				"required": [],
+			},
 			"vars": {
 				"APP_ENV": "test",
 				"PUBLIC_SITE_URL": "http://127.0.0.1:4173",
