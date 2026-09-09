@@ -79,6 +79,8 @@ Na conclusão da revisão local, a migration 16 ainda não havia sido aplicada n
 - após o fim da transição, o Registro.br aceitou integralmente `daphne.ns.cloudflare.com` e `dave.ns.cloudflare.com`, mantendo zero DS;
 - a delegação pública passou a responder pelos dois nameservers esperados e a zona Cloudflare atingiu o estado `active` em 9 de setembro de 2026;
 - a branch pública foi examinada localmente e pelo secret scanning do GitHub, ambos sem alertas de segredo aberto.
+- o Supabase Auth passou a usar `https://crischaves.com.br` como Site URL e recebeu redirects exatos, sem curingas, para convite e recuperação em produção e staging; os dois caminhos locais foram preservados para desenvolvimento;
+- o Worker base ainda tem zero segredos e as credenciais presentes apenas no ambiente local foram recusadas pelo Supabase, portanto não serão reutilizadas em produção.
 
 ## Bloqueadores antes do go-live
 
