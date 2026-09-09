@@ -165,4 +165,11 @@ Nesse checkpoint, produção permanecia **NO-GO** enquanto a chave, a migration 
 - a página pública mostrou a nova descrição alternativa e apenas `Sul, monte alegre`, além da mensagem de preservação do endereço exato;
 - a auditoria registrou `Mídia adicionada` e `Mídia alterada` para o novo item, atribuídos ao proprietário autenticado.
 
-O novo segredo está funcionalmente validado. A próxima ação manual obrigatória é aposentar somente a chave secreta antiga `default` no Supabase, preservando a nova chave e a publishable key.
+O novo segredo está funcionalmente validado. O responsável aposentou a chave secreta antiga `default` no Supabase, preservando a nova chave e a publishable key. Depois da revogação:
+
+- os 14 controles HTTP do staging passaram novamente sem mutação persistente;
+- o painel administrativo permaneceu acessível em sessão AAL2;
+- o Worker listou somente `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e `SUPABASE_SECRET_KEY`, todos como `secret_text` e sem exposição de valores;
+- o scanner local continuou sem encontrar segredo ou dado pessoal no repositório.
+
+O bloqueador de rotação da chave privilegiada está encerrado.
