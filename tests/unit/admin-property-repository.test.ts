@@ -196,30 +196,9 @@ describe("admin property repository concurrency", () => {
 		expect(payload).not.toHaveProperty("authorization_confirmed_at");
 	});
 
-	it("publishes against the previous remote function without exposing an authorization step", async () => {
-		const publishedRow = {
-			id: propertyId,
-			public_code: validUpdate.publicCode,
-			title: validUpdate.title,
-			purpose: validUpdate.purpose,
-			property_type: validUpdate.propertyType,
-			publication_status: "published" as const,
-			deal_status: "available" as const,
-			price_display: validUpdate.priceDisplay,
-			price_in_cents: validUpdate.priceInCents,
-			city: validUpdate.city,
-			neighborhood: validUpdate.neighborhood,
-			featured: validUpdate.isFeatured,
-			updated_at: "2026-09-05T04:00:00.000Z",
-			version: 8,
-			deleted_at: null,
-		};
-		const rpc = vi
-			.fn()
-			.mockResolvedValueOnce({ data: null, error: { code: "PGRST202" } })
-			.mockResolvedValueOnce({ data: publishedRow, error: null });
-		const upsert = vi.fn().mockResolvedValue({ data: null, error: null });
-		const from = vi.fn().mockReturnValue({ upsert });
+	it("fails closed when the current publication contract is unavailable", async () => {
+		const rpc = vi.fn().mockResolvedValue({ data: null, error: { code: "PGRST202" } });
+		const from = vi.fn();
 		const repository = new SupabaseAdminPropertyRepository({
 			from,
 			rpc,
@@ -232,21 +211,15 @@ describe("admin property repository concurrency", () => {
 				transition: "publish",
 				authorizationConfirmed: true,
 			}),
-		).resolves.toMatchObject({ publicationStatus: "published", version: 8 });
+		).rejects.toThrow(AdminPropertyConflictError);
 
-		expect(from).toHaveBeenCalledWith("property_private_details");
-		expect(upsert).toHaveBeenCalledWith(
-			expect.objectContaining({
-				property_id: propertyId,
-				authorization_reference: "Confirmação realizada no ato da publicação.",
-				authorization_confirmed_at: expect.any(String),
-			}),
-			{ onConflict: "property_id" },
-		);
-		expect(rpc).toHaveBeenNthCalledWith(2, "publish_property", {
+		expect(rpc).toHaveBeenCalledTimes(1);
+		expect(rpc).toHaveBeenCalledWith("publish_property", {
 			p_property_id: propertyId,
 			p_expected_version: validUpdate.expectedVersion,
+			p_authorization_confirmed: true,
 		});
+		expect(from).not.toHaveBeenCalled();
 	});
 
 	it("archives and timestamps a soft delete without accepting a client timestamp", async () => {

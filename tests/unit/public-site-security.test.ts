@@ -100,6 +100,7 @@ describe("cabeçalhos de segurança", () => {
 		expect(policy).toContain("base-uri 'none'");
 		expect(policy).toContain(`script-src 'self' 'nonce-${nonce}'`);
 		expect(policy).not.toContain("script-src 'self' 'unsafe-inline'");
+		expect(policy).not.toContain("*.supabase.co");
 		expect(secured.headers.has("Content-Security-Policy-Report-Only")).toBe(false);
 		expect(secured.headers.get("X-Content-Type-Options")).toBe("nosniff");
 		expect(secured.headers.get("Cross-Origin-Resource-Policy")).toBe("same-origin");
@@ -117,6 +118,26 @@ describe("cabeçalhos de segurança", () => {
 			nonce,
 		);
 		expect(local.headers.has("Strict-Transport-Security")).toBe(false);
+	});
+
+	it("limita conexões do navegador à origem exata do Supabase", () => {
+		const policy = buildContentSecurityPolicy(
+			nonce,
+			"https://projeto-seguro.supabase.co",
+		);
+		expect(policy).toContain(
+			"connect-src 'self' https://projeto-seguro.supabase.co https://challenges.cloudflare.com",
+		);
+		expect(policy).not.toContain("https://*.supabase.co");
+		const credentialedOrigin = new URL("https://example.com");
+		credentialedOrigin.username = "usuario";
+		credentialedOrigin.password = "senha";
+		expect(() =>
+			buildContentSecurityPolicy(nonce, credentialedOrigin.toString()),
+		).toThrow(/Origem de conexão CSP inválida/u);
+		expect(() =>
+			buildContentSecurityPolicy(nonce, "http://projeto-seguro.supabase.co"),
+		).toThrow(/Origem de conexão CSP inválida/u);
 	});
 
 	it("aplica headers equivalentes aos assets servidos fora do Worker", async () => {

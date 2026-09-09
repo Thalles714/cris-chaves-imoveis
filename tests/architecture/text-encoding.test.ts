@@ -3,8 +3,12 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const appRoot = resolve(process.cwd(), "app");
-const sourceFile = /\.(?:ts|tsx|css)$/u;
+const sourceRoots = [
+	resolve(process.cwd(), "app"),
+	resolve(process.cwd(), "scripts"),
+	resolve(process.cwd(), "tests"),
+];
+const sourceFile = /\.(?:css|js|mjs|ts|tsx)$/u;
 const mojibake =
 	/(?:\u00c3[\u0080-\u00bf]|\u00c2[\u0080-\u00bf]|\u00e2\u0080[\u0080-\u00bf])/u;
 
@@ -21,8 +25,8 @@ async function listSourceFiles(directory: string): Promise<string[]> {
 }
 
 describe("source text encoding", () => {
-	it("does not contain mojibake signatures in application source", async () => {
-		const files = await listSourceFiles(appRoot);
+	it("does not contain mojibake signatures in source and test files", async () => {
+		const files = (await Promise.all(sourceRoots.map(listSourceFiles))).flat();
 		const corrupted = (
 			await Promise.all(
 				files.map(async (path) => ({ path, source: await readFile(path, "utf8") })),

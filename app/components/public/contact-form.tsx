@@ -1,55 +1,45 @@
-import { Form, useNavigation } from "react-router";
+import { Alert } from "~/components/ui";
 
-import { Alert, Button, Field } from "~/components/ui";
-
-export function ContactForm({ intent }: { intent: "general" | "property" | "sell" }) {
-	const navigation = useNavigation();
-	const busy = navigation.state === "submitting";
-	const unavailable = true;
+export function ContactForm({
+	intent,
+	whatsappUrl,
+}: {
+	intent: "general" | "property" | "sell";
+	whatsappUrl: string | null;
+}) {
+	const title =
+		intent === "sell"
+			? "Conte o básico sobre o seu imóvel."
+			: intent === "property"
+				? "Converse sobre este imóvel."
+				: "Comece a conversa pelo WhatsApp.";
 
 	return (
 		<div className="contact-form-panel">
-			<Alert title="Prefere escrever por aqui?" tone="info">
-				Este formulário ainda não recebe mensagens. Enquanto ele não é ativado, fale
-				comigo pelo canal direto no topo da página. Nenhum dado digitado abaixo é enviado
-				ou armazenado.
-			</Alert>
-			<Form method="post" className="contact-form" aria-disabled={unavailable}>
-				<input type="hidden" name="intent" value={intent} />
-				<Field label="Nome" disabled={unavailable}>
-					<input name="name" autoComplete="name" maxLength={100} required />
-				</Field>
-				<div className="contact-form__row">
-					<Field label="WhatsApp" disabled={unavailable}>
-						<input
-							name="phone"
-							inputMode="tel"
-							autoComplete="tel"
-							maxLength={20}
-							required
-						/>
-					</Field>
-					<Field label="E-mail" optional disabled={unavailable}>
-						<input name="email" type="email" autoComplete="email" maxLength={254} />
-					</Field>
-				</div>
-				<Field label="O que você procura?" disabled={unavailable}>
-					<textarea name="message" minLength={10} maxLength={1500} required />
-				</Field>
-				<div className="contact-form__footer">
-					<p>
-						Quando este canal estiver disponível, seus dados serão tratados apenas para
-						responder ao seu contato.
-					</p>
-					<Button
-						type="submit"
-						disabled={unavailable}
-						state={busy ? "loading" : "default"}
-					>
-						Enviar para o Cris
-					</Button>
-				</div>
-			</Form>
+			<p className="site-eyebrow">Atendimento direto</p>
+			<h2>{title}</h2>
+			<p className="contact-form-panel__lede">
+				Você fala diretamente com o Cris, sem cadastro e sem deixar seus dados em um
+				formulário intermediário.
+			</p>
+			{whatsappUrl ? (
+				<a
+					className="cc-button cc-button--primary contact-form-panel__cta"
+					href={whatsappUrl}
+					target="_blank"
+					rel="noreferrer"
+				>
+					Conversar pelo WhatsApp
+				</a>
+			) : (
+				<Alert title="Canal temporariamente indisponível" tone="info">
+					O contato direto está sendo configurado. Nenhum dado é coletado nesta página.
+				</Alert>
+			)}
+			<p className="contact-form-panel__privacy">
+				Ao continuar, você será direcionado ao WhatsApp e poderá decidir o que deseja
+				compartilhar.
+			</p>
 		</div>
 	);
 }

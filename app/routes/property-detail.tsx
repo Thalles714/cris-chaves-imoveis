@@ -3,6 +3,8 @@ import { buildWhatsAppUrl } from "~/lib/public-site/config";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 import { loadPublicSiteContext } from "~/lib/public-site/loader.server";
 import { publicMeta } from "~/lib/public-site/meta";
+import { buildPropertyStructuredData } from "~/lib/public-site/property-structured-data";
+import { useCspNonce } from "~/lib/http/csp-nonce";
 import { createPublicPropertyRepository } from "~/modules/properties/server/repository-factory.server";
 import { buildSimilarPropertiesUrl } from "~/modules/properties/domain/public-property-links";
 import { propertySlugSchema } from "~/modules/properties/validation/property-schema";
@@ -30,6 +32,8 @@ export async function loader({ request, context, params }: Route.LoaderArgs) {
 		.href;
 	return {
 		property,
+		canonicalUrl,
+		brandName: site.brandName,
 		whatsappUrl: buildWhatsAppUrl(site.whatsappNumber, {
 			propertyCode: property.publicCode,
 			canonicalUrl,
@@ -47,11 +51,29 @@ export function meta({ loaderData, matches }: Route.MetaArgs) {
 			name: "description",
 			content: `Conheça este ${loaderData.property.propertyType.toLowerCase()} em ${loaderData.property.neighborhood}, ${loaderData.property.city}, apresentado por Cris Chaves.`,
 		},
+		{ property: "og:type", content: "article" },
+		...(loaderData.property.coverImageUrl
+			? [
+					{
+						property: "og:image",
+						content: new URL(
+							loaderData.property.coverImageUrl,
+							loaderData.canonicalUrl,
+						).toString(),
+					},
+					{
+						property: "og:image:alt",
+						content: loaderData.property.coverImageAlt || loaderData.property.title,
+					},
+				]
+			: []),
 	]);
 }
 
 export default function PropertyDetail({ loaderData }: Route.ComponentProps) {
-	const { property, whatsappUrl } = loaderData;
+	const { property, whatsappUrl, canonicalUrl, brandName } = loaderData;
+	const cspNonce = useCspNonce();
+	const structuredData = buildPropertyStructuredData(property, canonicalUrl, brandName);
 	const labels = { sale: "Venda", rent: "Aluguel" } as const;
 	const status = {
 		available: "Disponível",
@@ -79,6 +101,13 @@ export default function PropertyDetail({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<main id="conteudo" className="property-detail cc-container">
+			<script
+				nonce={cspNonce}
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(structuredData).replace(/</gu, "\\u003c"),
+				}}
+			/>
 			<Breadcrumb
 				items={[
 					{ label: "Imóveis", href: "/" },

@@ -61,6 +61,7 @@
 	gap: var(--cc-space-4);
 	border-bottom: 1px solid var(--cc-border);
 	background: color-mix(in srgb, var(--cc-bg-raised) 88%, transparent);
+	box-shadow: 0 1px 0 color-mix(in srgb, var(--cc-secondary) 8%, transparent);
 	backdrop-filter: blur(16px) saturate(140%);
 }
 
@@ -88,7 +89,7 @@
 	border: 1px solid color-mix(in srgb, var(--cc-secondary) 28%, var(--cc-border));
 	border-radius: var(--cc-radius-full);
 	background: color-mix(in srgb, var(--cc-secondary) 9%, var(--cc-bg-raised));
-	color: var(--cc-secondary-strong);
+	color: var(--cc-secondary-readable);
 	font-family: var(--cc-font-mono);
 	font-size: 0.625rem;
 	font-weight: 700;
@@ -129,6 +130,12 @@
 	min-width: 0;
 	margin-inline: auto;
 	padding: var(--cc-space-6);
+	background-image: radial-gradient(
+		circle at 100% 0%,
+		rgb(var(--cc-secondary-rgb) / 7%),
+		transparent min(30rem, 42vw)
+	);
+	background-repeat: no-repeat;
 }
 
 .admin-page-header {
@@ -472,7 +479,7 @@
 
 .admin-draft-flow > strong,
 .admin-publication-checklist__eyebrow {
-	color: var(--cc-secondary-strong);
+	color: var(--cc-secondary-readable);
 	font-family: var(--cc-font-mono);
 	font-size: 0.6875rem;
 	font-weight: 700;
@@ -697,7 +704,13 @@
 
 @media (max-width: 47.5rem) {
 	.admin-shell {
-		grid-template-columns: 4.25rem minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.admin-shell__sidebar {
+		position: static;
+		height: auto;
+		overflow: visible;
 	}
 
 	.admin-shell__content,
@@ -1468,5 +1481,5 @@
 	width: 1.125rem;
 	height: 1.125rem;
 	margin-top: 0.125rem;
-	accent-color: var(--cc-primary);
+	accent-color: var(--cc-accent);
 }

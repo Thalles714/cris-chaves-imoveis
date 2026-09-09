@@ -29,7 +29,12 @@ const schemeOrder = [
 
 function themeColors(theme: ThemeName) {
 	const tokens = designTokens.themes[theme];
-	return [tokens.accent, tokens.secondary, tokens.ink];
+	return [
+		tokens.light.background,
+		tokens.accent,
+		tokens.secondary,
+		tokens.dark.background,
+	];
 }
 
 /** Shared appearance control used by both the public site and the admin. */
@@ -38,10 +43,17 @@ export function AppearanceMenu() {
 	const [open, setOpen] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const triggerRef = useRef<HTMLButtonElement>(null);
+	const panelRef = useRef<HTMLDivElement>(null);
 	const panelId = useId();
+	const panelLabelId = useId();
 
 	useEffect(() => {
 		if (!open) return;
+		const focusFrame = window.requestAnimationFrame(() => {
+			panelRef.current
+				?.querySelector<HTMLButtonElement>('.scheme-btn[aria-pressed="true"]')
+				?.focus();
+		});
 
 		const closeOnOutsidePress = (event: PointerEvent) => {
 			if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
@@ -55,6 +67,7 @@ export function AppearanceMenu() {
 		document.addEventListener("pointerdown", closeOnOutsidePress);
 		document.addEventListener("keydown", closeOnEscape);
 		return () => {
+			window.cancelAnimationFrame(focusFrame);
 			document.removeEventListener("pointerdown", closeOnOutsidePress);
 			document.removeEventListener("keydown", closeOnEscape);
 		};
@@ -74,13 +87,16 @@ export function AppearanceMenu() {
 				<SunIcon />
 			</button>
 			<div
+				ref={panelRef}
 				id={panelId}
 				className="appearance-panel"
 				role="dialog"
-				aria-label="Aparência"
+				aria-labelledby={panelLabelId}
 				aria-hidden={!open}
 			>
-				<p className="appearance-label">Aparência</p>
+				<p id={panelLabelId} className="appearance-label">
+					Aparência
+				</p>
 				<div className="scheme-group" role="group" aria-label="Esquema de cores">
 					{schemeOrder.map((value) => (
 						<button

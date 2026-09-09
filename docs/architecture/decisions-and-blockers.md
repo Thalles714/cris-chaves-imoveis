@@ -51,3 +51,7 @@
 O lançamento permanece **no-go** até concluir: configuração segura do domínio e TLS, URLs de autenticação, segredos de produção, arquivamento dos placeholders, validações finais no host real, identificação do responsável operacional e verificação dos meios de recuperação das contas. O restore deixou de ser bloqueio apenas nos limites e com os riscos explícitos da ADR-0010. O lançamento será sem formulário de leads, analytics ou pixels.
 
 Quando uma resposta chegar, registrar data, autor, evidência e impacto; se alterar arquitetura, segurança, custo ou tratamento de dados, criar/superseder ADR antes de implementar.
+
+## Bloqueio crítico identificado em 9 de setembro de 2026
+
+Uma chave privilegiada do Supabase foi encontrada em um artefato local ignorado pelo Git. O artefato foi removido e o processo de build/scanner foi corrigido para impedir recorrência. Antes de qualquer deploy, é obrigatório criar uma nova chave, atualizar os consumidores controlados, validar a nova chave e aposentar a anterior. Nenhuma chave deve ser registrada neste repositório ou enviada por conversa.

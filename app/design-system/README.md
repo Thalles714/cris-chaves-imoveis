@@ -1,16 +1,18 @@
 # Cris Chaves Design System
 
-Versão canônica: `1.1.0`.
+Versão canônica: `1.2.0`.
 
 Esta fundação traduz o contrato visual de `design_system.html` para React sem
 copiar conteúdo, fontes ou ativos da referência externa. `tokens.ts` é a fonte
 versionada para valores e tipos; `../styles/tokens.css` é o espelho consumido
 pelos componentes.
 
-A versão `1.1.0` preserva o esquema Escuro com as cores próprias de cada tema
-e adiciona o esquema Black, com superfícies pretas, detalhes brancos e CTAs
-azuis. O esquema Sistema continua alternando somente entre Claro e Escuro; a
-fonte TypeScript e o espelho CSS permanecem sincronizados.
+A versão `1.2.0` transforma cada tema em uma atmosfera completa: fundos,
+superfícies, textos, bordas, sombras e cores de ação próprias nos esquemas Claro
+e Escuro. O Escuro original continua separado do Black. O Black permanece
+deliberadamente preto, com detalhes brancos e CTAs azuis, independentemente da
+paleta selecionada. O esquema Sistema continua alternando somente entre Claro e
+Escuro; a fonte TypeScript e o espelho CSS permanecem sincronizados.
 
 ## Integração
 

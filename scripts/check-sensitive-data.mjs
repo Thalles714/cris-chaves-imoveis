@@ -1,4 +1,4 @@
-import { readdir, readFile } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import { basename, dirname, extname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -26,6 +26,10 @@ const ROOT_FILES = new Set([
 	"wrangler.json",
 	"wrangler.jsonc",
 ]);
+const GENERATED_SECRET_FILES = [
+	"build/server/.dev.vars",
+	".build-check/server/.dev.vars",
+];
 const TEXT_EXTENSIONS = new Set([
 	".cjs",
 	".css",
@@ -61,6 +65,10 @@ const RULES = [
 		name: "token de provedor",
 		pattern:
 			/\b(?:AKIA[0-9A-Z]{16}|gh[opsu]_[A-Za-z0-9]{30,}|sk_(?:live|test)_[A-Za-z0-9]{20,})\b/g,
+	},
+	{
+		name: "chave privilegiada Supabase",
+		pattern: /\bsb_secret_[A-Za-z0-9_-]{20,}\b/g,
 	},
 	{
 		name: "segredo atribuído em código",
@@ -138,6 +146,15 @@ async function collectFiles() {
 		if (!entry.isFile()) continue;
 		if (ROOT_FILES.has(entry.name) || entry.name.startsWith(".env")) {
 			files.push(resolve(PROJECT_ROOT, entry.name));
+		}
+	}
+	for (const relativePath of GENERATED_SECRET_FILES) {
+		const absolutePath = resolve(PROJECT_ROOT, relativePath);
+		try {
+			await access(absolutePath);
+			files.push(absolutePath);
+		} catch {
+			// Absence is the expected secure state after a build.
 		}
 	}
 

@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/only-throw-error -- React Router uses thrown Responses for HTTP control flow. */
 import { data } from "react-router";
 
-import { readSupabaseServerConfig } from "~/lib/supabase/index.server";
+import {
+	createPrivilegedSupabaseClient,
+	readSupabaseServerConfig,
+} from "~/lib/supabase/index.server";
 import {
 	AdminMediaError,
 	adminImagePlanInputSchema,
@@ -78,12 +81,21 @@ export async function action({ request, context, params }: Route.ActionArgs) {
 	const propertyId = routePropertyId(params.propertyId);
 	const form = await readAdminFormData(request);
 	const intent = formString(form, "intent");
-	const { client, responseHeaders } = await requireAdminRoute(
+	const { client, responseHeaders, session } = await requireAdminRoute(
 		request,
 		context,
 		"media.create",
 	);
-	const repository = new SupabaseAdminMediaRepository(client);
+	let trustedConfirmationClient;
+	try {
+		trustedConfirmationClient = createPrivilegedSupabaseClient(adminBindings(context));
+	} catch {
+		return data(
+			{ ok: false, error: "A confirmação segura da mídia está indisponível." },
+			{ status: 503, headers: adminResponseHeaders(responseHeaders) },
+		);
+	}
+	const repository = new SupabaseAdminMediaRepository(client, trustedConfirmationClient);
 
 	try {
 		if (intent === "plan-image") {
@@ -111,6 +123,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
 				formString(form, "mediaId"),
 				formNumber(form, "expectedVersion"),
 				formString(form, "isCover") === "true",
+				session.userId,
 			);
 			return data({ ok: true }, { headers: adminResponseHeaders(responseHeaders) });
 		}

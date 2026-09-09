@@ -34,7 +34,7 @@ export function SiteShell({
 				Ir para o conteúdo
 			</a>
 			<PublicNav
-				brand={<BrandLockup creci={site.creci} variant="header" />}
+				brand={<BrandLockup creci={site.creci} variant="header" href="/home" />}
 				items={navItems}
 				actions={
 					<>
@@ -60,7 +60,7 @@ export function SiteShell({
 			<footer className="site-footer">
 				<div className="cc-container site-footer__grid">
 					<div className="site-footer__brand">
-						<BrandLockup creci={site.creci} variant="footer" />
+						<BrandLockup creci={site.creci} variant="footer" href="/home" />
 						<p>
 							Atendimento pessoal para encontrar, anunciar e decidir com clareza no
 							Litoral Norte Gaúcho.

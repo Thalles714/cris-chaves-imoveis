@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(48);
+select plan(56);
 
 -- Synthetic identities only; none can sign in.
 insert into auth.users (id, raw_user_meta_data)
@@ -84,7 +84,30 @@ select public.confirm_property_image(
   '40000000-0000-4000-8000-000000000004',
   '61000000-0000-4000-8000-000000000006',
   1,
-  true
+  true,
+  '10000000-0000-4000-8000-000000000001'
+);
+
+select is(
+  to_regprocedure('public.confirm_property_image(uuid,uuid,bigint,boolean)'),
+  null,
+  'legacy browser-callable image confirmation signature is removed'
+);
+select ok(
+  not has_function_privilege(
+    'authenticated',
+    'public.confirm_property_image(uuid,uuid,bigint,boolean,uuid)',
+    'EXECUTE'
+  ),
+  'authenticated browser tokens cannot confirm images directly'
+);
+select ok(
+  has_function_privilege(
+    'service_role',
+    'public.confirm_property_image(uuid,uuid,bigint,boolean,uuid)',
+    'EXECUTE'
+  ),
+  'trusted server role can confirm verified images'
 );
 
 select public.publish_property(
@@ -181,6 +204,7 @@ select results_eq(
   'aal1 editor cannot mutate administrative properties'
 );
 select is((select count(*) from public.admin_members), 1::bigint, 'aal1 member can read only self for MFA bootstrap');
+select is((select count(*) from storage.objects), 0::bigint, 'aal1 editor cannot list registered Storage objects');
 
 reset role;
 set local role authenticated;
@@ -204,6 +228,38 @@ select is(
 select lives_ok(
   $$update public.properties set title = 'Rascunho revisado' where id = '50000000-0000-4000-8000-000000000005'$$,
   'aal2 editor can update property content'
+);
+select is((select count(*) from storage.objects), 2::bigint, 'aal2 editor can list registered Storage objects');
+select ok(
+  not exists (
+    select 1
+    from pg_policies
+    where schemaname = 'storage'
+      and tablename = 'objects'
+      and cmd in ('UPDATE', 'ALL')
+      and 'authenticated' = any(roles)
+  ),
+  'no RLS policy lets authenticated clients replace Storage object bytes'
+);
+select results_eq(
+  $$update storage.objects
+    set metadata = metadata
+    where bucket_id = 'property-public'
+      and name = 'properties/40000000-0000-4000-8000-000000000004/public/64000000-0000-4000-8000-000000000006.webp'
+    returning id$$,
+  $$select null::uuid where false$$,
+  'approved Storage objects are immutable even for an aal2 editor'
+);
+select throws_ok(
+  $$select public.confirm_property_image(
+    '40000000-0000-4000-8000-000000000004',
+    '61000000-0000-4000-8000-000000000006',
+    2,
+    true,
+    '20000000-0000-4000-8000-000000000002'
+  )$$,
+  '42501', 'permission denied for function confirm_property_image',
+  'authenticated aal2 admins cannot bypass trusted byte verification'
 );
 select throws_ok(
   $$update public.properties set publication_status = 'published' where id = '50000000-0000-4000-8000-000000000005'$$,

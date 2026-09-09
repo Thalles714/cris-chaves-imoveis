@@ -83,6 +83,9 @@ jobs:
       - name: Reject secrets and personal data in runtime files
         run: node scripts/check-sensitive-data.mjs
 
+      - name: Reject undefined design tokens
+        run: node scripts/check-design-tokens.mjs
+
       - name: Check the Stage 2 security contract
         run: node scripts/check-stage2-security.mjs
 
@@ -115,6 +118,9 @@ jobs:
 
       - name: Build for Cloudflare Workers
         run: pnpm build
+
+      - name: Validate the Cloudflare Worker bundle without deploying
+        run: pnpm check:cloudflare
 
       - name: Inspect the browser bundle boundary
         run: pnpm check:client-boundary

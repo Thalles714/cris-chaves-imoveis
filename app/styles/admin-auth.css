@@ -31,7 +31,7 @@
 	bottom: 12%;
 	left: 0;
 	height: 1px;
-	background: color-mix(in srgb, var(--cc-accent-warm) 56%, transparent);
+	background: color-mix(in srgb, var(--cc-accent) 56%, transparent);
 	transform: rotate(-2deg);
 }
 
@@ -43,7 +43,7 @@
 	border: 1px solid color-mix(in srgb, white 12%, transparent);
 	border-radius: var(--cc-radius-lg);
 	background: color-mix(in srgb, var(--cc-ink) 84%, white 3%);
-	box-shadow: var(--cc-shadow-lg);
+	box-shadow: var(--cc-shadow-md);
 }
 
 .admin-auth-card__brand {
@@ -52,7 +52,7 @@
 
 .admin-auth-card__eyebrow {
 	margin-bottom: var(--cc-space-2);
-	color: var(--cc-accent-warm);
+	color: color-mix(in srgb, var(--cc-accent) 38%, white);
 	font-family: var(--cc-font-mono);
 	font-size: 0.6875rem;
 	font-weight: 700;
@@ -104,8 +104,8 @@
 }
 
 .admin-auth-field input:focus-visible {
-	outline: var(--cc-focus-width) solid var(--cc-focus);
-	outline-offset: var(--cc-focus-offset);
+	outline: var(--cc-focus-outline);
+	outline-offset: 3px;
 }
 
 .admin-auth-form .cc-button {
@@ -128,9 +128,9 @@
 .admin-auth-message {
 	margin-bottom: var(--cc-space-4);
 	padding: 0.75rem;
-	border: 1px solid color-mix(in srgb, var(--cc-danger) 42%, transparent);
+	border: 1px solid color-mix(in srgb, var(--cc-error) 42%, transparent);
 	border-radius: var(--cc-radius-sm);
-	background: color-mix(in srgb, var(--cc-danger) 12%, transparent);
+	background: color-mix(in srgb, var(--cc-error) 12%, transparent);
 	color: white;
 	font-size: 0.8125rem;
 }

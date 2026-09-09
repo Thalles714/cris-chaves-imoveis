@@ -12,13 +12,41 @@ export function createCspNonce() {
 	return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/u, "");
 }
 
-export function buildContentSecurityPolicy(nonce: string) {
+function safeConnectOrigin(value: string | undefined) {
+	if (!value) return null;
+	let url: URL;
+	try {
+		url = new URL(value);
+	} catch {
+		throw new Error("Origem de conexão CSP inválida.");
+	}
+	const isLoopback =
+		url.hostname === "localhost" ||
+		url.hostname === "127.0.0.1" ||
+		url.hostname === "[::1]";
+	if (
+		url.username ||
+		url.password ||
+		url.protocol !== (isLoopback ? "http:" : "https:")
+	) {
+		throw new Error("Origem de conexão CSP inválida.");
+	}
+	return url.origin;
+}
+
+export function buildContentSecurityPolicy(nonce: string, supabaseUrl?: string) {
 	assertValidNonce(nonce);
+	const supabaseOrigin = safeConnectOrigin(supabaseUrl);
+	const connectSources = [
+		"'self'",
+		...(supabaseOrigin ? [supabaseOrigin] : []),
+		"https://challenges.cloudflare.com",
+	].join(" ");
 
 	return [
 		"default-src 'self'",
 		"base-uri 'none'",
-		"connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com",
+		`connect-src ${connectSources}`,
 		"font-src 'self'",
 		"form-action 'self'",
 		"frame-ancestors 'none'",
@@ -39,6 +67,7 @@ export function applySecurityHeaders(
 	response: Response,
 	cspNonce: string,
 	appEnvironment: AppEnvironment = "production",
+	supabaseUrl?: string,
 ) {
 	const secured = new Response(response.body, response);
 	const pathname = new URL(request.url).pathname;
@@ -50,7 +79,10 @@ export function applySecurityHeaders(
 	if (isAdmin) {
 		secured.headers.set("Cache-Control", "private, no-store");
 	}
-	secured.headers.set("Content-Security-Policy", buildContentSecurityPolicy(cspNonce));
+	secured.headers.set(
+		"Content-Security-Policy",
+		buildContentSecurityPolicy(cspNonce, supabaseUrl),
+	);
 	secured.headers.set("Cross-Origin-Opener-Policy", "same-origin");
 	secured.headers.set("Cross-Origin-Resource-Policy", "same-origin");
 	secured.headers.set("Permissions-Policy", "camera=(), geolocation=(), microphone=()");

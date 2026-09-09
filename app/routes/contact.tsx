@@ -1,4 +1,6 @@
 import { ContactForm } from "~/components/public";
+import { buildWhatsAppUrl } from "~/lib/public-site/config";
+import { loadPublicSiteContext } from "~/lib/public-site/loader.server";
 import { publicMeta } from "~/lib/public-site/meta";
 
 import { disabledContactAction } from "./contact-action.server";
@@ -6,6 +8,10 @@ import type { Route } from "./+types/contact";
 
 export function action() {
 	return disabledContactAction();
+}
+
+export function loader({ request, context }: Route.LoaderArgs) {
+	return loadPublicSiteContext(request, context);
 }
 
 export function meta({ matches }: Route.MetaArgs) {
@@ -18,7 +24,9 @@ export function meta({ matches }: Route.MetaArgs) {
 	]);
 }
 
-export default function Contact() {
+export default function Contact({ loaderData: site }: Route.ComponentProps) {
+	const whatsappUrl = buildWhatsAppUrl(site.whatsappNumber);
+
 	return (
 		<main id="conteudo">
 			<header className="page-hero">
@@ -46,7 +54,7 @@ export default function Contact() {
 						</p>
 					</div>
 				</div>
-				<ContactForm intent="general" />
+				<ContactForm intent="general" whatsappUrl={whatsappUrl} />
 			</section>
 		</main>
 	);

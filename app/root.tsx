@@ -27,7 +27,7 @@ export function Layout({ children }: { children: ReactNode }) {
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<meta name="color-scheme" content="light dark" />
-				<meta name="theme-color" content="#f1f3f4" />
+				<meta name="theme-color" content="#f4f1ed" />
 				<link rel="icon" href="/favicon.ico" sizes="any" />
 				<link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32x32.png" />
 				<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />

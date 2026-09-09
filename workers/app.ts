@@ -29,11 +29,23 @@ export default {
 			publicSiteUrl: env.PUBLIC_SITE_URL,
 		});
 		if (canonicalRedirect) {
-			return applySecurityHeaders(request, canonicalRedirect, cspNonce, appEnvironment);
+			return applySecurityHeaders(
+				request,
+				canonicalRedirect,
+				cspNonce,
+				appEnvironment,
+				env.SUPABASE_URL,
+			);
 		}
 		const routerContext = new RouterContextProvider();
 		routerContext.set(cloudflareContext, { cspNonce, env, ctx });
 		const response = await requestHandler(request, routerContext);
-		return applySecurityHeaders(request, response, cspNonce, appEnvironment);
+		return applySecurityHeaders(
+			request,
+			response,
+			cspNonce,
+			appEnvironment,
+			env.SUPABASE_URL,
+		);
 	},
 } satisfies ExportedHandler<Env>;
