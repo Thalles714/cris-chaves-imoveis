@@ -127,6 +127,22 @@ test.describe("site público", () => {
 		expect(xml).not.toContain("/admin");
 	});
 
+	test("publica termos e privacidade vigentes sem linguagem de minuta", async ({
+		page,
+	}) => {
+		for (const path of ["/privacidade", "/termos"]) {
+			const response = await page.goto(path, { waitUntil: "domcontentloaded" });
+			expect(response?.status()).toBe(200);
+			await expect(
+				page.getByText("Última atualização: 9 de setembro de 2026."),
+			).toBeVisible();
+			await expect(page.locator("main")).not.toContainText(/preliminar|minuta/u);
+			await expect(
+				page.getByRole("link", { name: /página de contato/u }).first(),
+			).toBeVisible();
+		}
+	});
+
 	test("funciona por teclado, em menu móvel e com movimento reduzido", async ({
 		page,
 	}) => {
@@ -150,7 +166,15 @@ test.describe("site público", () => {
 	});
 
 	test("não apresenta violações sérias nas páginas principais", async ({ page }) => {
-		for (const path of ["/", "/home", "/regioes", "/anuncie-seu-imovel", "/contato"]) {
+		for (const path of [
+			"/",
+			"/home",
+			"/regioes",
+			"/anuncie-seu-imovel",
+			"/contato",
+			"/privacidade",
+			"/termos",
+		]) {
 			await page.goto(path, { waitUntil: "domcontentloaded" });
 			const results = await new AxeBuilder({ page })
 				.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
