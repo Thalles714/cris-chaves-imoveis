@@ -155,4 +155,14 @@ Nesse checkpoint, produção permanecia **NO-GO** enquanto a chave, a migration 
 - consulta independente confirmou zero usuários, imóveis, mídias e objetos sintéticos residuais;
 - 14 controles HTTP passaram após o deploy final e o scanner confirmou ausência de segredo em código, configuração, testes e artefatos gerados.
 
-A chave antiga permanece ativa apenas até o teste autenticado AAL2 comprovar o fluxo privilegiado de confirmação de mídia com o novo secret. Depois dessa prova, ela deve ser aposentada no Supabase.
+### Validação autenticada do novo segredo
+
+- o responsável entrou no staging com MFA confirmado;
+- o placeholder `DEMO-004`, já publicado, recebeu uma nova imagem demonstrativa segura sem substituir a capa;
+- o navegador removeu metadados, gerou a derivada pública e o Worker confirmou a mídia usando o novo segredo;
+- a biblioteca passou de uma para duas mídias e informou sucesso explícito da marca-d'água e da privacidade;
+- a cópia pública respondeu em rota opaca, com 1672 × 941 px e marca central `Cris Chaves` visível;
+- a página pública mostrou a nova descrição alternativa e apenas `Sul, monte alegre`, além da mensagem de preservação do endereço exato;
+- a auditoria registrou `Mídia adicionada` e `Mídia alterada` para o novo item, atribuídos ao proprietário autenticado.
+
+O novo segredo está funcionalmente validado. A próxima ação manual obrigatória é aposentar somente a chave secreta antiga `default` no Supabase, preservando a nova chave e a publishable key.

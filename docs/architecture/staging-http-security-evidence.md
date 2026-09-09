@@ -28,7 +28,11 @@ O script `scripts/check-staging-http-security.mjs` aceita somente HTTPS e o host
 | `robots.txt` de preview | `200`, bloqueio de `/admin` e header `noindex, nofollow` |
 | sitemap público | `200`, origem correta e ausência de rotas/campos administrativos |
 
-Todos os 13 controles foram aprovados sem mutação persistente. A diferença `400`/`403` do POST hostil decorre do tratamento da rota aninhada, mas permanece fail-closed, genérica e sem acesso à operação ou ao objeto.
+Todos os 14 controles foram aprovados sem mutação persistente. A diferença `400`/`403` do POST hostil decorre do tratamento da rota aninhada, mas permanece fail-closed, genérica e sem acesso à operação ou ao objeto.
+
+## Complemento autenticado AAL2
+
+Em 9 de setembro de 2026, uma sessão administrativa com MFA confirmado enviou uma imagem segura ao placeholder `DEMO-004`. O fluxo privilegiado concluiu o tratamento, publicou a derivada em rota opaca, aplicou a marca-d'água central `Cris Chaves` e registrou os eventos `Mídia adicionada` e `Mídia alterada`. A página pública apresentou somente bairro e cidade, sem endereço exato. Essa prova valida o novo segredo do Worker antes da aposentadoria da chave antiga.
 
 ## Rastreabilidade ASVS inicial
 

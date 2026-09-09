@@ -64,11 +64,13 @@ Na conclusão da revisão local, a migration 16 ainda não havia sido aplicada n
 - matriz RLS remota ampliada de 48 para 56 controles e aprovada dentro de `BEGIN`/`ROLLBACK`;
 - consulta independente confirmou zero usuários, imóveis, mídias e objetos sintéticos residuais;
 - 14 controles HTTP do staging aprovados após o deploy final;
-- chave secreta antiga ainda deve ser aposentada somente após o teste autenticado de upload/confirmação com AAL2.
+- upload autenticado com AAL2 confirmou o novo segredo no fluxo privilegiado: uma imagem segura foi tratada, recebeu marca-d'água, ficou pública em rota opaca e gerou os eventos de auditoria esperados;
+- a página pública exibiu apenas bairro/cidade e a mensagem de preservação do endereço exato, sem dado privado;
+- chave secreta antiga já pode ser aposentada manualmente; essa revogação continua pendente.
 
 ## Bloqueadores antes do go-live
 
-1. Validar upload/confirmação de mídia com AAL2 no staging e aposentar a chave privilegiada antiga.
+1. Aposentar a chave privilegiada antiga no Supabase; o novo segredo já foi validado por upload/confirmação de mídia com AAL2 no staging.
 2. Manter comprovado o alinhamento da migration 16 e do Worker antes do corte de produção.
 3. Configurar DNS/TLS do domínio raiz e `www` no Cloudflare.
 4. Definir `https://crischaves.com.br` como Site URL do Supabase Auth e permitir apenas redirects exatos necessários.
