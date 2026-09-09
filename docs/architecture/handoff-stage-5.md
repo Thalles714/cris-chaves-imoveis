@@ -193,5 +193,7 @@ O bloqueador de rotação da chave privilegiada está encerrado.
 - resolvedores públicos passaram a retornar os dois nameservers Cloudflare e a zona atingiu `active` em 9 de setembro de 2026;
 - o commit foi enviado à branch pública somente depois de varrer arquivos atuais, nomes rastreados e histórico Git; o secret scanning remoto confirmou zero alertas abertos;
 - o CI passou a chamar `check:cloudflare:production`, incluindo as validações de ambiente, Custom Domains e remoção do `.dev.vars` do artefato.
+- o Supabase Auth foi persistido com Site URL `https://crischaves.com.br` e redirects exatos de convite/recuperação para produção e staging, sem curingas; os dois redirects locais continuam disponíveis somente para desenvolvimento;
+- o Worker base foi consultado e ainda possui zero segredos; as credenciais do arquivo local foram testadas sem revelar valores, receberam `401` e estão proibidas de serem promovidas para produção.
 
-A próxima ação é cadastrar os três segredos válidos no Worker base, configurar os URLs HTTPS exatos no Supabase Auth e somente então executar o primeiro deploy de produção seguido do checklist pós-publicação.
+A próxima ação é cadastrar manualmente os três segredos válidos no Worker base e somente então executar o primeiro deploy de produção seguido do checklist pós-publicação.
