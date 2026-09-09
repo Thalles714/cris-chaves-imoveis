@@ -1,5 +1,7 @@
 # Evidência HTTP de segurança do staging
 
+> Reexecução em 9 de setembro de 2026 após a migration 16 e o deploy do Worker compatível: 14 controles aprovados, sem mutação persistente.
+
 **Data:** 8 de setembro de 2026  
 **Alvo permitido:** `cris-chaves-imoveis-staging.thallestleal.workers.dev`  
 **Comando:** `pnpm check:staging-security`

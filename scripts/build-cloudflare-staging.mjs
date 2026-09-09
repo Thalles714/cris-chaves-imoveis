@@ -30,6 +30,11 @@ const actualRateLimiters = (config.ratelimits ?? [])
 const checks = [
 	[config.name === "cris-chaves-imoveis-staging", "nome do Worker"],
 	[config.vars?.APP_ENV === "preview", "APP_ENV=preview"],
+	[
+		config.vars?.PUBLIC_SITE_URL ===
+			"https://cris-chaves-imoveis-staging.thallestleal.workers.dev",
+		"origem canônica do staging",
+	],
 	[config.workers_dev === true, "rota workers.dev habilitada"],
 	[config.preview_urls === false, "URLs de preview por versão desativadas"],
 	[config.observability?.redact_query_string === true, "query string redigida nos logs"],

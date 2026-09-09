@@ -134,7 +134,11 @@ select is(
 );
 
 select is(to_regclass('public.leads'), null, 'leads are not persisted while the legal decision is pending');
-select is((select count(*) from public.public_property_catalog), 1::bigint, 'projection contains only the published property');
+select is(
+  (select count(*) from public.public_property_catalog where public_code = 'TEST-PUBLIC'),
+  1::bigint,
+  'projection contains the synthetic published property'
+);
 select ok(
   not exists (
     select 1 from information_schema.columns
@@ -151,8 +155,16 @@ select ok(
 
 set local role anon;
 select set_config('request.jwt.claims', '{"role":"anon","aal":"aal1"}', true);
-select is((select count(*) from public.public_property_catalog), 1::bigint, 'anon reads published catalog');
-select is((select count(*) from public.public_property_media), 1::bigint, 'anon sees only approved published media');
+select is(
+  (select count(*) from public.public_property_catalog where public_code = 'TEST-PUBLIC'),
+  1::bigint,
+  'anon reads the synthetic published catalog entry'
+);
+select is(
+  (select count(*) from public.public_property_media where property_code = 'TEST-PUBLIC'),
+  1::bigint,
+  'anon sees the synthetic approved published media'
+);
 select throws_ok(
   $$select * from public.properties$$,
   '42501', 'permission denied for table properties',
@@ -229,7 +241,15 @@ select lives_ok(
   $$update public.properties set title = 'Rascunho revisado' where id = '50000000-0000-4000-8000-000000000005'$$,
   'aal2 editor can update property content'
 );
-select is((select count(*) from storage.objects), 2::bigint, 'aal2 editor can list registered Storage objects');
+select is(
+  (
+    select count(*)
+    from storage.objects
+    where name like 'properties/40000000-0000-4000-8000-000000000004/%'
+  ),
+  2::bigint,
+  'aal2 editor can list the synthetic registered Storage objects'
+);
 select ok(
   not exists (
     select 1
