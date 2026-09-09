@@ -24,9 +24,10 @@ Antes da janela, registrar uma pessoa responsável por decisão go/no-go, contas
 5. Gerar o artefato e executar o dry-run. Conferir ambiente, domínio, bindings gratuitos e ausência de segredo no bundle.
 6. Publicar o Worker sem habilitar o domínio e testar uma rota privada quando disponível.
 7. Configurar no Supabase Auth a Site URL HTTPS e somente os redirects exatos usados por convite e recuperação.
-8. Ativar `crischaves.com.br` e `www.crischaves.com.br`; redirecionar permanentemente `www` para a raiz.
-9. Confirmar certificado TLS, HTTPS, HSTS, CSP, `nosniff`, noindex administrativo e cache privado.
-10. Executar o checklist pós-publicação e, apenas depois, remover o bloqueio de indexação pública.
+8. Remover o DS/DNSSEC do provedor anterior, confirmar a remoção na origem, respeitar qualquer janela de transição do registro, trocar os nameservers somente quando a zona Cloudflare responder autoritativamente e aguardar sua ativação.
+9. Ativar os Custom Domains `crischaves.com.br` e `www.crischaves.com.br`; redirecionar permanentemente `www` para a raiz.
+10. Confirmar certificado TLS, HTTPS, HSTS, CSP, `nosniff`, noindex administrativo e cache privado.
+11. Executar o checklist pós-publicação e, apenas depois, remover o bloqueio de indexação pública.
 
 ## Checklist pós-publicação
 

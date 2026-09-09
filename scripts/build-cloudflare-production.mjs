@@ -29,6 +29,16 @@ const expectedRateLimiters = ["2468031", "2468033", "2468034"];
 const actualRateLimiters = (config.ratelimits ?? [])
 	.map((binding) => binding.namespace_id)
 	.sort();
+const expectedRoutes = [
+	{ pattern: "crischaves.com.br", custom_domain: true },
+	{ pattern: "www.crischaves.com.br", custom_domain: true },
+];
+const actualRoutes = config.routes ?? [];
+const expectedCustomDomains = ["crischaves.com.br", "www.crischaves.com.br"];
+const actualCustomDomains = (config.routes ?? [])
+	.filter((route) => route.custom_domain === true)
+	.map((route) => route.pattern)
+	.sort();
 
 const checks = [
 	[config.name === "cris-chaves-imoveis", "nome do Worker"],
@@ -39,6 +49,14 @@ const checks = [
 	],
 	[config.workers_dev === false, "rota workers.dev desativada"],
 	[config.preview_urls === false, "URLs de preview por versão desativadas"],
+	[
+		JSON.stringify(actualRoutes) === JSON.stringify(expectedRoutes),
+		"Custom Domains de produção",
+	],
+	[
+		JSON.stringify(actualCustomDomains) === JSON.stringify(expectedCustomDomains),
+		"custom domains raiz e www",
+	],
 	[config.observability?.redact_query_string === true, "query string redigida nos logs"],
 	[config.observability?.logs?.persist === false, "persistência de logs desativada"],
 	[config.observability?.traces?.persist === false, "persistência de traces desativada"],
