@@ -34,6 +34,8 @@ Todos os 14 controles foram aprovados sem mutação persistente. A diferença `4
 
 Em 9 de setembro de 2026, uma sessão administrativa com MFA confirmado enviou uma imagem segura ao placeholder `DEMO-004`. O fluxo privilegiado concluiu o tratamento, publicou a derivada em rota opaca, aplicou a marca-d'água central `Cris Chaves` e registrou os eventos `Mídia adicionada` e `Mídia alterada`. A página pública apresentou somente bairro e cidade, sem endereço exato. Essa prova valida o novo segredo do Worker antes da aposentadoria da chave antiga.
 
+Após a aposentadoria manual da chave antiga, a suíte de 14 controles foi repetida integralmente e permaneceu aprovada. O painel administrativo continuou funcional em sessão AAL2, comprovando ausência de regressão imediata.
+
 ## Rastreabilidade ASVS inicial
 
 Esta evidência contribui diretamente para `v5.0.0-V1.1.2`, `V1.2.1`, `V3.4.1`, `V3.4.4`, `V3.4.6`, `V3.5.1`, `V4.1.1`, `V8.2.2` e `V14.3.2`. Ela não encerra isoladamente esses requisitos: revisão de código, testes autenticados, RLS/pgTAP, matriz de navegador e evidências complementares continuam aplicáveis.

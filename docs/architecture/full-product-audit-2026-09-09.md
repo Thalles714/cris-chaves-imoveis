@@ -66,20 +66,20 @@ Na conclusão da revisão local, a migration 16 ainda não havia sido aplicada n
 - 14 controles HTTP do staging aprovados após o deploy final;
 - upload autenticado com AAL2 confirmou o novo segredo no fluxo privilegiado: uma imagem segura foi tratada, recebeu marca-d'água, ficou pública em rota opaca e gerou os eventos de auditoria esperados;
 - a página pública exibiu apenas bairro/cidade e a mensagem de preservação do endereço exato, sem dado privado;
-- chave secreta antiga já pode ser aposentada manualmente; essa revogação continua pendente.
+- chave secreta antiga aposentada manualmente pelo responsável;
+- após a revogação, os 14 controles HTTP voltaram a passar, o painel AAL2 permaneceu funcional e o Worker manteve somente os três nomes de segredo esperados.
 
 ## Bloqueadores antes do go-live
 
-1. Aposentar a chave privilegiada antiga no Supabase; o novo segredo já foi validado por upload/confirmação de mídia com AAL2 no staging.
-2. Manter comprovado o alinhamento da migration 16 e do Worker antes do corte de produção.
-3. Configurar DNS/TLS do domínio raiz e `www` no Cloudflare.
-4. Definir `https://crischaves.com.br` como Site URL do Supabase Auth e permitir apenas redirects exatos necessários.
-5. Cadastrar os três secrets de produção sem copiá-los para arquivo ou conversa.
-6. Arquivar os seis placeholders antes de liberar indexação pública.
-7. Substituir as minutas de privacidade e termos por textos validados.
-8. Definir responsável por alertas, incidentes e recuperação das contas.
-9. Repetir controles remotos, ZAP, fluxo AAL2 e smoke test no host final.
-10. Classificar a matriz ASVS requisito a requisito; 251 de 253 itens ainda não têm evidência individual.
+1. Manter comprovado o alinhamento da migration 16 e do Worker antes do corte de produção.
+2. Configurar DNS/TLS do domínio raiz e `www` no Cloudflare.
+3. Definir `https://crischaves.com.br` como Site URL do Supabase Auth e permitir apenas redirects exatos necessários.
+4. Cadastrar os três secrets de produção sem copiá-los para arquivo ou conversa.
+5. Arquivar os seis placeholders antes de liberar indexação pública.
+6. Substituir as minutas de privacidade e termos por textos validados.
+7. Definir responsável por alertas, incidentes e recuperação das contas.
+8. Repetir controles remotos, ZAP, fluxo AAL2 e smoke test no host final.
+9. Classificar a matriz ASVS requisito a requisito; 251 de 253 itens ainda não têm evidência individual.
 
 O risco de operar inicialmente sem backup próprio foi aceito na ADR-0010 e não é apresentado como controle implementado.
 
