@@ -18,9 +18,17 @@ export default function Terms() {
 			<header>
 				<p className="site-eyebrow">Uma relação clara</p>
 				<h1>Termos de uso</h1>
-				<p>O que você pode esperar ao navegar, pesquisar e consultar um imóvel.</p>
+				<p>Última atualização: 9 de setembro de 2026.</p>
 			</header>
 			<article>
+				<section>
+					<h2>Responsável pelo site</h2>
+					<p>
+						Este site é operado por Cris Chaves Corretor de Imóveis. A identificação
+						profissional vigente aparece no cabeçalho e no rodapé. Ao navegar, você
+						concorda em usar o conteúdo de forma lícita e de acordo com estes termos.
+					</p>
+				</section>
 				<section>
 					<h2>Finalidade do site</h2>
 					<p>
@@ -44,6 +52,19 @@ export default function Terms() {
 						conteúdo do site de modo que viole direitos de terceiros ou apresente
 						informações fora de contexto.
 					</p>
+					<p>
+						Anúncios identificados como demonstrativos usam dados de avaliação e não
+						constituem oferta de imóvel. As imagens publicadas recebem a marca d'água
+						“Cris Chaves”.
+					</p>
+				</section>
+				<section>
+					<h2>Uso permitido</h2>
+					<p>
+						Você pode pesquisar, consultar e compartilhar os links públicos dos anúncios.
+						É proibido tentar acessar a área administrativa, contornar controles de
+						segurança, automatizar tráfego abusivo ou interferir no funcionamento do site.
+					</p>
 				</section>
 				<section>
 					<h2>Links externos</h2>
@@ -53,10 +74,18 @@ export default function Terms() {
 					</p>
 				</section>
 				<section>
-					<h2>Antes da publicação</h2>
+					<h2>Privacidade</h2>
 					<p>
-						Esta minuta deverá ser validada junto com os dados profissionais, os canais
-						públicos e a política de privacidade antes do lançamento.
+						O tratamento de informações relacionado ao uso do site é explicado no
+						<a href="/privacidade"> Aviso de privacidade</a>.
+					</p>
+				</section>
+				<section>
+					<h2>Alterações e contato</h2>
+					<p>
+						Estes termos podem ser atualizados quando o serviço mudar. A versão vigente e
+						sua data permanecem nesta página. Para dúvidas, use a
+						<a href="/contato"> página de contato</a>.
 					</p>
 				</section>
 			</article>
