@@ -129,3 +129,16 @@ A Etapa 5 somente será marcada concluída quando os controles aplicáveis avali
 - `v5.0.0-V3.4.4` foi verificado com `X-Content-Type-Options: nosniff` nas mesmas superfícies;
 - cada item aponta para implementação, testes locais, controle HTTP remoto e execução ZAP `34182848680`;
 - estado da matriz: 2 verificados, 0 N/A e 251 pendentes.
+
+## Continuação em 9 de setembro de 2026
+
+- a migration 16 exige administrador ativo com AAL2 para ler originais privados e remove UPDATE de Storage para `authenticated`;
+- a confirmação de mídia agora é exclusiva do Worker confiável e o contrato legado de publicação foi removido;
+- uma chave privilegiada foi encontrada em artefato local ignorado. O arquivo foi removido e build/scanner foram corrigidos, mas a chave deve ser rotacionada antes de qualquer publicação;
+- os temas anteriores foram preservados e Black foi adicionado como modo independente; as seis paletas agora alteram toda a interface;
+- foram corrigidos navegação móvel, contraste, contato por WhatsApp, metadados e dados estruturados públicos;
+- baseline local: 16 migrations, lint SQL limpo, 60 pgTAP, publicação com rollback, 264 testes unitários/arquiteturais, 32 E2E aprovados e 6 pulados intencionalmente;
+- dry-run do Cloudflare: 86 assets e 433,42 KiB compactados, sem deploy;
+- auditoria detalhada em `full-product-audit-2026-09-09.md` e procedimento em `production-launch-runbook.md`.
+
+Produção permanece **NO-GO**. A migration 16 ainda não foi aplicada remotamente. A próxima ação manual é rotacionar a chave; depois, migration e Worker compatível devem ser atualizados na mesma janela de manutenção.

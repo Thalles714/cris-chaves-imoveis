@@ -109,7 +109,10 @@ function toItem(
 }
 
 export class SupabaseAdminMediaRepository implements AdminMediaRepository {
-	constructor(private readonly client: AppSupabaseClient) {}
+	constructor(
+		private readonly client: AppSupabaseClient,
+		private readonly trustedConfirmationClient?: AppSupabaseClient,
+	) {}
 
 	private async assertActiveProperty(propertyId: string) {
 		const result = await this.client
@@ -323,6 +326,7 @@ export class SupabaseAdminMediaRepository implements AdminMediaRepository {
 		rawMediaId: string,
 		rawExpectedVersion: number,
 		rawIsCover: boolean,
+		rawActorId: string,
 	) {
 		const input = adminImageConfirmationSchema.parse({
 			propertyId: rawPropertyId,
@@ -336,11 +340,13 @@ export class SupabaseAdminMediaRepository implements AdminMediaRepository {
 		if (row.media_kind !== "image" || !storage.original || !storage.publicDerivative) {
 			throw new AdminMediaError("STORAGE_MISMATCH");
 		}
-		const result = await this.client.rpc("confirm_property_image", {
+		if (!this.trustedConfirmationClient) throw new AdminMediaError("STORAGE_UNAVAILABLE");
+		const result = await this.trustedConfirmationClient.rpc("confirm_property_image", {
 			p_property_id: input.propertyId,
 			p_media_id: input.mediaId,
 			p_expected_version: input.expectedVersion,
 			p_is_cover: input.isCover,
+			p_actor_id: adminImageConfirmationSchema.shape.propertyId.parse(rawActorId),
 		});
 		if (result.error || !result.data) throw new AdminMediaError("CONFLICT");
 		return toItem(result.data, storage);

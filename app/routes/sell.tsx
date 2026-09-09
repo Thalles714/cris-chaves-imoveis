@@ -138,8 +138,8 @@ export default function Sell({ loaderData: site }: Route.ComponentProps) {
 					<p className="site-eyebrow">Vamos começar</p>
 					<h2 id="cc-sell-contact-title">Apresente o básico sobre o seu imóvel.</h2>
 					<p>
-						O WhatsApp é o canal disponível para iniciar a conversa agora. O formulário
-						abaixo permanece somente como prévia e não envia nem armazena dados.
+						O WhatsApp é o canal disponível para iniciar a conversa agora, sem cadastro e
+						sem deixar seus dados em um formulário intermediário.
 					</p>
 					<a
 						className="cc-button cc-button--primary"
@@ -152,7 +152,7 @@ export default function Sell({ loaderData: site }: Route.ComponentProps) {
 				</div>
 				{site.contactFormAvailable ? null : (
 					<div className="cc-sell-contact__form">
-						<ContactForm intent="sell" />
+						<ContactForm intent="sell" whatsappUrl={whatsappUrl} />
 					</div>
 				)}
 			</section>

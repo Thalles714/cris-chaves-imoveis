@@ -20,6 +20,7 @@ export interface AdminMediaRepository {
 		mediaId: string,
 		expectedVersion: number,
 		isCover: boolean,
+		actorId: string,
 	): Promise<AdminMediaItem>;
 	addVideo(input: AdminVideoInput): Promise<AdminMediaItem>;
 	updateMetadata(input: AdminMediaMetadataInput): Promise<AdminMediaItem>;

@@ -97,11 +97,17 @@ test.describe("site público", () => {
 		expect(response.headers().location).toBe("/?cidade=Cidreira&pagina=2");
 	});
 
-	test("mantém formulário bloqueado até a aprovação do fluxo LGPD", async ({ page }) => {
+	test("oferece contato direto sem coletar dados antes da aprovação do fluxo LGPD", async ({
+		page,
+	}) => {
 		await page.goto("/anuncie-seu-imovel", { waitUntil: "domcontentloaded" });
-		await expect(page.getByText("Prefere escrever por aqui?")).toBeVisible();
-		await expect(page.getByRole("button", { name: "Enviar para o Cris" })).toBeDisabled();
-		await expect(page.getByLabel("Nome")).toBeDisabled();
+		await expect(page.getByText("Atendimento direto")).toBeVisible();
+		await expect(page.locator(".contact-form-panel__cta")).toHaveAttribute(
+			"href",
+			/^https:\/\/wa\.me\//u,
+		);
+		await expect(page.locator("form")).toHaveCount(0);
+		await expect(page.getByLabel("Nome")).toHaveCount(0);
 	});
 
 	test("expõe robots e sitemap apenas com URLs públicas canônicas", async ({

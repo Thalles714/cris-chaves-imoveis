@@ -319,7 +319,11 @@ export function PublicNav({
 			if (!navigationRef.current?.contains(event.target as Node)) setOpen(false);
 		};
 		const closeOnEscape = (event: globalThis.KeyboardEvent) => {
-			if (event.key === "Escape") setOpen(false);
+			if (event.key !== "Escape") return;
+			setOpen(false);
+			navigationRef.current
+				?.querySelector<HTMLButtonElement>(".cc-public-nav__toggle")
+				?.focus();
 		};
 
 		document.addEventListener("pointerdown", closeOnOutsidePress);

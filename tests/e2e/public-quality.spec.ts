@@ -12,12 +12,39 @@ const themes = [
 ] as const;
 
 const themeCta = {
-	horizonte: "#a94a2d",
+	horizonte: "#9f4429",
 	atlantico: "#0e668c",
 	araucaria: "#21684f",
 	dunas: "#8d5728",
 	entardecer: "#a54331",
 	grafite: "#354a55",
+} as const;
+
+const themeSurfaces = {
+	horizonte: {
+		light: { background: "#f4f1ed", text: "#183c49" },
+		dark: { background: "#0e171b", text: "#edf4f4" },
+	},
+	atlantico: {
+		light: { background: "#edf5f7", text: "#0e3342" },
+		dark: { background: "#081820", text: "#e9f7fa" },
+	},
+	araucaria: {
+		light: { background: "#f0f5f1", text: "#17382f" },
+		dark: { background: "#0b1814", text: "#edf6f1" },
+	},
+	dunas: {
+		light: { background: "#f6f1e9", text: "#403426" },
+		dark: { background: "#1d1711", text: "#f6efe5" },
+	},
+	entardecer: {
+		light: { background: "#f7f0f3", text: "#442f3a" },
+		dark: { background: "#1b1118", text: "#f8edf3" },
+	},
+	grafite: {
+		light: { background: "#f1f3f3", text: "#25363d" },
+		dark: { background: "#101416", text: "#f1f4f5" },
+	},
 } as const;
 
 const schemeIndexes = { dark: 0, black: 1, light: 2 } as const;
@@ -72,25 +99,19 @@ test.describe("qualidade visual e desempenho público", () => {
 				await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
 				await expect(page.locator("html")).toHaveAttribute("data-color-scheme", scheme);
 				await expect(page.locator(".cc-public-nav .brand-lockup__creci")).toBeVisible();
-				if (scheme !== "light") {
-					const schemeTokens = await page.locator("html").evaluate((element) => {
-						const styles = getComputedStyle(element);
-						return {
-							background: styles.getPropertyValue("--cc-bg").trim(),
-							text: styles.getPropertyValue("--cc-text").trim(),
-							cta: styles.getPropertyValue("--cc-accent-action").trim(),
-						};
-					});
-					expect(schemeTokens).toEqual(
-						scheme === "black"
-							? { background: "#050607", text: "#f7f9fb", cta: "#1689ff" }
-							: {
-									background: "#0e171b",
-									text: "#edf4f4",
-									cta: themeCta[theme],
-								},
-					);
-				}
+				const schemeTokens = await page.locator("html").evaluate((element) => {
+					const styles = getComputedStyle(element);
+					return {
+						background: styles.getPropertyValue("--cc-bg").trim(),
+						text: styles.getPropertyValue("--cc-text").trim(),
+						cta: styles.getPropertyValue("--cc-accent-action").trim(),
+					};
+				});
+				expect(schemeTokens).toEqual(
+					scheme === "black"
+						? { background: "#050607", text: "#f7f9fb", cta: "#0b6fe8" }
+						: { ...themeSurfaces[theme][scheme], cta: themeCta[theme] },
+				);
 			}
 		}
 

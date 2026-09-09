@@ -39,10 +39,17 @@ describe("esquemas de aparência", () => {
 		expect(resolveColorScheme("system", true)).toBe("dark");
 		expect(resolveColorScheme("system", false)).toBe("light");
 		expect(designTokens.colorScheme.dark.background).toBe("#0e171b");
+		expect(designTokens.themes.horizonte.light.background).toBe("#f4f1ed");
+		expect(designTokens.themes.atlantico.light.background).not.toBe(
+			designTokens.themes.araucaria.light.background,
+		);
+		expect(designTokens.themes.dunas.dark.background).not.toBe(
+			designTokens.themes.entardecer.dark.background,
+		);
 		expect(designTokens.colorScheme.black).toMatchObject({
 			background: "#050607",
 			text: "#f7f9fb",
-			cta: "#1689ff",
+			cta: "#0b6fe8",
 		});
 
 		render(
@@ -59,5 +66,22 @@ describe("esquemas de aparência", () => {
 		expect(document.documentElement).not.toHaveClass("dark");
 		expect(document.documentElement.style.colorScheme).toBe("dark");
 		expect(window.localStorage.getItem("cris.colorScheme")).toBe("black");
+	});
+
+	it("leva o foco ao esquema atual e o devolve ao gatilho com Escape", async () => {
+		render(
+			<AppearanceProvider>
+				<AppearanceMenu />
+			</AppearanceProvider>,
+		);
+		const user = userEvent.setup();
+		const trigger = screen.getByRole("button", { name: "Mudar aparência" });
+		await user.click(trigger);
+		await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+		expect(screen.getByRole("button", { name: "Claro" })).toHaveFocus();
+
+		await user.keyboard("{Escape}");
+		expect(trigger).toHaveFocus();
+		expect(trigger).toHaveAttribute("aria-expanded", "false");
 	});
 });

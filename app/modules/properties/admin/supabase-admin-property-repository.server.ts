@@ -68,14 +68,6 @@ type PrivateRow = Pick<
 	| "version"
 >;
 
-type RpcErrorLike = {
-	code?: string;
-};
-
-function isMissingCurrentPublishFunction(error: RpcErrorLike | null) {
-	return error?.code === "PGRST202" || error?.code === "PGRST203";
-}
-
 const emptyPrivateDetails: AdminPropertyEditRecord["privateDetails"] = {
 	addressLine: null,
 	addressNumber: null,
@@ -326,38 +318,6 @@ export class SupabaseAdminPropertyRepository implements AdminPropertyRepository 
 				p_expected_version: input.expectedVersion,
 				p_authorization_confirmed: input.authorizationConfirmed,
 			});
-
-			// Compatibilidade temporária com o banco remoto anterior à migration que
-			// simplifica a autorização. O operador não precisa preencher uma etapa:
-			// a confirmação final é registrada e a função versionada antiga é chamada.
-			if (isMissingCurrentPublishFunction(result.error)) {
-				const legacyConfirmation = await this.client
-					.from("property_private_details")
-					.upsert(
-						{
-							property_id: input.propertyId,
-							authorization_reference: "Confirmação realizada no ato da publicação.",
-							authorization_confirmed_at: new Date().toISOString(),
-						},
-						{ onConflict: "property_id" },
-					);
-				if (legacyConfirmation.error) throw new AdminPropertyConflictError();
-
-				const legacyClient = this.client as unknown as {
-					rpc(
-						name: "publish_property",
-						args: { p_property_id: string; p_expected_version: number },
-					): Promise<{ data: PropertyRow | null; error: RpcErrorLike | null }>;
-				};
-				const legacyResult = await legacyClient.rpc("publish_property", {
-					p_property_id: input.propertyId,
-					p_expected_version: input.expectedVersion,
-				});
-				if (legacyResult.error || !legacyResult.data) {
-					throw new AdminPropertyConflictError();
-				}
-				return toListItem(legacyResult.data);
-			}
 			if (result.error || !result.data) throw new AdminPropertyConflictError();
 			return toListItem(result.data);
 		}

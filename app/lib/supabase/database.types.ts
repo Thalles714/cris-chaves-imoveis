@@ -545,6 +545,7 @@ export type Database = {
 			};
 			confirm_property_image: {
 				Args: {
+					p_actor_id: string;
 					p_expected_version: number;
 					p_is_cover: boolean;
 					p_media_id: string;
