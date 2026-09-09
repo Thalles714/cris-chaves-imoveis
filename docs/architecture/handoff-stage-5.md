@@ -189,5 +189,9 @@ O bloqueador de rotação da chave privilegiada está encerrado.
 - a auditoria de dependências voltou a indicar zero vulnerabilidades conhecidas;
 - o gate local completo foi aprovado: 51 arquivos/264 testes unitários, contrato de publicação, build, fronteira cliente/servidor e 32 testes E2E, com 6 variações móveis intencionalmente ignoradas;
 - o ambiente `test` passou a declarar `routes: []`, evitando herdar e reassociar os domínios de produção em um deploy acidental.
+- encerrada a transição, o Registro.br aceitou `daphne.ns.cloudflare.com` e `dave.ns.cloudflare.com` com zero DS residual;
+- resolvedores públicos passaram a retornar os dois nameservers Cloudflare e a zona atingiu `active` em 9 de setembro de 2026;
+- o commit foi enviado à branch pública somente depois de varrer arquivos atuais, nomes rastreados e histórico Git; o secret scanning remoto confirmou zero alertas abertos;
+- o CI passou a chamar `check:cloudflare:production`, incluindo as validações de ambiente, Custom Domains e remoção do `.dev.vars` do artefato.
 
-A próxima ação somente deve ocorrer após o contador de transição do Registro.br terminar: repetir a troca para os nameservers Cloudflare, confirmar a delegação pública, aguardar a ativação da zona e então preparar os segredos e o primeiro deploy de produção.
+A próxima ação é cadastrar os três segredos válidos no Worker base, configurar os URLs HTTPS exatos no Supabase Auth e somente então executar o primeiro deploy de produção seguido do checklist pós-publicação.

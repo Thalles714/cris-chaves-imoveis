@@ -76,11 +76,14 @@ Na conclusão da revisão local, a migration 16 ainda não havia sido aplicada n
 - um alerta de alta severidade publicado para `sharp < 0.35.4` foi eliminado com override mínimo para `0.35.4`; a auditoria voltou a informar zero vulnerabilidades conhecidas;
 - o gate completo passou com 51 arquivos e 264 testes unitários, contrato de publicação com rollback, 32 cenários E2E aprovados e 6 variações intencionalmente ignoradas;
 - o ambiente de testes recebeu `routes: []`, impedindo que uma publicação acidental desse ambiente reassocie os Custom Domains de produção.
+- após o fim da transição, o Registro.br aceitou integralmente `daphne.ns.cloudflare.com` e `dave.ns.cloudflare.com`, mantendo zero DS;
+- a delegação pública passou a responder pelos dois nameservers esperados e a zona Cloudflare atingiu o estado `active` em 9 de setembro de 2026;
+- a branch pública foi examinada localmente e pelo secret scanning do GitHub, ambos sem alertas de segredo aberto.
 
 ## Bloqueadores antes do go-live
 
 1. Manter comprovado o alinhamento da migration 16 e do Worker antes do corte de produção.
-2. Configurar DNS/TLS do domínio raiz e `www` no Cloudflare.
+2. Publicar o Worker com os segredos válidos, provisionar TLS para raiz e `www` e validar o redirecionamento canônico.
 3. Definir `https://crischaves.com.br` como Site URL do Supabase Auth e permitir apenas redirects exatos necessários.
 4. Cadastrar os três secrets de produção sem copiá-los para arquivo ou conversa.
 5. Arquivar os seis placeholders antes de liberar indexação pública.

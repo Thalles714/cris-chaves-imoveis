@@ -119,8 +119,8 @@ jobs:
       - name: Build for Cloudflare Workers
         run: pnpm build
 
-      - name: Validate the Cloudflare Worker bundle without deploying
-        run: pnpm check:cloudflare
+      - name: Validate the production Cloudflare bundle without deploying
+        run: pnpm check:cloudflare:production
 
       - name: Inspect the browser bundle boundary
         run: pnpm check:client-boundary
