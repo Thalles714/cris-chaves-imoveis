@@ -54,12 +54,22 @@
 | Cloudflare dry-run | 86 assets; 433,42 KiB compactados; nenhum deploy |
 | Navegador | Black, escuro Entardecer, contato e menu móvel inspecionados |
 
-A migration 16 ainda não foi aplicada no Supabase remoto.
+Na conclusão da revisão local, a migration 16 ainda não havia sido aplicada no Supabase remoto; a atualização abaixo registra sua aplicação posterior.
+
+### Atualização após a auditoria
+
+- nova chave secreta criada pelo responsável e instalada no Worker de staging sem exposição do valor;
+- migration 16 aplicada no Supabase remoto e histórico local/remoto alinhado;
+- Worker compatível publicado no staging, com URL canônica explícita e sem aviso de herança de variáveis;
+- matriz RLS remota ampliada de 48 para 56 controles e aprovada dentro de `BEGIN`/`ROLLBACK`;
+- consulta independente confirmou zero usuários, imóveis, mídias e objetos sintéticos residuais;
+- 14 controles HTTP do staging aprovados após o deploy final;
+- chave secreta antiga ainda deve ser aposentada somente após o teste autenticado de upload/confirmação com AAL2.
 
 ## Bloqueadores antes do go-live
 
-1. Rotacionar a chave privilegiada do Supabase encontrada em artefato local e atualizar somente os secrets dos Workers.
-2. Aplicar a migration 16 e publicar o Worker compatível na mesma janela de manutenção.
+1. Validar upload/confirmação de mídia com AAL2 no staging e aposentar a chave privilegiada antiga.
+2. Manter comprovado o alinhamento da migration 16 e do Worker antes do corte de produção.
 3. Configurar DNS/TLS do domínio raiz e `www` no Cloudflare.
 4. Definir `https://crischaves.com.br` como Site URL do Supabase Auth e permitir apenas redirects exatos necessários.
 5. Cadastrar os três secrets de produção sem copiá-los para arquivo ou conversa.

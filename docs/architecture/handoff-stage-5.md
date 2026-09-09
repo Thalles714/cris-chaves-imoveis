@@ -141,4 +141,18 @@ A Etapa 5 somente será marcada concluída quando os controles aplicáveis avali
 - dry-run do Cloudflare: 86 assets e 433,42 KiB compactados, sem deploy;
 - auditoria detalhada em `full-product-audit-2026-09-09.md` e procedimento em `production-launch-runbook.md`.
 
-Produção permanece **NO-GO**. A migration 16 ainda não foi aplicada remotamente. A próxima ação manual é rotacionar a chave; depois, migration e Worker compatível devem ser atualizados na mesma janela de manutenção.
+Nesse checkpoint, produção permanecia **NO-GO** enquanto a chave, a migration e o Worker ainda aguardavam atualização. O bloco seguinte registra a conclusão controlada dessas três ações.
+
+### Hardening remoto concluído em 9 de setembro de 2026
+
+- nova chave secreta foi criada pelo responsável e instalada no Worker de staging pelo prompt interativo do Wrangler, sem expor o valor;
+- migration `20260908010000_harden_media_storage.sql` foi a única pendência no dry-run e foi aplicada com sucesso no projeto remoto;
+- histórico remoto confirmou as 16 migrations alinhadas;
+- Worker compatível publicado no staging; versão final desta janela: `cfb5710d-1276-4858-a4e3-256dcc91e774`;
+- a URL canônica do staging passou a ser explícita, eliminando o aviso de variável não herdada;
+- os quatro falsos negativos causados por contagens globais de placeholders foram corrigidos para escopo sintético;
+- matriz RLS remota ampliada para 56 controles chegou a `ok 56` dentro de transação com `ROLLBACK`;
+- consulta independente confirmou zero usuários, imóveis, mídias e objetos sintéticos residuais;
+- 14 controles HTTP passaram após o deploy final e o scanner confirmou ausência de segredo em código, configuração, testes e artefatos gerados.
+
+A chave antiga permanece ativa apenas até o teste autenticado AAL2 comprovar o fluxo privilegiado de confirmação de mídia com o novo secret. Depois dessa prova, ela deve ser aposentada no Supabase.
