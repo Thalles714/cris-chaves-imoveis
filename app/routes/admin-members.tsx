@@ -109,7 +109,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
 					error instanceof AdminMemberOperationError &&
 					error.code === "SELF_CHANGE_FORBIDDEN"
 						? "Sua própria função ou situação não pode ser alterada aqui."
-						: "Não foi possível concluir a alteração da equipe.",
+						: error instanceof AdminMemberOperationError &&
+							  error.code === "EMAIL_RATE_LIMITED"
+							? "O limite de e-mails do Supabase foi atingido. Aguarde cerca de 30 minutos antes de tentar novamente."
+							: "Não foi possível concluir a alteração da equipe.",
 			},
 			{ status: 409, headers: adminResponseHeaders(responseHeaders) },
 		);

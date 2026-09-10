@@ -93,6 +93,12 @@ export class SupabasePrivilegedAuthDirectory implements AdminAuthDirectory {
 		const result = await this.client.auth.admin.inviteUserByEmail(email, {
 			redirectTo: this.invitationRedirectUrl,
 		});
+		if (
+			result.error &&
+			(result.error.status === 429 || result.error.code === "over_email_send_rate_limit")
+		) {
+			throw new AdminMemberOperationError("EMAIL_RATE_LIMITED");
+		}
 		if (result.error || !result.data.user) {
 			throw new AdminMemberOperationError("DIRECTORY_UNAVAILABLE");
 		}
