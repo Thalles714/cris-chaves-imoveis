@@ -10,6 +10,7 @@ import {
 	adminMemberRowSchema,
 	AdminMemberOperationError,
 	AdminMemberService,
+	SupabasePrivilegedAuthDirectory,
 	type AdminAuthDirectory,
 	type AdminMemberRepository,
 } from "~/modules/members/index.server";
@@ -162,6 +163,21 @@ describe("admin member management", () => {
 
 		expect(authDirectory.invite).toHaveBeenCalledWith(syntheticEmail);
 		expect(members.create).toHaveBeenCalledWith(editorId, "editor");
+	});
+
+	it("identifies the Supabase email rate limit without exposing provider details", async () => {
+		const inviteUserByEmail = vi.fn(async () => ({
+			data: { user: null },
+			error: { status: 429, code: "over_email_send_rate_limit" },
+		}));
+		const authDirectory = new SupabasePrivilegedAuthDirectory(
+			{ auth: { admin: { inviteUserByEmail } } } as never,
+			"https://example.invalid/admin/convite",
+		);
+
+		await expect(authDirectory.invite(syntheticEmail)).rejects.toEqual(
+			new AdminMemberOperationError("EMAIL_RATE_LIMITED"),
+		);
 	});
 
 	it("compensates an orphaned auth invite when membership creation fails", async () => {
