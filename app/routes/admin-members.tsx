@@ -232,7 +232,7 @@ export default function AdminMembers() {
 									</td>
 									<td data-label="Ações" className="admin-member-actions">
 										{member.status === "active" && (
-											<>
+											<div className="admin-member-actions__controls">
 												<Form method="post">
 													<input type="hidden" name="intent" value="change-role" />
 													<input type="hidden" name="userId" value={member.userId} />
@@ -257,7 +257,7 @@ export default function AdminMembers() {
 													userId={member.userId}
 													version={member.version}
 												/>
-											</>
+											</div>
 										)}
 									</td>
 								</tr>

@@ -1139,8 +1139,8 @@
 	margin-top: var(--cc-space-6);
 }
 
-.admin-member-actions,
-.admin-member-actions form {
+.admin-member-actions__controls,
+.admin-member-actions__controls form {
 	display: flex;
 	justify-content: flex-end;
 	gap: var(--cc-space-2);
@@ -1151,7 +1151,7 @@
 		grid-template-columns: 1fr;
 	}
 
-	.admin-member-actions {
+	.admin-member-actions__controls {
 		flex-direction: column;
 	}
 }
