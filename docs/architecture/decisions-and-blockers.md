@@ -1,6 +1,6 @@
 # Checklist de decisões e bloqueios
 
-**Estado:** preparação final de produção
+**Estado:** produção lançada no escopo aprovado
 **Regra:** campos pendentes não recebem valor fictício nem são publicados
 
 ## Bloqueios de publicação solicitados
@@ -15,7 +15,7 @@
 | Reservado e vendido | cliente confirmou a recomendação em 3 de setembro de 2026 | reservado permanece no catálogo com selo e CTA para imóveis semelhantes; pode voltar a disponível. Vendido sai imediatamente do catálogo e não reverte no fluxo comum | cliente | [x] Confirmado |
 | Exclusão definitiva | cliente confirmou em 3 de setembro de 2026 a recomendação de manter apenas exclusão recuperável | hard delete não será oferecido no painel; privilégios `DELETE` de imóveis, detalhes, registros de mídia e objetos do Storage foram revogados | cliente | [x] Confirmado: somente soft delete |
 | Logotipo e ativos web | pacote recém-criado em [`public/brand`](../../public/brand/README.md) e aprovado pelo cliente em 3 de setembro de 2026 | usar as versões web aprovadas conforme o guia do pacote | cliente/design | [x] Confirmado |
-| Domínio e origem canônica | `crischaves.com.br` delegado aos nameservers Cloudflare e zona ativa em 9 de setembro de 2026 | usar `https://crischaves.com.br` como origem canônica e redirecionar `www` para o domínio raiz | cliente + responsável técnico | [x] DNS, TLS e redirect de `www` ativos; validação HTTP final em andamento |
+| Domínio e origem canônica | `crischaves.com.br` delegado aos nameservers Cloudflare e zona ativa em 9 de setembro de 2026 | usar `https://crischaves.com.br` como origem canônica e redirecionar `www` para o domínio raiz | cliente + responsável técnico | [x] DNS, TLS, redirects e validação HTTP final aprovados |
 | RPO/RTO | cliente decidiu operar inicialmente com poucos imóveis, cadastro manual e fontes externas sob sua guarda | sem RPO/RTO garantido; recadastro manual aceito; revisar nos gatilhos da ADR-0010 | cliente + responsável técnico | [x] Risco temporário aceito em 8 de setembro de 2026 |
 | Responsável operacional | o usuário assumiu provisoriamente a responsabilidade durante o lançamento | formalizar a continuidade após o go-live e os meios de contato/recuperação | cliente/fornecedor | [x] Cobertura provisória aceita; handoff definitivo pendente |
 | Placeholders | cliente autorizou anúncios demonstrativos, com mídia segura e marca-d'água, para avaliação pública | manter identificação inequívoca de demonstração; arquivar quando os anúncios reais forem cadastrados | cliente/produto | [x] Permanência temporária autorizada |
@@ -50,7 +50,7 @@
 
 ## Critério de bloqueio
 
-O lançamento permanece **no-go técnico** até o domínio responder sem erro, os controles finais passarem no host real, o fluxo AAL2 for repetido em produção e os meios de recuperação das contas forem verificados. DNS, TLS, URLs de autenticação, secrets e responsável operacional provisório já foram preparados. A permanência temporária dos placeholders demonstrativos foi autorizada. O restore deixou de ser bloqueio apenas nos limites e com os riscos explícitos da ADR-0010. O lançamento será sem formulário de leads, analytics ou pixels.
+O gate técnico de lançamento foi aprovado em 9 de setembro de 2026: domínio, TLS, redirects, CI, controles HTTP, ciclo AAL2, auditoria, catálogo, sitemap, mídia e privacidade foram verificados no host real. O lançamento é deliberadamente sem formulário de leads, analytics ou pixels e sem alegação de conformidade ASVS L2. Recuperação/titularidade definitiva de contas, SMTP próprio, backup próprio e conteúdo definitivo continuam no backlog operacional conforme riscos registrados.
 
 Quando uma resposta chegar, registrar data, autor, evidência e impacto; se alterar arquitetura, segurança, custo ou tratamento de dados, criar/superseder ADR antes de implementar.
 

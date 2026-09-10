@@ -1,6 +1,6 @@
 # Handoff da Etapa 5 — hardening e lançamento
 
-**Estado do gate:** EM ANDAMENTO — produção implantada, validação pós-deploy ainda `NO-GO`
+**Estado do gate:** CONCLUÍDO PARA O ESCOPO DE LANÇAMENTO APROVADO — produção validada
 
 **Início:** 7 de setembro de 2026
 
@@ -104,7 +104,7 @@ Depois que o usuário habilitou a depuração remota, o `browser-harness` repeti
 
 ## Regra de saída
 
-A Etapa 5 somente será marcada concluída quando os controles aplicáveis avaliados tiverem evidência reproduzível, as pendências ASVS remanescentes estiverem explicitamente registradas sem alegação indevida de conformidade, os ambientes e contas estiverem sob titularidade definida, não houver falha alta/crítica aberta, o conteúdo público não contiver placeholder ativo nem dado privado e os gates técnicos que condicionam o go-live autorizado estiverem aprovados. A ausência de backup próprio permanece como risco aceito na ADR-0010, não como controle implementado.
+A Etapa 5 somente será marcada concluída quando os controles aplicáveis avaliados tiverem evidência reproduzível, as pendências ASVS remanescentes estiverem explicitamente registradas sem alegação indevida de conformidade, houver responsável operacional definido, não houver falha alta/crítica aberta, o conteúdo público não contiver dado privado nem placeholder sem autorização e os gates técnicos que condicionam o go-live autorizado estiverem aprovados. A ausência de backup próprio permanece como risco aceito na ADR-0010, não como controle implementado.
 
 ## Continuação em 8 de setembro de 2026
 
@@ -207,6 +207,17 @@ Essa ação foi concluída posteriormente. O estado operacional corrente e os ga
 - o smoke HTTP de produção aprovou 15 controles somente leitura, e a matriz remota aprovou 58 controles de autorização/RLS mais 4 de busca pública, todos dentro de transação com `ROLLBACK`;
 - o pacote corrente possui 86 assets, aproximadamente 434 KiB compactados, nenhum arquivo local de segredo e dry-run de produção aprovado;
 - 52 arquivos/268 testes unitários e arquiteturais estão verdes; a correção responsiva do CTA foi validada em 375 e 390 px sem overflow ou texto duplicado;
-- a divulgação permanece condicionada ao CI da revisão final, ao deploy desse artefato e ao smoke autenticado AAL2 em produção;
+- naquele checkpoint, a divulgação permanecia condicionada ao CI da revisão final, ao deploy desse artefato e ao smoke autenticado AAL2 em produção; todos foram concluídos no fechamento abaixo;
 - matriz ASVS permanece em 2 verificados e 251 pendentes; não existe alegação de conformidade ASVS L2;
 - a ausência de backup próprio permanece como risco aceito na ADR-0010, e não como controle implementado.
+
+### Fechamento técnico de produção
+
+- PR 16 integrou o hardening de runtime, o smoke somente leitura de produção e a cobertura AAL2 de leitura exata de originais; PR 17 corrigiu a grade responsiva com cobertura de 1/2/3 colunas;
+- o commit final `5d8d7aea240833436dffcff77b8331f2fe4828f7` foi aprovado pelo Quality gate e CodeQL e implantado como Worker `dec7b901-d110-47d0-a3c1-592af23fbecb`;
+- a reconstrução isolada do CI aprovou 16 migrations, lint SQL, 62 controles pgTAP e o contrato de publicação; essa evidência substitui o Docker Desktop local indisponível para o gate de lançamento;
+- o ciclo AAL2 real arquivou o `DEMO-001`, confirmou `404` no detalhe e ausência no sitemap, registrou auditoria, restaurou para rascunho e republicou com confirmação de autorização;
+- detalhe público, mídia opaca e marca-d'água central foram confirmados visualmente, sem exposição de endereço privado;
+- o smoke final aprovou novamente 15 controles GET/HEAD e o GitHub apresentou zero alerta aberto de segredo, código ou dependência alta/crítica;
+- o lançamento não alega conformidade ASVS L2: 251 requisitos permanecem pendentes; backup próprio, SMTP próprio e titularidade definitiva das contas permanecem riscos/melhorias documentados;
+- o `GO` técnico e as ressalvas completas estão em [`production-go-live-evidence.md`](production-go-live-evidence.md).
