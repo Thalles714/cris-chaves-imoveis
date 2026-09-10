@@ -56,12 +56,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
 			{ status: 400, headers: adminResponseHeaders() },
 		);
 	}
-	const operation =
-		intent.data === "invite"
-			? "member.invite"
-			: intent.data === "change-role"
-				? "member.changeRole"
-				: "member.disable";
+	const operation = ["invite", "resend-invite", "cancel-invite"].includes(intent.data)
+		? "member.invite"
+		: intent.data === "change-role"
+			? "member.changeRole"
+			: "member.disable";
 	const { client, session, responseHeaders } = await requireAdminRoute(
 		request,
 		context,
@@ -75,6 +74,18 @@ export async function action({ request, context }: ActionFunctionArgs) {
 	try {
 		if (intent.data === "invite") {
 			await service.invite({ email: form.get("email"), role: form.get("role") });
+		} else if (intent.data === "resend-invite") {
+			await service.resendInvitation({
+				userId: form.get("userId"),
+				expectedVersion: form.get("expectedVersion"),
+				confirmation: form.get("confirmation"),
+			});
+		} else if (intent.data === "cancel-invite") {
+			await service.cancelInvitation({
+				userId: form.get("userId"),
+				expectedVersion: form.get("expectedVersion"),
+				confirmation: form.get("confirmation"),
+			});
 		} else if (intent.data === "change-role") {
 			await service.changeRole(session.userId, {
 				userId: form.get("userId"),
@@ -156,6 +167,64 @@ function MemberDisableButton({ userId, version }: { userId: string; version: num
 	);
 }
 
+function PendingInvitationActions({
+	userId,
+	version,
+}: {
+	userId: string;
+	version: number;
+}) {
+	const [open, setOpen] = useState(false);
+	return (
+		<>
+			<Form method="post">
+				<input type="hidden" name="intent" value="resend-invite" />
+				<input type="hidden" name="userId" value={userId} />
+				<input type="hidden" name="expectedVersion" value={version} />
+				<input type="hidden" name="confirmation" value="confirmed" />
+				<button className="cc-button cc-button--secondary" type="submit">
+					Reenviar
+				</button>
+			</Form>
+			<button
+				className="cc-button cc-button--danger"
+				type="button"
+				onClick={() => setOpen(true)}
+			>
+				Cancelar convite
+			</button>
+			<Modal
+				open={open}
+				onOpenChange={setOpen}
+				title="Cancelar este convite?"
+				description="O link enviado deixará de funcionar. Depois, um novo convite poderá ser criado normalmente."
+				footer={
+					<>
+						<button
+							className="cc-button cc-button--secondary"
+							type="button"
+							onClick={() => setOpen(false)}
+						>
+							Voltar
+						</button>
+						<Form method="post">
+							<input type="hidden" name="intent" value="cancel-invite" />
+							<input type="hidden" name="userId" value={userId} />
+							<input type="hidden" name="expectedVersion" value={version} />
+							<input type="hidden" name="confirmation" value="confirmed" />
+							<button className="cc-button cc-button--danger" type="submit">
+								Sim, cancelar
+							</button>
+						</Form>
+					</>
+				}
+			>
+				<p>O membro pendente será removido do acesso administrativo.</p>
+			</Modal>
+		</>
+	);
+}
+
 export default function AdminMembers() {
 	const loaderData = useLoaderData<typeof loader>();
 	const actionData = useActionData<typeof action>();
@@ -231,6 +300,14 @@ export default function AdminMembers() {
 										{member.role === "owner" ? "Proprietário" : "Editor"}
 									</td>
 									<td data-label="Ações" className="admin-member-actions">
+										{member.status === "invited" && (
+											<div className="admin-member-actions__controls">
+												<PendingInvitationActions
+													userId={member.userId}
+													version={member.version}
+												/>
+											</div>
+										)}
 										{member.status === "active" && (
 											<div className="admin-member-actions__controls">
 												<Form method="post">

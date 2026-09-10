@@ -9,7 +9,9 @@ import { AdminMemberOperationError } from "./admin-member-errors.server";
 
 export interface AdminMemberRepository {
 	list(): Promise<AdminMemberRow[]>;
+	findPending(userId: string, expectedVersion: number): Promise<AdminMemberRow | null>;
 	create(userId: string, role: AdminMemberRole): Promise<void>;
+	deletePending(userId: string, expectedVersion: number): Promise<void>;
 	changeRole(input: {
 		userId: string;
 		role: AdminMemberRole;
@@ -66,6 +68,37 @@ export class SupabaseAdminMemberRepository implements AdminMemberRepository {
 		});
 		if (result.error) {
 			throw new AdminMemberOperationError("MEMBERSHIP_UNAVAILABLE");
+		}
+	}
+
+	async findPending(
+		userId: string,
+		expectedVersion: number,
+	): Promise<AdminMemberRow | null> {
+		const result = await this.client
+			.from("admin_members")
+			.select("user_id,role,status,invited_at,activated_at,disabled_at,version")
+			.eq("user_id", userId)
+			.eq("version", expectedVersion)
+			.eq("status", "invited")
+			.is("deleted_at", null)
+			.maybeSingle();
+		if (result.error) throw new AdminMemberOperationError("MEMBERSHIP_UNAVAILABLE");
+		return result.data ? toAdminMemberRow(result.data) : null;
+	}
+
+	async deletePending(userId: string, expectedVersion: number): Promise<void> {
+		const result = await this.client
+			.from("admin_members")
+			.delete()
+			.eq("user_id", userId)
+			.eq("version", expectedVersion)
+			.eq("status", "invited")
+			.is("deleted_at", null)
+			.select("user_id")
+			.maybeSingle();
+		if (result.error || !result.data) {
+			throw new AdminMemberOperationError("CONFLICT");
 		}
 	}
 
