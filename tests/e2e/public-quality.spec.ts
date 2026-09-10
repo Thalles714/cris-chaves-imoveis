@@ -85,6 +85,38 @@ test.describe("qualidade visual e desempenho público", () => {
 		}
 	});
 
+	test("mantém a grade de destaques preenchida dentro da tela", async ({ page }) => {
+		for (const [width, columns] of [
+			[375, 1],
+			[768, 2],
+			[1280, 3],
+		] as const) {
+			await page.setViewportSize({ width, height: 900 });
+			await page.goto("/home", { waitUntil: "domcontentloaded" });
+			const layout = await page.evaluate(() => {
+				const section = document.querySelector(".cc-home-featured");
+				if (!section) throw new Error("Seção de destaques ausente.");
+				const grid = document.createElement("div");
+				grid.className = "property-grid cc-home-featured__grid";
+				grid.innerHTML = Array.from(
+					{ length: 3 },
+					(_, index) =>
+						`<div class="cc-home-reveal"><article class="cc-property-card"><div class="cc-property-card__body"><h3 class="cc-property-card__title">Imóvel demonstrativo com título longo ${index + 1}</h3></div></article></div>`,
+				).join("");
+				section.replaceChildren(grid);
+				return {
+					client: document.documentElement.clientWidth,
+					scroll: document.documentElement.scrollWidth,
+					columns: getComputedStyle(grid).gridTemplateColumns.split(" ").length,
+				};
+			});
+			expect(layout.scroll, `overflow da grade em ${width}px`).toBeLessThanOrEqual(
+				layout.client,
+			);
+			expect(layout.columns).toBe(columns);
+		}
+	});
+
 	test("preserva o escuro temático e oferece Black independente", async ({ page }) => {
 		await page.goto("/home", { waitUntil: "domcontentloaded" });
 		const trigger = page.getByRole("button", { name: "Mudar aparência" });
