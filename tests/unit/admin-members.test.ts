@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
 	adminMemberDisableInputSchema,
 	adminMemberInviteInputSchema,
+	adminMemberRowSchema,
 	AdminMemberOperationError,
 	AdminMemberService,
 	type AdminAuthDirectory,
@@ -33,6 +34,20 @@ function directory(): AdminAuthDirectory {
 }
 
 describe("admin member management", () => {
+	it("accepts PostgreSQL timestamps with an explicit UTC offset", () => {
+		expect(
+			adminMemberRowSchema.safeParse({
+				userId: ownerId,
+				role: "owner",
+				status: "active",
+				invitedAt: "2026-09-07T22:10:00+00:00",
+				activatedAt: "2026-09-07T22:15:00+00:00",
+				disabledAt: null,
+				version: 1,
+			}).success,
+		).toBe(true);
+	});
+
 	it("normalizes invite email and accepts only explicit roles", () => {
 		expect(
 			adminMemberInviteInputSchema.parse({

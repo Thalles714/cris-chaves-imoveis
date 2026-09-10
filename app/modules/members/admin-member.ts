@@ -38,14 +38,16 @@ export const adminMemberDisableInputSchema = z
 
 export const adminMemberActionIntentSchema = z.enum(["invite", "change-role", "disable"]);
 
+const databaseTimestampSchema = z.iso.datetime({ offset: true });
+
 export const adminMemberRowSchema = z
 	.object({
 		userId: z.uuid(),
 		role: adminMemberRoleSchema,
 		status: adminMemberStatusSchema,
-		invitedAt: z.iso.datetime(),
-		activatedAt: z.iso.datetime().nullable(),
-		disabledAt: z.iso.datetime().nullable(),
+		invitedAt: databaseTimestampSchema,
+		activatedAt: databaseTimestampSchema.nullable(),
+		disabledAt: databaseTimestampSchema.nullable(),
 		version: z.number().int().positive(),
 	})
 	.strict();
