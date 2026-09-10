@@ -5,7 +5,9 @@ const appEnvironmentSchema = z.enum(["development", "preview", "production", "te
 function isAllowedSupabaseUrl(value: string, environment: string) {
 	try {
 		const url = new URL(value);
-		if (url.username || url.password || url.hash) return false;
+		if (url.username || url.password || url.hash || url.search || url.pathname !== "/") {
+			return false;
+		}
 		if (url.protocol === "https:") return true;
 		const localHost =
 			url.hostname === "localhost" ||
@@ -60,7 +62,11 @@ export const supabaseServerConfigSchema = z
 				message: "Uma chave privilegiada não pode ser usada neste cliente.",
 			});
 		}
-	});
+	})
+	.transform((value) => ({
+		...value,
+		url: new URL(value.url).origin,
+	}));
 
 export type SupabaseServerConfig = z.infer<typeof supabaseServerConfigSchema>;
 

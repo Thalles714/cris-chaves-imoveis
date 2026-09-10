@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import type { CloudflareContext } from "~/lib/cloudflare-context";
-import { redirectWwwToCanonicalHost } from "~/lib/http/canonical-host.server";
+import { redirectToCanonicalOrigin } from "~/lib/http/canonical-host.server";
 import {
 	applySecurityHeaders,
 	buildContentSecurityPolicy,
@@ -22,8 +22,8 @@ function cloudflare(bindings: Record<string, unknown>): CloudflareContext {
 }
 
 describe("configuração do site público", () => {
-	it("redireciona somente o host www de produção para a origem canônica", () => {
-		const response = redirectWwwToCanonicalHost(
+	it("redireciona HTTP e www de produção para a origem HTTPS canônica", () => {
+		const response = redirectToCanonicalOrigin(
 			new Request("https://www.crischaves.com.br/imoveis?pagina=2"),
 			{
 				appEnvironment: "production",
@@ -34,15 +34,26 @@ describe("configuração do site público", () => {
 		expect(response?.headers.get("Location")).toBe(
 			"https://crischaves.com.br/imoveis?pagina=2",
 		);
+		const insecureResponse = redirectToCanonicalOrigin(
+			new Request("http://crischaves.com.br/imoveis?pagina=2"),
+			{
+				appEnvironment: "production",
+				publicSiteUrl: "https://crischaves.com.br",
+			},
+		);
+		expect(insecureResponse?.status).toBe(308);
+		expect(insecureResponse?.headers.get("Location")).toBe(
+			"https://crischaves.com.br/imoveis?pagina=2",
+		);
 
 		expect(
-			redirectWwwToCanonicalHost(new Request("https://crischaves.com.br/"), {
+			redirectToCanonicalOrigin(new Request("https://crischaves.com.br/"), {
 				appEnvironment: "production",
 				publicSiteUrl: "https://crischaves.com.br",
 			}),
 		).toBeNull();
 		expect(
-			redirectWwwToCanonicalHost(new Request("https://www.crischaves.com.br/"), {
+			redirectToCanonicalOrigin(new Request("https://www.crischaves.com.br/"), {
 				appEnvironment: "preview",
 				publicSiteUrl: undefined,
 			}),

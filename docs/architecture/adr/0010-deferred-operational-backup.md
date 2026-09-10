@@ -22,7 +22,7 @@ A decisão não autoriza armazenar exportações sem criptografia, copiar creden
 
 - schema, migrations, policies e testes permanecem versionados e protegidos no GitHub;
 - nenhuma listagem real será importada em lote antes do go-live;
-- placeholders serão arquivados antes da abertura pública;
+- placeholders permanecem inequivocamente identificados como demonstração, usam mídia segura e poderão ser arquivados quando os anúncios reais forem cadastrados;
 - segredos continuam fora do repositório;
 - qualquer futura mudança para volume ou criticidade maiores reabre a decisão de backup;
 - a ADR-0006 permanece como desenho da rotina futura e não deve ser marcada como executada.

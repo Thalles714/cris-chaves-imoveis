@@ -24,8 +24,15 @@ copiada para código, navegador, arquivo versionado ou variável `PUBLIC_*`.
 
 ## Pendências deliberadas
 
-- substituir Site URL e redirects locais pelo domínio HTTPS antes do lançamento;
-- manter a matriz de 48 controles como gate obrigatório em futuras alterações de schema ou RLS;
+- manter a matriz de segurança remota como gate obrigatório em futuras alterações de schema ou RLS;
 - configurar SMTP próprio antes de depender de entrega de e-mail em produção; no plano atual o painel usa templates padrão e não permite editá-los sem SMTP customizado;
 - UAT sem assistência concluído e aprovado em 7 de setembro de 2026; o ciclo AAL2, o placeholder seguro `DEMO-001` e o teste operacional com dois novos anúncios também foram concluídos;
-- testar restore de backup e aprovar RPO/RTO antes da publicação.
+- backup próprio foi adiado com risco de recadastro manual explicitamente aceito na ADR-0010.
+
+## Atualização da Etapa 5 — 9 de setembro de 2026
+
+- migration 16 aplicada e histórico remoto alinhado em 16/16;
+- matriz remota ampliada para 58 controles de autorização/RLS e 4 controles de busca pública, todos aprovados dentro de transação com `ROLLBACK`;
+- Site URL definida como `https://crischaves.com.br`, com redirects exatos de produção, staging e desenvolvimento;
+- nova chave privilegiada validada no staging e chave antiga aposentada;
+- os valores dos secrets permanecem fora do repositório e desta documentação.

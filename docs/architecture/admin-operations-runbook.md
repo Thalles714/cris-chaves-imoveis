@@ -2,7 +2,7 @@
 
 **Estado:** projeto provisionado; primeiro owner ativo e ciclo autenticado AAL2 de publicação concluído
 
-**Última revisão:** 7 de setembro de 2026
+**Última revisão:** 9 de setembro de 2026
 
 Este manual descreve o uso previsto da área privada. Ele não autoriza publicação nem substitui o ensaio em ambiente isolado antes do lançamento.
 
@@ -74,15 +74,15 @@ Referências atuais: [templates de e-mail do Supabase](https://supabase.com/docs
 ## Checklist antes do primeiro uso real
 
 - [x] Projeto Supabase real criado em São Paulo e sem cobrança adicional habilitada.
-- [x] Quinze migrations aplicadas no projeto real, incluindo a simplificação segura do contrato de publicação.
-- [x] Matriz corrigida de 48 controles repetida no projeto real dentro de transação com `ROLLBACK`, sem dados sintéticos residuais.
-- [x] URL local e redirects do Auth configurados; a troca para o domínio HTTPS permanece para o lançamento.
+- [x] Dezesseis migrations aplicadas no projeto real, incluindo a simplificação segura do contrato de publicação e o hardening de mídia/Storage.
+- [x] Matriz ampliada de 58 controles de autorização/RLS repetida no projeto real dentro de transação com `ROLLBACK`, sem dados sintéticos residuais; os 4 controles de busca pública também passaram com rollback.
+- [x] Site URL HTTPS e redirects exatos de produção, staging e desenvolvimento configurados no Auth.
 - [ ] Templates definitivos de convite e recuperação com SMTP próprio devem ser ensaiados na Etapa 5; o convite real e as rotas locais já foram validados.
 - [x] Primeiro owner ativo e associado como `owner`, com senha e MFA/TOTP confirmados.
 - [x] Primeiro owner ativado com senha e TOTP.
 - [x] CRUD, quatro fotos seguras, publicação, auditoria, arquivamento e restauração concluídos ponta a ponta com o placeholder autorizado `DEMO-001`; vídeo não foi necessário para o gate.
-- [x] RLS negativa ensaiada como anônimo, sem papel, AAL1, editor e owner nos 48 controles remotos com rollback.
+- [x] RLS negativa ensaiada como anônimo, sem papel, AAL1, editor e owner nos 58 controles remotos com rollback, incluindo leitura de original por chave exata em contexto de download.
 - [x] Política de reservado/vendido aprovada e aplicada.
 - [x] Exclusão definitiva rejeitada; somente soft delete recuperável.
 - [x] UAT sem assistência concluído e registrado em 7 de setembro de 2026; MFA, cadastro, mídia, revisão, publicação, privacidade, arquivamento e restauração foram aprovados sem dificuldade remanescente.
-- [ ] Backup e restauração continuam não operacionais; a ADR-0010 aceita temporariamente o risco de recadastro manual e define os gatilhos de revisão.
+- [x] Ausência de backup próprio registrada como risco temporário aceito na ADR-0010; a rotina continua não operacional e deve ser reavaliada nos gatilhos definidos.

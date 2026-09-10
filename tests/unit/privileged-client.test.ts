@@ -50,4 +50,22 @@ describe("cliente privilegiado do Supabase", () => {
 		});
 		expect(client).toBeDefined();
 	});
+
+	it("normaliza uma barra final e recusa caminhos na origem", () => {
+		expect(
+			createPrivilegedSupabaseClient({
+				APP_ENV: "production",
+				SUPABASE_URL: "https://example.supabase.co/",
+				SUPABASE_SECRET_KEY: testSecret,
+			}),
+		).toBeDefined();
+
+		expect(() =>
+			createPrivilegedSupabaseClient({
+				APP_ENV: "production",
+				SUPABASE_URL: "https://example.supabase.co/rest/v1",
+				SUPABASE_SECRET_KEY: testSecret,
+			}),
+		).toThrow(/Invalid URL/u);
+	});
 });

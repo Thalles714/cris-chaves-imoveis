@@ -15,9 +15,10 @@
 | Reservado e vendido | cliente confirmou a recomendação em 3 de setembro de 2026 | reservado permanece no catálogo com selo e CTA para imóveis semelhantes; pode voltar a disponível. Vendido sai imediatamente do catálogo e não reverte no fluxo comum | cliente | [x] Confirmado |
 | Exclusão definitiva | cliente confirmou em 3 de setembro de 2026 a recomendação de manter apenas exclusão recuperável | hard delete não será oferecido no painel; privilégios `DELETE` de imóveis, detalhes, registros de mídia e objetos do Storage foram revogados | cliente | [x] Confirmado: somente soft delete |
 | Logotipo e ativos web | pacote recém-criado em [`public/brand`](../../public/brand/README.md) e aprovado pelo cliente em 3 de setembro de 2026 | usar as versões web aprovadas conforme o guia do pacote | cliente/design | [x] Confirmado |
-| Domínio e origem canônica | `crischaves.com.br` comprado e publicado no Registro.br, com expiração exibida em 4 de setembro de 2027 | usar `https://crischaves.com.br` como origem canônica e redirecionar `www` para o domínio raiz | cliente + responsável técnico | [x] Confirmado em 8 de setembro de 2026; DNS ainda não cortado |
+| Domínio e origem canônica | `crischaves.com.br` delegado aos nameservers Cloudflare e zona ativa em 9 de setembro de 2026 | usar `https://crischaves.com.br` como origem canônica e redirecionar `www` para o domínio raiz | cliente + responsável técnico | [x] DNS, TLS e redirect de `www` ativos; validação HTTP final em andamento |
 | RPO/RTO | cliente decidiu operar inicialmente com poucos imóveis, cadastro manual e fontes externas sob sua guarda | sem RPO/RTO garantido; recadastro manual aceito; revisar nos gatilhos da ADR-0010 | cliente + responsável técnico | [x] Risco temporário aceito em 8 de setembro de 2026 |
-| Responsável operacional | não há pessoa/canal definido | responsável por alertas, atualizações, backup/restore, incidentes, contas e revisão de cotas | cliente/fornecedor | [ ] Pendente |
+| Responsável operacional | o usuário assumiu provisoriamente a responsabilidade durante o lançamento | formalizar a continuidade após o go-live e os meios de contato/recuperação | cliente/fornecedor | [x] Cobertura provisória aceita; handoff definitivo pendente |
+| Placeholders | cliente autorizou anúncios demonstrativos, com mídia segura e marca-d'água, para avaliação pública | manter identificação inequívoca de demonstração; arquivar quando os anúncios reais forem cadastrados | cliente/produto | [x] Permanência temporária autorizada |
 
 ## Decisões relacionadas que continuam abertas
 
@@ -27,7 +28,8 @@
 - [ ] Política de retenção de originais de fotos e limite de quantidade/tamanho por imóvel dentro do orçamento gratuito.
 - [ ] Exibição de vídeo incorporado e sua implicação de cookies/transferência de dados. Até decisão: não carregar player automaticamente.
 - [ ] Validação da publicidade, autorização escrita e registros de loteamento/condomínio/incorporação aplicáveis.
-- [ ] Textos finais de privacidade, termos, Sobre, serviços e áreas atendidas.
+- [x] Páginas publicáveis de Privacidade e Termos atualizadas no PR 15, coerentes com lançamento sem leads/analytics; eventual parecer jurídico profissional continua fora do escopo do software.
+- [ ] Revisão final de Sobre, serviços e áreas atendidas pelo cliente.
 
 ## Decisões arquiteturais já registradas
 
@@ -48,10 +50,12 @@
 
 ## Critério de bloqueio
 
-O lançamento permanece **no-go** até concluir: configuração segura do domínio e TLS, URLs de autenticação, segredos de produção, arquivamento dos placeholders, validações finais no host real, identificação do responsável operacional e verificação dos meios de recuperação das contas. O restore deixou de ser bloqueio apenas nos limites e com os riscos explícitos da ADR-0010. O lançamento será sem formulário de leads, analytics ou pixels.
+O lançamento permanece **no-go técnico** até o domínio responder sem erro, os controles finais passarem no host real, o fluxo AAL2 for repetido em produção e os meios de recuperação das contas forem verificados. DNS, TLS, URLs de autenticação, secrets e responsável operacional provisório já foram preparados. A permanência temporária dos placeholders demonstrativos foi autorizada. O restore deixou de ser bloqueio apenas nos limites e com os riscos explícitos da ADR-0010. O lançamento será sem formulário de leads, analytics ou pixels.
 
 Quando uma resposta chegar, registrar data, autor, evidência e impacto; se alterar arquitetura, segurança, custo ou tratamento de dados, criar/superseder ADR antes de implementar.
 
-## Bloqueio crítico identificado em 9 de setembro de 2026
+## Bloqueio crítico identificado e encerrado em 9 de setembro de 2026
 
 Uma chave privilegiada do Supabase foi encontrada em um artefato local ignorado pelo Git. O artefato foi removido e o processo de build/scanner foi corrigido para impedir recorrência. Antes de qualquer deploy, é obrigatório criar uma nova chave, atualizar os consumidores controlados, validar a nova chave e aposentar a anterior. Nenhuma chave deve ser registrada neste repositório ou enviada por conversa.
+
+A nova chave foi instalada e validada no staging, e a chave antiga foi aposentada. O bloqueio de credencial está encerrado; a regra de não registrar valores permanece obrigatória.

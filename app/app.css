@@ -1584,8 +1584,12 @@ img {
 		padding-inline: 0.75rem;
 	}
 
-	.site-header-cta span {
+	.site-header-cta .site-header-cta__wide {
 		display: inline !important;
+	}
+
+	.site-header-cta .site-header-cta__short {
+		display: none !important;
 	}
 
 	.appearance-panel {

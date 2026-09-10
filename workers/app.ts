@@ -7,7 +7,7 @@ import { createRequestHandler, RouterContextProvider } from "react-router";
 
 import { cloudflareContext } from "../app/lib/cloudflare-context";
 import { readServerEnvironment } from "../app/lib/env/server-env.server";
-import { redirectWwwToCanonicalHost } from "../app/lib/http/canonical-host.server";
+import { redirectToCanonicalOrigin } from "../app/lib/http/canonical-host.server";
 import {
 	applySecurityHeaders,
 	createCspNonce,
@@ -24,7 +24,7 @@ export default {
 		const { appEnvironment } = readServerEnvironment(
 			env as unknown as Readonly<Record<string, unknown>>,
 		);
-		const canonicalRedirect = redirectWwwToCanonicalHost(request, {
+		const canonicalRedirect = redirectToCanonicalOrigin(request, {
 			appEnvironment,
 			publicSiteUrl: env.PUBLIC_SITE_URL,
 		});

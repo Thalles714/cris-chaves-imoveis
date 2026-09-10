@@ -20,7 +20,7 @@ function readProductionOrigin(value: unknown) {
 	return origin;
 }
 
-export function redirectWwwToCanonicalHost(
+export function redirectToCanonicalOrigin(
 	request: Request,
 	options: CanonicalHostOptions,
 ): Response | null {
@@ -28,7 +28,10 @@ export function redirectWwwToCanonicalHost(
 
 	const canonicalOrigin = readProductionOrigin(options.publicSiteUrl);
 	const requestUrl = new URL(request.url);
-	if (requestUrl.hostname !== `www.${canonicalOrigin.hostname}`) return null;
+	const isCanonicalHost = requestUrl.hostname === canonicalOrigin.hostname;
+	const isWwwHost = requestUrl.hostname === `www.${canonicalOrigin.hostname}`;
+	if (!isCanonicalHost && !isWwwHost) return null;
+	if (isCanonicalHost && requestUrl.protocol === "https:") return null;
 
 	requestUrl.protocol = "https:";
 	requestUrl.hostname = canonicalOrigin.hostname;
