@@ -28,12 +28,15 @@ Não há D1, KV, R2, Durable Objects, Queues, Vectorize, Workers AI ou Agents SD
 | AQ-02 | Médio / Confirmado | Docker Desktop indisponível ao executar `pnpm test:integration:publication`; por consequência `db:reset`, `db:lint` e `db:test` não foram executados. | As 16 migrations e 60 controles históricos não foram reprovados, mas também não foram comprovados nesta sessão. | **Bloqueio ambiental**; iniciar Docker e repetir os quatro comandos antes de merge/deploy. |
 | AQ-03 | Baixo / Confirmado | `pnpm test:e2e` executou os 42 casos (35 aprovados e 7 skips deliberados), mas não encerrou após o último resultado. A reprodução mínima do último cenário também passou e travou no teardown. | O produto e as asserções passaram; a limitação reduz a confiabilidade do feedback local neste runner Windows restrito. | **Risco de ferramenta/ambiente**; o mesmo commit passou no Quality Gate Windows do GitHub. A ocorrência é compatível com falha conhecida de limpeza do Chromium no Playwright/Windows e não justificou patch especulativo na aplicação. |
 | AQ-04 | Baixo / Confirmado | O binding de rate limit é local, permissivo e eventualmente consistente segundo a documentação Cloudflare consultada em 10/09/2026. | Rajadas distribuídas podem exceder momentaneamente o limite nominal; não serve como quota exata. | **Risco de plataforma documentado**; manter validação, limites de corpo/pixels e RLS como barreiras independentes. |
+| AQ-05 | Médio / Confirmado | A página **Equipe** retornava `500` porque `adminMemberRowSchema` aceitava somente timestamps ISO terminados em `Z`, enquanto o PostgreSQL/Supabase devolveu `invited_at` e `activated_at` com offset UTC `+00:00`. Reproduzido no domínio canônico e confirmado por log redigido do Worker. | O proprietário não conseguia abrir a gestão de membros nem acessar o formulário de convite. | **Corrigido**: timestamps administrativos aceitam offset ISO explícito; teste de regressão reproduz o formato real sem usar dados pessoais. |
 
 Não foram confirmados vazamento de segredo/dado privado, bypass de autenticação/AAL2/RLS, escrita indevida, acesso público a originais, injeção, open redirect, SSRF ou quebra da separação público/admin.
 
 ## Mudança realizada
 
 - `tests/integration/publication-contract.test.mjs`: preserva `stderr`/`stdout` existentes e, quando ambos faltam, exibe uma mensagem determinística baseada no erro de spawn. É uma mudança local, reversível, sem dependência, contrato público, banco ou efeito em produção.
+- `app/modules/members/admin-member.ts`: aceita o offset ISO explícito retornado por timestamps do PostgreSQL sem relaxar UUID, papel, status, nulabilidade ou versão.
+- `tests/unit/admin-members.test.ts`: cobre `invitedAt` e `activatedAt` com o formato UTC real `+00:00`.
 
 ## Evidências e comandos
 
