@@ -36,7 +36,21 @@ export const adminMemberDisableInputSchema = z
 	})
 	.strict();
 
-export const adminMemberActionIntentSchema = z.enum(["invite", "change-role", "disable"]);
+export const adminMemberPendingActionInputSchema = z
+	.object({
+		userId: z.uuid(),
+		expectedVersion: z.coerce.number().int().positive(),
+		confirmation: z.literal("confirmed"),
+	})
+	.strict();
+
+export const adminMemberActionIntentSchema = z.enum([
+	"invite",
+	"resend-invite",
+	"cancel-invite",
+	"change-role",
+	"disable",
+]);
 
 const databaseTimestampSchema = z.iso.datetime({ offset: true });
 
@@ -70,6 +84,9 @@ export type AdminMemberStatus = z.infer<typeof adminMemberStatusSchema>;
 export type AdminMemberInviteInput = z.infer<typeof adminMemberInviteInputSchema>;
 export type AdminMemberRoleChangeInput = z.infer<typeof adminMemberRoleChangeInputSchema>;
 export type AdminMemberDisableInput = z.infer<typeof adminMemberDisableInputSchema>;
+export type AdminMemberPendingActionInput = z.infer<
+	typeof adminMemberPendingActionInputSchema
+>;
 export type AdminMemberActionIntent = z.infer<typeof adminMemberActionIntentSchema>;
 export type AdminMemberRow = z.infer<typeof adminMemberRowSchema>;
 export type AdminMemberDto = z.infer<typeof adminMemberDtoSchema>;

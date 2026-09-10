@@ -26,7 +26,7 @@ Este manual descreve o uso previsto da área privada. Ele não autoriza publica�
 - O link de convite expira conforme **Email OTP Expiration** do Supabase Auth; o padrão documentado é uma hora. Confirmar a configuração corrente no Dashboard antes de cada convite.
 - Combinar previamente uma janela em que a pessoa possa abrir o e-mail, criar a senha e configurar o TOTP. Não enviar convite na véspera nem compartilhar senha temporária.
 - Para membros adicionais, um `owner` ativo usa **Equipe → Enviar convite** e escolhe a função mínima necessária. O cliente titular deve receber `owner`; prestadores devem permanecer `editor`, salvo necessidade operacional explícita.
-- Se o link expirar, não reutilizar nem encaminhar a URL antiga. Invalidar/remover o convite pendente conforme o procedimento operacional e emitir um novo convite durante outra janela acompanhada.
+- Se o link expirar, não reutilizar nem encaminhar a URL antiga. Em **Equipe**, usar **Reenviar** para invalidar o convite pendente no banco e no Supabase Auth e emitir outro preservando e-mail e função. Usar **Cancelar convite** quando não houver mais necessidade de acesso.
 - Depois da ativação, testar sair, entrar novamente com senha e TOTP e confirmar os meios de recuperação sem registrar códigos no repositório, em tickets ou conversas.
 
 Referências atuais: [convites e expiração no Supabase](https://supabase.com/docs/guides/auth/users), [templates de e-mail](https://supabase.com/docs/guides/auth/auth-email-templates) e [URLs de redirecionamento](https://supabase.com/docs/guides/auth/redirect-urls).

@@ -80,6 +80,7 @@ export interface AdminAuthDirectory {
 	invite(email: string): Promise<{ userId: string }>;
 	findEmails(userIds: string[]): Promise<ReadonlyMap<string, string>>;
 	deleteInvitedUser(userId: string): Promise<void>;
+	deleteInvitedUserStrict(userId: string): Promise<void>;
 }
 
 export class SupabasePrivilegedAuthDirectory implements AdminAuthDirectory {
@@ -117,9 +118,19 @@ export class SupabasePrivilegedAuthDirectory implements AdminAuthDirectory {
 
 	async deleteInvitedUser(userId: string): Promise<void> {
 		try {
-			await this.client.auth.admin.deleteUser(userId, false);
+			const result = await this.client.auth.admin.deleteUser(userId, false);
+			if (result.error) throw result.error;
 		} catch {
 			// Best-effort compensation. The original error remains generic.
+		}
+	}
+
+	async deleteInvitedUserStrict(userId: string): Promise<void> {
+		try {
+			const result = await this.client.auth.admin.deleteUser(userId, false);
+			if (result.error) throw result.error;
+		} catch {
+			throw new AdminMemberOperationError("DIRECTORY_UNAVAILABLE");
 		}
 	}
 }
