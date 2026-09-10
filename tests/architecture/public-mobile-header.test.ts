@@ -20,16 +20,23 @@ describe("public mobile header", () => {
 		);
 	});
 
-	it("preserves the credential instead of the logo on ultra-compact screens", () => {
+	it("compacts the logo before yielding its space on ultra-compact screens", () => {
 		const compactBlock = css.match(
 			/@media \(max-width: 23\.5rem\) \{(?<rules>[\s\S]*?)\n\}/u,
+		)?.groups?.rules;
+		const ultraCompactBlock = css.match(
+			/@media \(max-width: 22rem\) \{(?<rules>[\s\S]*?)\n\}/u,
 		)?.groups?.rules;
 
 		expect(compactBlock).toBeDefined();
 		expect(compactBlock).toMatch(
+			/\.brand-lockup--header \.brand-lockup__mark\s*\{\s*width:\s*4\.25rem;/u,
+		);
+		expect(ultraCompactBlock).toBeDefined();
+		expect(ultraCompactBlock).toMatch(
 			/\.brand-lockup--header \.brand-lockup__mark\s*\{\s*display:\s*none;/u,
 		);
-		expect(compactBlock).not.toMatch(
+		expect(ultraCompactBlock).not.toMatch(
 			/\.brand-lockup__credential\s*\{\s*display:\s*none/u,
 		);
 	});

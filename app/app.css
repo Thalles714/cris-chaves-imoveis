@@ -1747,6 +1747,18 @@ img {
 
 @media (max-width: 23.5rem) {
 	.brand-lockup--header .brand-lockup__mark {
+		width: 4.25rem;
+		height: 2.125rem;
+		padding-inline: 0.125rem;
+	}
+
+	.brand-lockup--header .brand-lockup__credential {
+		padding-left: 0.25rem;
+	}
+}
+
+@media (max-width: 22rem) {
+	.brand-lockup--header .brand-lockup__mark {
 		display: none;
 	}
 
