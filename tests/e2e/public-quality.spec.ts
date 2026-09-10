@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const widths = [320, 375, 768, 1024, 1280, 1440] as const;
+const widths = [320, 375, 390, 768, 1024, 1280, 1440] as const;
 const expectedCreci = ["CRECI-RS", "89448"].join(" ");
 const themes = [
 	"horizonte",
@@ -69,11 +69,18 @@ test.describe("qualidade visual e desempenho público", () => {
 				dimensions.client,
 			);
 			await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-			if (width <= 375) {
+			if (width <= 760) {
 				const headerCta = page.locator(".site-header-cta");
 				await expect(headerCta.locator(".site-header-cta__wide")).toBeHidden();
 				await expect(headerCta.locator(".site-header-cta__short")).toHaveText("Contato");
 				await expect(headerCta.locator(".site-header-cta__short")).toBeVisible();
+				const [credentialBox, ctaBox] = await Promise.all([
+					page.locator(".brand-lockup--header .brand-lockup__credential").boundingBox(),
+					headerCta.boundingBox(),
+				]);
+				expect(credentialBox).not.toBeNull();
+				expect(ctaBox).not.toBeNull();
+				expect(credentialBox!.x + credentialBox!.width).toBeLessThanOrEqual(ctaBox!.x);
 
 				const filterTrigger = page.getByRole("button", { name: /Filtros/u });
 				await expect(filterTrigger).toBeVisible();
