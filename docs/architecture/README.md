@@ -34,6 +34,7 @@ Em conflito visual, `design_system.html` prevalece sobre o Resider. Em conflito 
 - [Handoff da Etapa 5](handoff-stage-5.md)
 - [Auditoria integral do produto — 9 de setembro de 2026](full-product-audit-2026-09-09.md)
 - [Runbook de lançamento, rollback e incidente](production-launch-runbook.md)
+- [Evidência corrente de go-live de produção](production-go-live-evidence.md)
 - [Evidência HTTP de segurança do staging](staging-http-security-evidence.md)
 - [Evidência OWASP ZAP do staging](zap-staging-evidence.md)
 - [Registro de custos, cotas e gatilhos de upgrade](cost-and-quota-ledger.md)

@@ -1,5 +1,6 @@
 begin;
 
+create extension if not exists pgtap with schema extensions;
 select plan(4);
 
 insert into public.public_property_catalog (
@@ -18,26 +19,26 @@ insert into public.public_property_catalog (
   ),
   (
     'SEARCH-002', 'apartamento-central', 'Apartamento central', 'sale', 'Apartamento',
-    'available', 45000000, 'show', 'Cidreira', 'Centro',
+    'available', 45000000, 'show', 'Cidade Busca E2E', 'Centro',
     'Apartamento compacto perto do comércio, com dois dormitórios.',
     80, 72, null, 2, 0, 1, 1,
     array['sacada'], false, statement_timestamp() - interval '1 day'
   );
 
 select results_eq(
-  $$select public_code from public.search_public_properties('casa na beira da praia')$$,
+  $$select public_code from public.search_public_properties(p_search_query => 'casa na beira da praia', p_public_code => 'SEARCH-001')$$,
   array['SEARCH-001'::text],
   'encontra texto presente na descrição pública'
 );
 
 select results_eq(
-  $$select public_code from public.search_public_properties('tramandai')$$,
+  $$select public_code from public.search_public_properties(p_search_query => 'tramandai', p_public_code => 'SEARCH-001')$$,
   array['SEARCH-001'::text],
   'ignora acentos na busca por cidade'
 );
 
 select results_eq(
-  $$select public_code from public.search_public_properties('patio')$$,
+  $$select public_code from public.search_public_properties(p_search_query => 'patio', p_public_code => 'SEARCH-001')$$,
   array['SEARCH-001'::text],
   'inclui os diferenciais públicos no índice textual'
 );
@@ -45,7 +46,11 @@ select results_eq(
 select is(
   (
     select total_count
-    from public.search_public_properties('apartamento', 1, 12, 'Cidreira')
+    from public.search_public_properties(
+      p_search_query => 'apartamento',
+      p_city => 'Cidade Busca E2E',
+      p_public_code => 'SEARCH-002'
+    )
     limit 1
   ),
   1::bigint,

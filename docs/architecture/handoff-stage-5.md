@@ -1,6 +1,6 @@
 # Handoff da Etapa 5 — hardening e lançamento
 
-**Estado do gate:** EM ANDAMENTO — lançamento ainda não autorizado
+**Estado do gate:** EM ANDAMENTO — produção implantada, validação pós-deploy ainda `NO-GO`
 
 **Início:** 7 de setembro de 2026
 
@@ -19,7 +19,7 @@ Em 8 de setembro de 2026, o responsável confirmou a compra de `crischaves.com.b
 - 241 testes unitários/arquiteturais e 32 cenários E2E aprovados;
 - ciclo AAL2 de criação, mídia tratada, publicação, catálogo, página, sitemap, arquivamento e restauração aprovado;
 - marca d'água central `Cris Chaves` e ausência de endereço privado comprovadas;
-- placeholders autorizados apenas para avaliação, com arquivamento obrigatório antes do go-live; o cliente cadastrará os imóveis reais um a um depois do lançamento.
+- placeholders identificados como demonstração foram autorizados para avaliação pública; o cliente poderá arquivá-los ao cadastrar os imóveis reais um a um depois do lançamento.
 
 ## Primeiro bloco iniciado
 
@@ -196,4 +196,17 @@ O bloqueador de rotação da chave privilegiada está encerrado.
 - o Supabase Auth foi persistido com Site URL `https://crischaves.com.br` e redirects exatos de convite/recuperação para produção e staging, sem curingas; os dois redirects locais continuam disponíveis somente para desenvolvimento;
 - o Worker base foi consultado e ainda possui zero segredos; as credenciais do arquivo local foram testadas sem revelar valores, receberam `401` e estão proibidas de serem promovidas para produção.
 
-A próxima ação é cadastrar manualmente os três segredos válidos no Worker base e somente então executar o primeiro deploy de produção seguido do checklist pós-publicação.
+Essa ação foi concluída posteriormente. O estado operacional corrente e os gates restantes estão consolidados em [`production-go-live-evidence.md`](production-go-live-evidence.md).
+
+### Produção implantada e validação aberta
+
+- PR 15 integrado na `main` pelo commit `84ca73066e9f127bb50761745ab5613f9844de3b`, com páginas de Privacidade e Termos publicáveis; CI, CodeQL e secret scanning permaneceram verdes;
+- Worker de produção está ativo com os três nomes de segredo esperados; a URL do Supabase é validada como origem HTTPS exata e nunca é registrada em log;
+- o erro inicial `500` foi encerrado: home, catálogo, detalhe, mídia, `robots.txt` e `sitemap.xml` voltaram a responder `200`;
+- HTTP e `www` redirecionam preservando caminho/query para `https://crischaves.com.br`; HTTPS obrigatório, TLS 1.3 e versão mínima TLS 1.2 estão ativos;
+- o smoke HTTP de produção aprovou 15 controles somente leitura, e a matriz remota aprovou 58 controles de autorização/RLS mais 4 de busca pública, todos dentro de transação com `ROLLBACK`;
+- o pacote corrente possui 86 assets, aproximadamente 434 KiB compactados, nenhum arquivo local de segredo e dry-run de produção aprovado;
+- 52 arquivos/268 testes unitários e arquiteturais estão verdes; a correção responsiva do CTA foi validada em 375 e 390 px sem overflow ou texto duplicado;
+- a divulgação permanece condicionada ao CI da revisão final, ao deploy desse artefato e ao smoke autenticado AAL2 em produção;
+- matriz ASVS permanece em 2 verificados e 251 pendentes; não existe alegação de conformidade ASVS L2;
+- a ausência de backup próprio permanece como risco aceito na ADR-0010, e não como controle implementado.

@@ -1,6 +1,6 @@
 # Runbook de lançamento, rollback e incidente
 
-**Estado:** preparado; execução de produção ainda não autorizada.
+**Estado:** execução iniciada; domínio e Worker ativos, validação pós-deploy ainda em andamento.
 
 ## Papéis mínimos
 
@@ -10,10 +10,11 @@ Antes da janela, registrar uma pessoa responsável por decisão go/no-go, contas
 
 - chave privilegiada exposta rotacionada e a anterior aposentada;
 - branch protegida e todos os checks remotos verdes;
-- textos legais aprovados e placeholders arquivados;
+- páginas legais publicáveis presentes e decisão explícita sobre manter ou arquivar placeholders demonstrativos;
 - migration 16 testada localmente e artefato de produção aprovado por dry-run;
 - Site URL e redirects de autenticação prontos para o domínio final;
-- responsável operacional disponível durante a janela.
+- responsável operacional disponível durante a janela;
+- checkpoint corrente revisado em [`production-go-live-evidence.md`](production-go-live-evidence.md).
 
 ## Sequência controlada
 
@@ -37,7 +38,8 @@ Antes da janela, registrar uma pessoa responsável por decisão go/no-go, contas
 - publicar um placeholder seguro, conferir marca-d'água e ausência de endereço privado, arquivar e restaurar;
 - repetir controles remotos em transação com rollback e executar baseline ZAP;
 - conferir logs redigidos, rate limits, erros e alertas sem persistir dados pessoais desnecessários;
-- arquivar o placeholder do smoke test e confirmar o catálogo final.
+- arquivar o placeholder criado somente para o smoke test, salvo se ele também estiver explicitamente aprovado como conteúdo demonstrativo do catálogo final;
+- confirmar que todo placeholder remanescente está identificado como demonstração e não pode ser confundido com uma oferta real.
 
 ## Rollback seguro
 

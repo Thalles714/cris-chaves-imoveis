@@ -60,6 +60,7 @@
 		"check:cloudflare": "wrangler deploy --dry-run",
 		"check:cloudflare:production": "pnpm build:production && wrangler deploy --dry-run",
 		"check:cloudflare:staging": "pnpm build:staging && wrangler deploy --dry-run",
+		"check:production-security": "node scripts/check-production-http-security.mjs",
 		"check:sensitive-data": "node scripts/check-sensitive-data.mjs",
 		"check:stage2-security": "node scripts/check-stage2-security.mjs",
 		"check:staging-security": "node scripts/check-staging-http-security.mjs",

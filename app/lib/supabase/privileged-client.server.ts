@@ -45,6 +45,8 @@ const privilegedClientConfigSchema = z
 				url.username ||
 				url.password ||
 				url.hash ||
+				url.search ||
+				url.pathname !== "/" ||
 				(url.protocol !== "https:" && !(local && value.appEnvironment !== "production"))
 			) {
 				throw new Error("invalid origin");
@@ -52,7 +54,11 @@ const privilegedClientConfigSchema = z
 		} catch {
 			context.addIssue({ code: "custom", path: ["url"], message: "Invalid URL." });
 		}
-	});
+	})
+	.transform((value) => ({
+		...value,
+		url: new URL(value.url).origin,
+	}));
 
 export function createPrivilegedSupabaseClient(
 	bindings: Readonly<Record<string, unknown>>,

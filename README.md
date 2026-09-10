@@ -1,6 +1,6 @@
 # Cris Chaves Imóveis
 
-Fundação técnica, site público e área administrativa de Cris Chaves. As Etapas 1, 2, 3 e 4 estão concluídas; o UAT final aprovou MFA, cadastro, mídia tratada, publicação, privacidade, arquivamento e restauração, e a Etapa 5 está autorizada. Os anúncios demonstrativos continuam claramente identificados como placeholders autorizados para avaliação e devem ser removidos do ambiente público antes do go-live.
+Fundação técnica, site público e área administrativa de Cris Chaves. As Etapas 1, 2, 3 e 4 estão concluídas; o UAT final aprovou MFA, cadastro, mídia tratada, publicação, privacidade, arquivamento e restauração, e a Etapa 5 está em validação final de produção. Anúncios demonstrativos claramente identificados como placeholders foram autorizados para avaliação pública e poderão ser arquivados pelo cliente quando os imóveis reais forem cadastrados.
 
 ## Fontes de verdade
 
@@ -57,12 +57,13 @@ As fronteiras completas e as decisões pendentes estão em [`docs/architecture/R
 
 ## Restrições atuais
 
-- catálogo real contém somente o placeholder identificado `DEMO-001`; o `CC-001` permanece como rascunho sem mídia pública;
+- o catálogo inicial pode conter placeholders identificados como demonstrativos, com mídia segura e sem endereço privado; eles não representam oferta real e podem ser arquivados pelo cliente;
 - nenhum dado pessoal ou contato real em código ou fixtures;
 - nenhum serviço pago;
 - nenhuma chave privilegiada no cliente;
 - nenhum endereço exato no contrato público;
 - formulário público inativo até aprovação do fluxo LGPD e destino operacional;
 - painel administrativo implementado e validado com o primeiro proprietário real; o fluxo foi simplificado para três passos, com seis temas, esquemas Claro/Escuro/Sistema preservados e o novo Black preto/branco com CTA azul, rascunho guiado, prévias autenticadas, marca d'água central `Cris Chaves`, ocultação recuperável de mídia e checklist de publicação;
-- 241 testes unitários/arquiteturais, 32 cenários E2E e 52 testes pgTAP locais estão verdes; as 15 migrations foram reconstruídas novamente em 7 de setembro de 2026 e um teste de integração transacional comprova a troca do contrato de publicação entre as migrations 14 e 15; a migration 15 está aplicada no Supabase real, o histórico remoto está alinhado em 15/15 e os 48 controles de segurança remotos foram repetidos com `ROLLBACK`; o ciclo AAL2 de publicar, arquivar, restaurar e republicar foi comprovado pela interface, auditoria, catálogo, página, mídia, sitemap e ausência de endereço privado; o UAT final foi aprovado sem dúvidas ou erros remanescentes, encerrando formalmente a Etapa 4;
-- SMTP próprio, domínio HTTPS e origem canônica pertencem ao gate de produção da Etapa 5.
+- 268 testes unitários/arquiteturais e 34 cenários E2E estão verdes; as 16 migrations foram reconstruídas do zero, o contrato de publicação entre as migrations 14 e 15 foi revalidado em transação, o histórico remoto está alinhado em 16/16 e a suíte remota atual de 62 controles pgTAP passou com `ROLLBACK` (58 de autorização/RLS e 4 de busca pública);
+- `crischaves.com.br` está delegado à Cloudflare, com TLS e Worker de produção implantados. O go-live ainda depende da validação pós-deploy registrada em [`docs/architecture/production-go-live-evidence.md`](docs/architecture/production-go-live-evidence.md);
+- não há backup próprio nesta fase: o risco temporário de recadastro manual foi aceito na ADR-0010 e deve ser revisto quando qualquer gatilho ali definido ocorrer.

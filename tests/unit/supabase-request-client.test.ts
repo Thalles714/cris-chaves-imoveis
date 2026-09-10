@@ -14,6 +14,24 @@ describe("request-scoped Supabase client", () => {
 		).toThrow();
 	});
 
+	it("normalizes a trailing slash and rejects non-origin Supabase URLs", () => {
+		expect(
+			readSupabaseServerConfig({
+				APP_ENV: "production",
+				SUPABASE_URL: "https://project-ref.supabase.co/",
+				SUPABASE_PUBLISHABLE_KEY: "sb_publishable_synthetic_value",
+			}),
+		).toMatchObject({ url: "https://project-ref.supabase.co" });
+
+		expect(() =>
+			readSupabaseServerConfig({
+				APP_ENV: "production",
+				SUPABASE_URL: "https://project-ref.supabase.co/rest/v1",
+				SUPABASE_PUBLISHABLE_KEY: "sb_publishable_synthetic_value",
+			}),
+		).toThrow();
+	});
+
 	it("isolates cookies per request and enforces private no-store responses", () => {
 		const createServerClient = vi.fn().mockReturnValue({ requestScoped: true });
 		const scoped = createRequestScopedSupabaseClient({

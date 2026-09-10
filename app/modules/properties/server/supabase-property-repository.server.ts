@@ -22,6 +22,15 @@ const catalogColumns =
 const mediaColumns =
 	"property_code,media_code,media_kind,sort_order,alt_text,is_cover,video_provider,video_id,public_object_path";
 
+function logPublicQueryFailure(operation: string, error: unknown) {
+	const record =
+		typeof error === "object" && error !== null ? (error as Record<string, unknown>) : {};
+	console.error("Supabase public query failed.", {
+		operation,
+		code: typeof record.code === "string" ? record.code : "unknown",
+	});
+}
+
 function mediaRoute(mediaCode: string) {
 	return `/media/${encodeURIComponent(mediaCode)}`;
 }
@@ -105,7 +114,10 @@ async function loadCoverImages(client: AppSupabaseClient, codes: readonly string
 		.in("property_code", [...codes])
 		.eq("media_kind", "image")
 		.eq("is_cover", true);
-	if (mediaResult.error) throw new Error("Não foi possível consultar as mídias.");
+	if (mediaResult.error) {
+		logPublicQueryFailure("list-cover-images", mediaResult.error);
+		throw new Error("Não foi possível consultar as mídias.");
+	}
 	for (const cover of mediaResult.data ?? []) {
 		covers.set(cover.property_code, cover);
 	}
@@ -135,7 +147,10 @@ export class SupabasePropertyRepository implements PropertyRepository {
 				p_minimum_parking_spaces: query.minimumParkingSpaces ?? null,
 				p_public_code: query.publicCode ?? null,
 			});
-			if (result.error) throw new Error("Não foi possível pesquisar os imóveis.");
+			if (result.error) {
+				logPublicQueryFailure("search-properties", result.error);
+				throw new Error("Não foi possível pesquisar os imóveis.");
+			}
 			const rows = result.data ?? [];
 			const covers = await loadCoverImages(
 				this.client,
@@ -178,7 +193,10 @@ export class SupabasePropertyRepository implements PropertyRepository {
 		if (query.publicCode) request = request.eq("public_code", query.publicCode);
 
 		const result = await request;
-		if (result.error) throw new Error("Não foi possível consultar o catálogo.");
+		if (result.error) {
+			logPublicQueryFailure("list-properties", result.error);
+			throw new Error("Não foi possível consultar o catálogo.");
+		}
 		const rows = result.data ?? [];
 		const codes = rows.map((row) => row.public_code);
 		const covers = await loadCoverImages(this.client, codes);
@@ -198,7 +216,10 @@ export class SupabasePropertyRepository implements PropertyRepository {
 			.select(catalogColumns)
 			.eq("slug", slug)
 			.maybeSingle();
-		if (propertyResult.error) throw new Error("Não foi possível consultar o imóvel.");
+		if (propertyResult.error) {
+			logPublicQueryFailure("find-property", propertyResult.error);
+			throw new Error("Não foi possível consultar o imóvel.");
+		}
 		if (!propertyResult.data) return null;
 
 		const mediaResult = await this.client
@@ -206,7 +227,10 @@ export class SupabasePropertyRepository implements PropertyRepository {
 			.select(mediaColumns)
 			.eq("property_code", propertyResult.data.public_code)
 			.order("sort_order", { ascending: true });
-		if (mediaResult.error) throw new Error("Não foi possível consultar as mídias.");
+		if (mediaResult.error) {
+			logPublicQueryFailure("list-property-media", mediaResult.error);
+			throw new Error("Não foi possível consultar as mídias.");
+		}
 		const mediaRows = mediaResult.data ?? [];
 		const cover = mediaRows.find((row) => row.media_kind === "image" && row.is_cover);
 
@@ -226,7 +250,10 @@ export class SupabasePropertyRepository implements PropertyRepository {
 			.select("slug,published_at")
 			.order("published_at", { ascending: false })
 			.limit(1_000);
-		if (result.error) throw new Error("Não foi possível gerar o mapa do catálogo.");
+		if (result.error) {
+			logPublicQueryFailure("list-sitemap-properties", result.error);
+			throw new Error("Não foi possível gerar o mapa do catálogo.");
+		}
 		return (result.data ?? []).map((row) => ({
 			slug: row.slug,
 			publishedAt: row.published_at,

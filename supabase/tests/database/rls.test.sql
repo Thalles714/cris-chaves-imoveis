@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(56);
+select plan(58);
 
 -- Synthetic identities only; none can sign in.
 insert into auth.users (id, raw_user_meta_data)
@@ -217,6 +217,18 @@ select results_eq(
 );
 select is((select count(*) from public.admin_members), 1::bigint, 'aal1 member can read only self for MFA bootstrap');
 select is((select count(*) from storage.objects), 0::bigint, 'aal1 editor cannot list registered Storage objects');
+select set_config('storage.operation', 'storage.object.get_authenticated', true);
+select is(
+  (
+    select count(*)
+    from storage.objects
+    where bucket_id = 'property-originals'
+      and name = 'properties/40000000-0000-4000-8000-000000000004/originals/63000000-0000-4000-8000-000000000006.webp'
+  ),
+  0::bigint,
+  'aal1 editor cannot read a registered original by its exact object key'
+);
+select set_config('storage.operation', '', true);
 
 reset role;
 set local role authenticated;
@@ -250,6 +262,18 @@ select is(
   2::bigint,
   'aal2 editor can list the synthetic registered Storage objects'
 );
+select set_config('storage.operation', 'storage.object.get_authenticated', true);
+select is(
+  (
+    select count(*)
+    from storage.objects
+    where bucket_id = 'property-originals'
+      and name = 'properties/40000000-0000-4000-8000-000000000004/originals/63000000-0000-4000-8000-000000000006.webp'
+  ),
+  1::bigint,
+  'aal2 active editor can read a registered original by its exact object key'
+);
+select set_config('storage.operation', '', true);
 select ok(
   not exists (
     select 1

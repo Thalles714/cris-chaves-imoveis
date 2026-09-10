@@ -70,6 +70,11 @@ test.describe("qualidade visual e desempenho público", () => {
 			);
 			await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 			if (width <= 375) {
+				const headerCta = page.locator(".site-header-cta");
+				await expect(headerCta.locator(".site-header-cta__wide")).toBeHidden();
+				await expect(headerCta.locator(".site-header-cta__short")).toHaveText("Contato");
+				await expect(headerCta.locator(".site-header-cta__short")).toBeVisible();
+
 				const filterTrigger = page.getByRole("button", { name: /Filtros/u });
 				await expect(filterTrigger).toBeVisible();
 				await filterTrigger.click();
