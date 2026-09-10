@@ -152,8 +152,14 @@ const result = spawnSync(
 	{ cwd: projectRoot, encoding: "utf8", input: sql },
 );
 
-if (result.status !== 0) {
-	process.stderr.write(result.stderr || result.stdout);
+if (result.error || result.status !== 0) {
+	const diagnostic =
+		result.stderr ||
+		result.stdout ||
+		(result.error
+			? `Não foi possível executar o Docker local: ${result.error.message}\n`
+			: "O teste de contrato terminou sem diagnóstico do Docker.\n");
+	process.stderr.write(diagnostic);
 	process.exit(result.status ?? 1);
 }
 
