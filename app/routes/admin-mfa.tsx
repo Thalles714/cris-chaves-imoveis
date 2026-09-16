@@ -28,13 +28,17 @@ export function headers() {
 export async function loader({ request, context }: Route.LoaderArgs) {
 	try {
 		const scoped = createRequestScopedAdminAuth(request, adminBindings(context));
-		const state = await scoped.auth.getMfaState();
+		const reauthentication = new URL(request.url).searchParams.get("renovar") === "1";
+		const state = await scoped.auth.getMfaState(reauthentication);
 		if (state === "ready") {
 			return redirect("/admin", {
 				headers: adminResponseHeaders(scoped.responseHeaders),
 			});
 		}
-		return data({ state }, { headers: adminResponseHeaders(scoped.responseHeaders) });
+		return data(
+			{ state, reauthentication },
+			{ headers: adminResponseHeaders(scoped.responseHeaders) },
+		);
 	} catch (error) {
 		if (error instanceof AdminAccessError && error.code === "AUTHENTICATION_REQUIRED") {
 			return redirect("/admin/entrar", { headers: adminResponseHeaders() });
@@ -73,7 +77,9 @@ export async function action({ request, context }: Route.ActionArgs) {
 				headers: adminResponseHeaders(),
 			});
 		}
-		return redirect("/admin", { headers: adminResponseHeaders(scoped.responseHeaders) });
+		const returnTo =
+			form.get("returnTo") === "/admin/membros" ? "/admin/membros" : "/admin";
+		return redirect(returnTo, { headers: adminResponseHeaders(scoped.responseHeaders) });
 	} catch (error) {
 		if (error instanceof Response) throw error;
 		return data(
@@ -98,6 +104,7 @@ export default function AdminMfa({ loaderData, actionData }: Route.ComponentProp
 	const navigation = useNavigation();
 	const isSubmitting = navigation.state !== "idle";
 	const state = actionData?.state ?? loaderData.state;
+	const reauthentication = loaderData.reauthentication;
 	const enrollment =
 		actionData && "enrollment" in actionData ? actionData.enrollment : null;
 	const qrCode =
@@ -113,7 +120,9 @@ export default function AdminMfa({ loaderData, actionData }: Route.ComponentProp
 				<p className="admin-auth-card__intro">
 					{state === "enrollment_required"
 						? "Configure um aplicativo autenticador antes de acessar os anúncios."
-						: "Digite o código de seis números exibido no seu aplicativo autenticador."}
+						: reauthentication
+							? "Confirme um novo código para autorizar a operação sensível pelos próximos cinco minutos."
+							: "Digite o código de seis números exibido no seu aplicativo autenticador."}
 				</p>
 				{actionData && "error" in actionData && actionData.error && (
 					<div className="admin-auth-message" role="alert">
@@ -144,6 +153,9 @@ export default function AdminMfa({ loaderData, actionData }: Route.ComponentProp
 							</p>
 						)}
 						<Form method="post" className="admin-auth-form" aria-busy={isSubmitting}>
+							{reauthentication && (
+								<input type="hidden" name="returnTo" value="/admin/membros" />
+							)}
 							<input
 								type="hidden"
 								name="intent"

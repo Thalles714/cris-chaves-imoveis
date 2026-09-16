@@ -4,8 +4,10 @@ import { pathToFileURL } from "node:url";
 /** @typedef {(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>} FetchLike */
 
 const canonicalOrigin = "https://crischaves.com.br";
+// Block deployment-only origins and private database keys without rejecting
+// explanatory privacy copy such as "dados do proprietário não são publicados".
 const forbiddenPublicText =
-	/localhost|127\.0\.0\.1|workers\.dev|observações internas|nome do proprietário|contato do proprietário|logradouro|\bcep\b/iu;
+	/localhost|127\.0\.0\.1|workers\.dev|address_line|address_number|address_complement|postal_code|exact_latitude|exact_longitude|owner_name|owner_contact|internal_notes/iu;
 
 /** @param {string} value */
 export function assertProductionBaseUrl(value) {

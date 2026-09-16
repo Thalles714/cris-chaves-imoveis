@@ -16,8 +16,8 @@ const adminImageAssetInputSchema = z
 	.object({
 		mimeType: z.enum(["image/jpeg", "image/webp"]),
 		byteLength: z.number().int().positive().max(DEFAULT_IMAGE_POLICY.maxBytesPerImage),
-		width: z.number().int().min(DEFAULT_IMAGE_POLICY.minWidth).max(4_096),
-		height: z.number().int().min(DEFAULT_IMAGE_POLICY.minHeight).max(4_096),
+		width: z.number().int().min(DEFAULT_IMAGE_POLICY.minWidth).max(8_192),
+		height: z.number().int().min(DEFAULT_IMAGE_POLICY.minHeight).max(8_192),
 		checksumSha256: sha256ChecksumSchema,
 	})
 	.strict()

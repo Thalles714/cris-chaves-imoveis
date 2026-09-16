@@ -223,9 +223,12 @@ export interface AdminPropertyPage {
 export interface AdminPropertySummary {
 	total: number;
 	drafts: number;
+	awaitingReview: number;
 	published: number;
 	archived: number;
 	deleted: number;
+	draftsToContinue: readonly AdminPropertyListItem[];
+	recentlyUpdated: readonly AdminPropertyListItem[];
 }
 
 export type AdminPropertyQuery = z.infer<typeof adminPropertyQuerySchema>;

@@ -31,6 +31,7 @@ export async function verifyStoredImageBytes(
 
 	try {
 		const bytes = new Uint8Array(await blob.arrayBuffer());
+		if ((await calculateSha256Hex(bytes)) !== expected.checksumSha256) return false;
 		const validated = validateImageUpload({
 			fileName: expected.fileName,
 			declaredMimeType: expected.mimeType,
@@ -39,10 +40,7 @@ export async function verifyStoredImageBytes(
 			confirmedReencoded: true,
 			confirmedMetadataStripped: true,
 		});
-		if (validated.width !== expected.width || validated.height !== expected.height) {
-			return false;
-		}
-		return (await calculateSha256Hex(bytes)) === expected.checksumSha256;
+		return validated.width === expected.width && validated.height === expected.height;
 	} catch {
 		return false;
 	}

@@ -4,8 +4,11 @@ import {
 	BrowserImageProcessingError,
 	centeredWatermarkLayout,
 	calculateSha256Hex,
+	createOpaqueImageId,
 	fitImageDimensions,
 	parseImageUploadPlan,
+	prefersHtmlImageDecoder,
+	processImagePairInBrowser,
 	processImageInBrowser,
 	type BrowserDecodedImage,
 	type BrowserImageRuntime,
@@ -158,6 +161,185 @@ function runtimeFor(decodedWidth: number, decodedHeight: number) {
 }
 
 describe("browser image pipeline", () => {
+	it("creates an opaque UUID when Safari does not provide crypto.randomUUID", () => {
+		const cryptoApi = {
+			getRandomValues: <T extends ArrayBufferView>(array: T) => {
+				new Uint8Array(array.buffer, array.byteOffset, array.byteLength).fill(1);
+				return array;
+			},
+		};
+		expect(createOpaqueImageId(cryptoApi)).toBe("01010101-0101-4101-8101-010101010101");
+	});
+
+	it("prepares an iPhone camera JPEG with one decode and a smaller public copy", async () => {
+		const bytes = syntheticJpeg(4_032, 3_024, true);
+		const file = imageFile(bytes, "IMG_3723.jpeg");
+		const { runtime, encode, close } = runtimeFor(4_032, 3_024);
+
+		const pair = await processImagePairInBrowser(
+			file,
+			{ watermarkText: "Cris Chaves" },
+			undefined,
+			runtime,
+		);
+
+		expect(pair.original.blob).not.toBe(file);
+		expect(pair.original.output).toMatchObject({
+			mimeType: "image/jpeg",
+			width: 2_048,
+			height: 1_536,
+			metadata: { exif: false, gps: false, xmp: false },
+		});
+		expect(pair.publicDerivative.output).toMatchObject({ width: 1_280, height: 960 });
+		expect(runtime.decode).toHaveBeenCalledOnce();
+		expect(encode).toHaveBeenCalledTimes(2);
+		expect(encode).toHaveBeenNthCalledWith(
+			1,
+			expect.anything(),
+			2_048,
+			1_536,
+			"image/jpeg",
+			0.84,
+		);
+		expect(encode).toHaveBeenNthCalledWith(
+			2,
+			expect.anything(),
+			1_280,
+			960,
+			"image/jpeg",
+			0.84,
+			"Cris Chaves",
+		);
+		expect(close).toHaveBeenCalledOnce();
+	});
+
+	it("accepts a valid JPEG whose filename contains more than one dot", async () => {
+		const bytes = syntheticJpeg(1_280, 720);
+		const { runtime } = runtimeFor(1_280, 720);
+
+		const processed = await processImageInBrowser(
+			imageFile(bytes, "apartamento.sala.01.jpeg", "image/jpeg"),
+			{},
+			undefined,
+			runtime,
+		);
+
+		expect(processed.source).toMatchObject({
+			mimeType: "image/jpeg",
+			width: 1_280,
+			height: 720,
+		});
+	});
+
+	it.each([
+		["legacy MIME", "fachada.jfif", "image/pjpeg"],
+		["non-standard MIME", "fachada.jpeg", "image/jpg"],
+		["missing MIME", "fachada.jpeg", ""],
+		["generic MIME", "fachada.jpg", "application/octet-stream"],
+	])(
+		"accepts a JPEG with %s when its extension and bytes are valid",
+		async (_label, name, type) => {
+			const bytes = syntheticJpeg(1_280, 720);
+			const { runtime } = runtimeFor(1_280, 720);
+
+			const processed = await processImageInBrowser(
+				imageFile(bytes, name, type),
+				{},
+				undefined,
+				runtime,
+			);
+
+			expect(processed.source.mimeType).toBe("image/jpeg");
+		},
+	);
+
+	it("uses the regular image decoder on iPhone and touch iPad", () => {
+		expect(
+			prefersHtmlImageDecoder(
+				"Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X)",
+				"iPhone",
+				5,
+			),
+		).toBe(true);
+		expect(prefersHtmlImageDecoder("Mozilla/5.0 (Macintosh)", "MacIntel", 5)).toBe(true);
+		expect(prefersHtmlImageDecoder("Mozilla/5.0 (Windows NT 10.0)", "Win32", 0)).toBe(
+			false,
+		);
+	});
+
+	it.each(["unavailable", "rejecting"])(
+		"falls back to an image element when createImageBitmap is %s on mobile",
+		async (bitmapBehavior) => {
+			const createBitmap =
+				bitmapBehavior === "rejecting"
+					? vi.fn(async () => {
+							throw new DOMException("The source image could not be decoded.");
+						})
+					: undefined;
+			vi.stubGlobal("createImageBitmap", createBitmap);
+			const createObjectURL = vi.fn(() => "blob:mobile-photo");
+			const revokeObjectURL = vi.fn();
+			vi.stubGlobal("URL", { createObjectURL, revokeObjectURL });
+
+			const image = {
+				naturalWidth: 1_280,
+				naturalHeight: 720,
+				addEventListener: vi.fn((type: string, listener: EventListener) => {
+					if (type === "load") queueMicrotask(() => listener(new Event("load")));
+				}),
+				removeEventListener: vi.fn(),
+				removeAttribute: vi.fn(),
+			};
+			const context = {
+				drawImage: vi.fn(),
+				fillRect: vi.fn(),
+				fillText: vi.fn(),
+				imageSmoothingEnabled: false,
+				imageSmoothingQuality: "low",
+				font: "",
+				textAlign: "start",
+				textBaseline: "alphabetic",
+				fillStyle: "",
+			};
+			const canvas = {
+				width: 0,
+				height: 0,
+				getContext: vi.fn(() => context),
+				toBlob: vi.fn((callback: BlobCallback, type?: string) => {
+					callback(
+						new Blob([syntheticJpeg(1_280, 720)], {
+							type: type ?? "image/jpeg",
+						}),
+					);
+				}),
+			};
+			const createElement = vi
+				.spyOn(document, "createElement")
+				.mockImplementation(((tagName: string) =>
+					tagName === "img" ? image : canvas) as typeof document.createElement);
+
+			try {
+				const processed = await processImageInBrowser(
+					imageFile(syntheticJpeg(1_280, 720), "IMG_3719.jpeg"),
+				);
+
+				expect(processed.output).toMatchObject({
+					mimeType: "image/jpeg",
+					width: 1_280,
+					height: 720,
+				});
+				expect(context.drawImage).toHaveBeenCalledWith(image, 0, 0, 1_280, 720);
+				expect(createObjectURL).toHaveBeenCalledOnce();
+				expect(revokeObjectURL).toHaveBeenCalledWith("blob:mobile-photo");
+				expect(canvas).toMatchObject({ width: 1, height: 1 });
+				if (createBitmap) expect(createBitmap).toHaveBeenCalledOnce();
+			} finally {
+				createElement.mockRestore();
+				vi.unstubAllGlobals();
+			}
+		},
+	);
+
 	it("reencodes, downsizes, strips metadata and hashes the fresh bytes", async () => {
 		const sourceBytes = syntheticJpeg(6_000, 4_000, true);
 		const { runtime, encode, close } = runtimeFor(6_000, 4_000);
@@ -177,16 +359,16 @@ describe("browser image pipeline", () => {
 		});
 		expect(processed.output).toMatchObject({
 			mimeType: "image/jpeg",
-			width: 2_560,
-			height: 1_707,
+			width: 2_048,
+			height: 1_365,
 			metadata: { exif: false, gps: false, xmp: false },
 		});
 		expect(processed.checksumSha256).toBe("a".repeat(64));
 		expect(processed.opaqueFileName).toMatch(/^[0-9a-f-]{36}\.jpg$/);
 		expect(encode).toHaveBeenCalledWith(
 			expect.anything(),
-			2_560,
-			1_707,
+			2_048,
+			1_365,
 			"image/jpeg",
 			0.84,
 			undefined,
@@ -224,6 +406,43 @@ describe("browser image pipeline", () => {
 			0.84,
 			"Cris Chaves",
 		);
+	});
+
+	it("creates the private and watermarked variants from one mobile decode", async () => {
+		const { runtime, encode, close } = runtimeFor(4_032, 3_024);
+
+		const pair = await processImagePairInBrowser(
+			imageFile(syntheticJpeg(4_032, 3_024), "camera.jpeg"),
+			{ watermarkText: "Cris Chaves" },
+			undefined,
+			runtime,
+		);
+
+		expect(pair.original.output).toMatchObject({ width: 2_048, height: 1_536 });
+		expect(pair.publicDerivative.output).toMatchObject({
+			width: 1_280,
+			height: 960,
+		});
+		expect(runtime.decode).toHaveBeenCalledOnce();
+		expect(encode).toHaveBeenCalledTimes(2);
+		expect(encode).toHaveBeenNthCalledWith(
+			1,
+			expect.anything(),
+			2_048,
+			1_536,
+			"image/jpeg",
+			0.84,
+		);
+		expect(encode).toHaveBeenNthCalledWith(
+			2,
+			expect.anything(),
+			1_280,
+			960,
+			"image/jpeg",
+			0.84,
+			"Cris Chaves",
+		);
+		expect(close).toHaveBeenCalledOnce();
 	});
 
 	it("positions the public watermark in the exact center of the image", () => {
@@ -266,7 +485,7 @@ describe("browser image pipeline", () => {
 		expect(processed.opaqueFileName).toMatch(/^[0-9a-f-]{36}\.webp$/);
 	});
 
-	it("accepts the client's static PNG as input and reencodes it to an allowed WebP", async () => {
+	it("accepts the client's static PNG as input and reencodes it to JPEG", async () => {
 		const { runtime, encode } = runtimeFor(962, 540);
 
 		const processed = await processImageInBrowser(
@@ -286,15 +505,47 @@ describe("browser image pipeline", () => {
 			height: 540,
 		});
 		expect(processed.output).toMatchObject({
-			mimeType: "image/webp",
-			extension: "webp",
+			mimeType: "image/jpeg",
+			extension: "jpg",
 		});
-		expect(processed.opaqueFileName).toMatch(/^[0-9a-f-]{36}\.webp$/);
+		expect(processed.opaqueFileName).toMatch(/^[0-9a-f-]{36}\.jpg$/);
 		expect(encode).toHaveBeenCalledWith(
 			expect.anything(),
 			962,
 			540,
-			"image/webp",
+			"image/jpeg",
+			0.84,
+			undefined,
+		);
+	});
+
+	it("uses the broadly supported JPEG encoder for an iPhone PNG", async () => {
+		const { runtime } = runtimeFor(1_290, 2_796);
+		runtime.encode = vi.fn(
+			async (
+				_image: BrowserDecodedImage,
+				width: number,
+				height: number,
+				mimeType: "image/jpeg" | "image/webp",
+			) =>
+				mimeType === "image/webp"
+					? new Blob([syntheticPng(width, height)], { type: "image/png" })
+					: new Blob([syntheticJpeg(width, height)], { type: "image/jpeg" }),
+		);
+
+		const processed = await processImageInBrowser(
+			imageFile(syntheticPng(1_290, 2_796), "IMG_3731.png", "image/png"),
+			{},
+			undefined,
+			runtime,
+		);
+
+		expect(processed.output.mimeType).toBe("image/jpeg");
+		expect(runtime.encode).toHaveBeenCalledWith(
+			expect.anything(),
+			945,
+			2_048,
+			"image/jpeg",
 			0.84,
 			undefined,
 		);
@@ -358,7 +609,6 @@ describe("browser image pipeline", () => {
 	});
 
 	it.each([
-		["double extension", "fachada.svg.jpg", "image/jpeg", syntheticJpeg()],
 		["path characters", "../fachada.jpg", "image/jpeg", syntheticJpeg()],
 		["MIME mismatch", "fachada.webp", "image/webp", syntheticJpeg()],
 		["PNG extension with JPEG MIME", "fachada.png", "image/jpeg", syntheticPng()],

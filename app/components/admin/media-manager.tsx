@@ -6,7 +6,11 @@ import {
 	adminImageUploadGrantSchema,
 	type AdminMediaItem,
 } from "~/modules/media/admin/admin-media";
-import { processImageInBrowser, type ProcessedBrowserImage } from "~/modules/media";
+import {
+	isSupportedBrowserImageSourceDeclaration,
+	processImagePairInBrowser,
+	type ProcessedBrowserImage,
+} from "~/modules/media";
 import { Modal } from "~/components/ui";
 
 import { AdminEmpty, AdminMutationFeedback } from "./feedback";
@@ -87,7 +91,7 @@ function friendlyUploadError(error: unknown, stage: UploadStage) {
 		code === "SOURCE_TYPE_MISMATCH" ||
 		code === "OUTPUT_TYPE_MISMATCH"
 	) {
-		return "O arquivo não é uma imagem PNG, JPEG ou WebP válida. Exporte a foto novamente e tente de novo.";
+		return "O arquivo não é uma imagem PNG, JPEG, JFIF ou WebP válida. Exporte a foto novamente e tente de novo.";
 	}
 	if (error instanceof Error && /^[A-ZÀ-Ú][^:]+[.!?]$/u.test(error.message)) {
 		return error.message;
@@ -192,11 +196,11 @@ export function AdminMediaManager({
 			return;
 		}
 		const invalidFile = selectedFiles.find(
-			(file) => !["image/png", "image/jpeg", "image/webp"].includes(file.type),
+			(file) => !isSupportedBrowserImageSourceDeclaration(file.name, file.type),
 		);
 		if (invalidFile) {
 			setError(
-				`O arquivo “${invalidFile.name}” não é compatível. Use imagens PNG, JPEG ou WebP.`,
+				`O arquivo “${invalidFile.name}” não é compatível. Use imagens PNG, JPEG, JFIF ou WebP.`,
 			);
 			return;
 		}
@@ -248,7 +252,7 @@ export function AdminMediaManager({
 			return;
 		}
 		if (!privacyReviewed) {
-			setError("Revise a foto e confirme que ela não expõe pessoas ou dados privados.");
+			setError("Confirme que as fotos podem aparecer no anúncio.");
 			return;
 		}
 		setError(null);
@@ -262,14 +266,12 @@ export function AdminMediaManager({
 				setProgress({ current: index + 1, total: batch.length });
 				currentStage = "processing";
 				setStage(currentStage);
-				const original = await processImageInBrowser(queuedImage.file);
-				const cleanFile = new File([original.blob], original.opaqueFileName, {
-					type: original.output.mimeType,
-				});
-				const publicDerivative = await processImageInBrowser(cleanFile, {
-					outputMimeType: original.output.mimeType,
-					watermarkText: WATERMARK_TEXT,
-				});
+				const { original, publicDerivative } = await processImagePairInBrowser(
+					queuedImage.file,
+					{
+						watermarkText: WATERMARK_TEXT,
+					},
+				);
 
 				currentStage = "planning";
 				setStage(currentStage);
@@ -348,12 +350,16 @@ export function AdminMediaManager({
 			setIsCover(false);
 			if (fileInput.current) fileInput.current.value = "";
 			setSuccess(
-				`${completed} ${completed === 1 ? "foto enviada" : "fotos enviadas"} com marca d’água e privacidade confirmadas.`,
+				`${completed} ${completed === 1 ? "foto enviada" : "fotos enviadas"} com marca d’água.`,
 			);
 		} catch (caught) {
 			const currentImage = batch[completed];
+			const errorCode =
+				typeof caught === "object" && caught !== null && "code" in caught
+					? ` (código: ${String(caught.code)})`
+					: "";
 			setError(
-				`${currentImage ? `A foto “${currentImage.file.name}” não foi enviada. ` : ""}${friendlyUploadError(caught, currentStage)}`,
+				`${currentImage ? `A foto “${currentImage.file.name}” não foi enviada. ` : ""}${friendlyUploadError(caught, currentStage)}${errorCode}`,
 			);
 		} finally {
 			if (completed > 0) void revalidator.revalidate();
@@ -386,16 +392,9 @@ export function AdminMediaManager({
 					</span>
 				</header>
 				<p>
-					PNG, JPEG ou WebP, até 8 MB por foto. O navegador remove metadados e cria a
-					cópia pública com a marca “{WATERMARK_TEXT}”.
+					PNG, JPEG, JFIF ou WebP, até 8 MB por foto. O navegador remove metadados e cria
+					a cópia pública com a marca “{WATERMARK_TEXT}”.
 				</p>
-				<div className="admin-media-privacy-note">
-					<strong>Antes de enviar</strong>
-					<p>
-						Não use fotos com pessoas reconhecíveis, placas, documentos, chaves ou números
-						que revelem o endereço exato.
-					</p>
-				</div>
 				<form
 					className="admin-media-upload"
 					onSubmit={(event) => void uploadImage(event)}
@@ -405,7 +404,7 @@ export function AdminMediaManager({
 						<input
 							ref={fileInput}
 							type="file"
-							accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
+							accept="image/png,image/jpeg,image/jpg,image/pjpeg,image/webp,.png,.jpg,.jpeg,.jfif,.webp"
 							multiple
 							onChange={chooseFile}
 							disabled={busy || imageCount + queue.length >= maxImages}
@@ -483,10 +482,7 @@ export function AdminMediaManager({
 							disabled={busy}
 							required
 						/>
-						<span>
-							Revisei todas as fotos e confirmo que elas não expõem pessoas reconhecíveis
-							nem dados privados.
-						</span>
+						<span>Revisei as fotos e confirmo que podem aparecer no anúncio.</span>
 					</label>
 					{progress && (
 						<p className="admin-media-progress" role="status" aria-live="polite">

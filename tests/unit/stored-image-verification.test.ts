@@ -58,7 +58,7 @@ describe("server-side stored image verification", () => {
 		);
 	});
 
-	it("rejects a false Storage MIME and embedded EXIF metadata", async () => {
+	it("rejects a false Storage MIME and EXIF in every stored variant", async () => {
 		const clean = syntheticJpeg();
 		expect(
 			await verifyStoredImageBytes(asBlob(clean, "image/webp"), await expectation(clean)),

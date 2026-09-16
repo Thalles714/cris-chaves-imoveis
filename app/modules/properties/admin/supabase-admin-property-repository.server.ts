@@ -12,6 +12,7 @@ import {
 } from "./admin-property";
 import {
 	AdminPropertyConflictError,
+	AdminPropertyDuplicateError,
 	type AdminPropertyRepository,
 } from "./admin-property-repository.server";
 import { propertyIdSchema } from "../validation/property-schema";
@@ -139,6 +140,13 @@ function writePayload(input: ReturnType<typeof adminPropertyDraftInputSchema.par
 	};
 }
 
+function duplicateField(error: { code?: string; message?: string } | null) {
+	if (error?.code !== "23505") return undefined;
+	if (error.message?.includes("properties_public_code_key")) return "publicCode";
+	if (error.message?.includes("properties_slug_key")) return "slug";
+	return undefined;
+}
+
 export class SupabaseAdminPropertyRepository implements AdminPropertyRepository {
 	constructor(private readonly client: AppSupabaseClient) {}
 
@@ -151,7 +159,16 @@ export class SupabaseAdminPropertyRepository implements AdminPropertyRepository 
 			if (status) request = request.eq("publication_status", status);
 			return request;
 		};
-		const [total, drafts, published, archived, deleted] = await Promise.all([
+		const [
+			total,
+			drafts,
+			published,
+			archived,
+			deleted,
+			awaitingReview,
+			draftsToContinue,
+			recentlyUpdated,
+		] = await Promise.all([
 			activeCount(),
 			activeCount("draft"),
 			activeCount("published"),
@@ -160,16 +177,54 @@ export class SupabaseAdminPropertyRepository implements AdminPropertyRepository 
 				.from("properties")
 				.select("id", { count: "exact", head: true })
 				.not("deleted_at", "is", null),
+			this.client
+				.from("properties")
+				.select("id,property_media!inner(id)", { count: "exact", head: true })
+				.eq("publication_status", "draft")
+				.is("deleted_at", null)
+				.not("description", "is", null)
+				.neq("description", "")
+				.eq("property_media.media_kind", "image")
+				.eq("property_media.is_cover", true)
+				.eq("property_media.is_approved_for_publication", true)
+				.is("property_media.deleted_at", null),
+			this.client
+				.from("properties")
+				.select(columns)
+				.eq("publication_status", "draft")
+				.is("deleted_at", null)
+				.order("updated_at", { ascending: false })
+				.limit(4),
+			this.client
+				.from("properties")
+				.select(columns)
+				.is("deleted_at", null)
+				.order("updated_at", { ascending: false })
+				.limit(5),
 		]);
-		if ([total, drafts, published, archived, deleted].some((item) => item.error)) {
+		if (
+			[
+				total,
+				drafts,
+				published,
+				archived,
+				deleted,
+				awaitingReview,
+				draftsToContinue,
+				recentlyUpdated,
+			].some((item) => item.error)
+		) {
 			throw new Error("Não foi possível consultar o resumo dos imóveis.");
 		}
 		return {
 			total: total.count ?? 0,
 			drafts: drafts.count ?? 0,
+			awaitingReview: awaitingReview.count ?? 0,
 			published: published.count ?? 0,
 			archived: archived.count ?? 0,
 			deleted: deleted.count ?? 0,
+			draftsToContinue: (draftsToContinue.data ?? []).map((row) => toListItem(row)),
+			recentlyUpdated: (recentlyUpdated.data ?? []).map((row) => toListItem(row)),
 		};
 	}
 
@@ -253,6 +308,8 @@ export class SupabaseAdminPropertyRepository implements AdminPropertyRepository 
 			})
 			.select(columns)
 			.single();
+		const duplicated = duplicateField(result.error);
+		if (duplicated) throw new AdminPropertyDuplicateError(duplicated);
 		if (result.error || !result.data) {
 			throw new Error("Não foi possível criar o imóvel.");
 		}
@@ -272,6 +329,8 @@ export class SupabaseAdminPropertyRepository implements AdminPropertyRepository 
 			.eq("version", input.expectedVersion)
 			.select(columns)
 			.maybeSingle();
+		const duplicated = duplicateField(result.error);
+		if (duplicated) throw new AdminPropertyDuplicateError(duplicated);
 		if (result.error || !result.data) throw new AdminPropertyConflictError();
 		return toListItem(result.data);
 	}

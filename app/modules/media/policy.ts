@@ -44,7 +44,7 @@ export const DEFAULT_IMAGE_POLICY: ImagePolicy = Object.freeze({
 	minHeight: 240,
 	maxWidth: 8_192,
 	maxHeight: 8_192,
-	maxPixels: 24_000_000,
+	maxPixels: 50_000_000,
 	maxImagesPerProperty: 30,
 	maxTotalStorageBytes: STORAGE_BUDGET_BYTES,
 });

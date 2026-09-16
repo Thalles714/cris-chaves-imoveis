@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { AppSupabaseClient } from "~/lib/supabase/index.server";
 import {
 	AdminPropertyConflictError,
+	AdminPropertyDuplicateError,
 	SupabaseAdminPropertyRepository,
 } from "~/modules/properties/admin/index.server";
 
@@ -48,6 +49,63 @@ function updateHarness(result: { data: unknown; error: unknown }) {
 		spies: { eq, from, maybeSingle, rpc, select, update },
 	};
 }
+
+function createHarness(result: { data: unknown; error: unknown }) {
+	const single = vi.fn().mockResolvedValue(result);
+	const select = vi.fn().mockReturnValue({ single });
+	const insert = vi.fn().mockReturnValue({ select });
+	const from = vi.fn().mockReturnValue({ insert });
+	const client = { from } as unknown as AppSupabaseClient;
+
+	return {
+		repository: new SupabaseAdminPropertyRepository(client),
+		spies: { from, insert, select, single },
+	};
+}
+
+const validDraft = (({ expectedVersion, ...draft }) => {
+	void expectedVersion;
+	return draft;
+})(validUpdate);
+
+describe("admin property repository creation", () => {
+	it.each([
+		["properties_public_code_key", "publicCode"],
+		["properties_slug_key", "slug"],
+	] as const)("identifies a duplicate value from %s", async (constraint, field) => {
+		const setup = createHarness({
+			data: null,
+			error: {
+				code: "23505",
+				message: `duplicate key value violates unique constraint "${constraint}"`,
+			},
+		});
+
+		await expect(setup.repository.createDraft(validDraft)).rejects.toMatchObject({
+			name: "AdminPropertyDuplicateError",
+			field,
+		});
+		await expect(setup.repository.createDraft(validDraft)).rejects.toBeInstanceOf(
+			AdminPropertyDuplicateError,
+		);
+	});
+
+	it("identifies a duplicate code during an edit", async () => {
+		const setup = updateHarness({
+			data: null,
+			error: {
+				code: "23505",
+				message:
+					'duplicate key value violates unique constraint "properties_public_code_key"',
+			},
+		});
+
+		await expect(setup.repository.update(propertyId, validUpdate)).rejects.toMatchObject({
+			name: "AdminPropertyDuplicateError",
+			field: "publicCode",
+		});
+	});
+});
 
 describe("admin property repository concurrency", () => {
 	it("uses the record id and expected version for an administrative update", async () => {

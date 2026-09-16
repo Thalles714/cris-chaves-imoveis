@@ -1,6 +1,6 @@
 # Runbook de lançamento, rollback e incidente
 
-**Estado:** execução iniciada; domínio e Worker ativos, validação pós-deploy ainda em andamento.
+**Estado:** domínio e Worker ativos; validação pós-deploy concluída em 13 de setembro de 2026 para a versão `9cce9c6b-8642-4004-977e-274e97fb1504`.
 
 ## Papéis mínimos
 

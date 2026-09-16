@@ -6,6 +6,7 @@ import {
 	requireAdminOperation,
 	requireAdminTargetOperation,
 	hasRecentSecondFactor,
+	requireRecentSecondFactor,
 } from "~/modules/auth/authorize.server";
 import {
 	adminOperations,
@@ -119,6 +120,33 @@ describe("admin authorization", () => {
 		expect(session.secondFactorVerifiedAt).toBe(verifiedAt);
 		expect(hasRecentSecondFactor(session, (verifiedAt + 299) * 1000)).toBe(true);
 		expect(hasRecentSecondFactor(session, (verifiedAt + 301) * 1000)).toBe(false);
+	});
+
+	it("fails closed when recent MFA is old, missing or not AAL2", () => {
+		const now = 1_700_000_301_000;
+		const baseSession = {
+			userId,
+			role: "owner" as const,
+			authenticationLevel: "aal2" as const,
+			secondFactorVerifiedAt: 1_700_000_000,
+		};
+
+		expect(() => requireRecentSecondFactor(baseSession, now)).toThrow(
+			new AdminAccessError("RECENT_AAL2_REQUIRED"),
+		);
+		expect(() =>
+			requireRecentSecondFactor(
+				{ ...baseSession, secondFactorVerifiedAt: null },
+				1_700_000_100_000,
+			),
+		).toThrow(new AdminAccessError("RECENT_AAL2_REQUIRED"));
+		expect(() =>
+			requireRecentSecondFactor(
+				{ ...baseSession, authenticationLevel: "aal1" },
+				1_700_000_100_000,
+			),
+		).toThrow(new AdminAccessError("RECENT_AAL2_REQUIRED"));
+		expect(() => requireRecentSecondFactor(baseSession, 1_700_000_299_000)).not.toThrow();
 	});
 
 	it("requires aal2 even for administrative reads", async () => {

@@ -7,7 +7,10 @@ import {
 	AdminPropertyForm,
 } from "~/components/admin";
 import { createPropertySlug } from "~/modules/properties/admin";
-import { SupabaseAdminPropertyRepository } from "~/modules/properties/admin/index.server";
+import {
+	AdminPropertyDuplicateError,
+	SupabaseAdminPropertyRepository,
+} from "~/modules/properties/admin/index.server";
 
 import type { Route } from "./+types/admin-property-new";
 import {
@@ -55,7 +58,17 @@ export async function action({ request, context }: Route.ActionArgs) {
 		return redirect(`/admin/imoveis/${property.id}/midia?criado=1`, {
 			headers: adminResponseHeaders(responseHeaders),
 		});
-	} catch {
+	} catch (error) {
+		if (error instanceof AdminPropertyDuplicateError) {
+			return data(
+				{
+					error: error.message,
+					errorField: error.field,
+					values,
+				},
+				{ status: 409, headers: adminResponseHeaders(responseHeaders) },
+			);
+		}
 		return data(
 			{
 				error: "Não foi possível salvar o rascunho. Revise os dados e tente novamente.",

@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = resolve(import.meta.dirname, "..");
 const publicRoot = resolve(root, "build", "client");
@@ -83,7 +84,7 @@ async function readBody(request) {
 	return Buffer.concat(chunks);
 }
 
-const server = createServer(async (incoming, outgoing) => {
+async function handleRequest(incoming, outgoing) {
 	try {
 		const origin = `http://${incoming.headers.host ?? "localhost:5173"}`;
 		const url = new URL(incoming.url ?? "/", origin);
@@ -115,8 +116,42 @@ const server = createServer(async (incoming, outgoing) => {
 		outgoing.setHeader("content-type", "text/plain; charset=utf-8");
 		outgoing.end("Falha temporária ao executar o site local.");
 	}
-});
+}
 
-server.listen(port, "127.0.0.1", () => {
-	console.log(`Site local disponível em http://127.0.0.1:${port}`);
-});
+export async function startBuiltLocalServer() {
+	const server = createServer(handleRequest);
+	await new Promise((resolvePromise, reject) => {
+		server.once("error", reject);
+		server.listen(port, "127.0.0.1", () => {
+			server.off("error", reject);
+			console.log(`Site local disponível em http://127.0.0.1:${port}`);
+			resolvePromise();
+		});
+	});
+	return server;
+}
+
+export async function stopBuiltLocalServer(server) {
+	server.closeIdleConnections?.();
+	await new Promise((resolvePromise, reject) => {
+		server.close((error) => {
+			if (error) reject(error);
+			else resolvePromise();
+		});
+	});
+	console.log("Site local encerrado.");
+}
+
+const isCommandLine =
+	process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url;
+
+if (isCommandLine) {
+	const server = await startBuiltLocalServer();
+	let shutdownPromise;
+	const shutdown = () => {
+		shutdownPromise ??= stopBuiltLocalServer(server);
+		return shutdownPromise;
+	};
+	process.once("SIGTERM", shutdown);
+	process.once("SIGINT", shutdown);
+}
