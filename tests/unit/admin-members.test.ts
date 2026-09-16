@@ -35,6 +35,7 @@ function repository(): AdminMemberRepository {
 		deletePending: vi.fn(async () => undefined),
 		changeRole: vi.fn(async () => undefined),
 		disable: vi.fn(async () => undefined),
+		recordInvitationRecoveryFailure: vi.fn(async () => undefined),
 	};
 }
 
@@ -42,6 +43,7 @@ function directory(): AdminAuthDirectory {
 	return {
 		invite: vi.fn(async () => ({ userId: editorId })),
 		findEmails: vi.fn(async () => new Map()),
+		findPendingUserByEmail: vi.fn(async () => null),
 		deleteInvitedUser: vi.fn(async () => undefined),
 		deleteInvitedUserStrict: vi.fn(async () => undefined),
 	};
@@ -118,6 +120,32 @@ describe("admin member management", () => {
 		expect(members.create).toHaveBeenCalledWith(ownerId, "owner");
 	});
 
+	it("keeps a recent pending invitation intact while email sending is rate limited", async () => {
+		const members = repository();
+		members.findPending = vi.fn(async () => ({
+			userId: editorId,
+			role: "owner" as const,
+			status: "invited" as const,
+			invitedAt: new Date().toISOString(),
+			activatedAt: null,
+			disabledAt: null,
+			version: 2,
+		}));
+		const authDirectory = directory();
+		const service = new AdminMemberService(members, authDirectory);
+
+		await expect(
+			service.resendInvitation({
+				userId: editorId,
+				expectedVersion: 2,
+				confirmation: "confirmed",
+			}),
+		).rejects.toEqual(new AdminMemberOperationError("EMAIL_RATE_LIMITED"));
+		expect(members.deletePending).not.toHaveBeenCalled();
+		expect(authDirectory.deleteInvitedUserStrict).not.toHaveBeenCalled();
+		expect(authDirectory.invite).not.toHaveBeenCalled();
+	});
+
 	it("cancels a pending invitation in membership and Auth", async () => {
 		const members = repository();
 		const authDirectory = directory();
@@ -152,6 +180,114 @@ describe("admin member management", () => {
 			}),
 		).rejects.toMatchObject({ code: "DIRECTORY_UNAVAILABLE" });
 		expect(members.create).toHaveBeenCalledWith(editorId, "owner");
+	});
+
+	it("records a redacted recovery failure when a new invite cannot be created", async () => {
+		const members = repository();
+		const authDirectory = directory();
+		authDirectory.findEmails = vi.fn(async () => new Map([[editorId, syntheticEmail]]));
+		authDirectory.invite = vi.fn(async () => {
+			throw new AdminMemberOperationError("DIRECTORY_UNAVAILABLE");
+		});
+		const service = new AdminMemberService(members, authDirectory);
+
+		await expect(
+			service.resendInvitation({
+				userId: editorId,
+				expectedVersion: 2,
+				confirmation: "confirmed",
+			}),
+		).rejects.toMatchObject({ code: "INVITATION_RECOVERY_REQUIRED" });
+		expect(members.recordInvitationRecoveryFailure).toHaveBeenCalledWith(
+			editorId,
+			"invite_failed_after_previous_removal",
+		);
+		expect(members.recordInvitationRecoveryFailure).not.toHaveBeenCalledWith(
+			expect.anything(),
+			expect.stringContaining("@"),
+		);
+	});
+
+	it("recomposes a pending link if Auth created the invite before reporting failure", async () => {
+		const replacementId = "30000000-0000-4000-8000-000000000003";
+		const members = repository();
+		const authDirectory = directory();
+		authDirectory.findEmails = vi.fn(async () => new Map([[editorId, syntheticEmail]]));
+		authDirectory.invite = vi.fn(async () => {
+			throw new AdminMemberOperationError("DIRECTORY_UNAVAILABLE");
+		});
+		authDirectory.findPendingUserByEmail = vi.fn(async () => ({
+			userId: replacementId,
+		}));
+		const service = new AdminMemberService(members, authDirectory);
+
+		await expect(
+			service.resendInvitation({
+				userId: editorId,
+				expectedVersion: 2,
+				confirmation: "confirmed",
+			}),
+		).rejects.toMatchObject({ code: "DIRECTORY_UNAVAILABLE" });
+		expect(members.create).toHaveBeenCalledWith(replacementId, "owner");
+		expect(members.recordInvitationRecoveryFailure).not.toHaveBeenCalled();
+	});
+
+	it("removes the replacement Auth user and records recovery when its link cannot be created", async () => {
+		const replacementId = "30000000-0000-4000-8000-000000000003";
+		const members = repository();
+		members.create = vi.fn(async () => {
+			throw new Error("database unavailable");
+		});
+		const authDirectory = directory();
+		authDirectory.findEmails = vi.fn(async () => new Map([[editorId, syntheticEmail]]));
+		authDirectory.invite = vi.fn(async () => ({ userId: replacementId }));
+		const service = new AdminMemberService(members, authDirectory);
+
+		await expect(
+			service.resendInvitation({
+				userId: editorId,
+				expectedVersion: 2,
+				confirmation: "confirmed",
+			}),
+		).rejects.toMatchObject({ code: "INVITATION_RECOVERY_REQUIRED" });
+		expect(authDirectory.deleteInvitedUser).toHaveBeenCalledWith(replacementId);
+		expect(members.recordInvitationRecoveryFailure).toHaveBeenCalledWith(
+			replacementId,
+			"membership_create_failed_after_invite",
+		);
+	});
+
+	it("rejects a stale invitation version before changing either system", async () => {
+		const members = repository();
+		members.findPending = vi.fn(async () => null);
+		const authDirectory = directory();
+		const service = new AdminMemberService(members, authDirectory);
+
+		await expect(
+			service.resendInvitation({
+				userId: editorId,
+				expectedVersion: 1,
+				confirmation: "confirmed",
+			}),
+		).rejects.toMatchObject({ code: "CONFLICT" });
+		expect(members.deletePending).not.toHaveBeenCalled();
+		expect(authDirectory.deleteInvitedUserStrict).not.toHaveBeenCalled();
+	});
+
+	it("does not remove a pending invitation whose email is absent from Auth", async () => {
+		const members = repository();
+		const authDirectory = directory();
+		const service = new AdminMemberService(members, authDirectory);
+
+		await expect(
+			service.resendInvitation({
+				userId: editorId,
+				expectedVersion: 2,
+				confirmation: "confirmed",
+			}),
+		).rejects.toMatchObject({ code: "DIRECTORY_UNAVAILABLE" });
+		expect(members.deletePending).not.toHaveBeenCalled();
+		expect(authDirectory.deleteInvitedUserStrict).not.toHaveBeenCalled();
 	});
 
 	it("creates membership only after the directory invite succeeds", async () => {

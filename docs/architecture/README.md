@@ -1,7 +1,7 @@
 # Arquitetura — índice do projeto
 
-**Estado:** Etapas 1, 2, 3 e 4 concluídas; Etapa 5 autorizada e em andamento
-**Última revisão:** 7 de setembro de 2026
+**Estado:** Etapas 1–5 concluídas para o escopo aprovado; go-live técnico validado
+**Última revisão:** 13 de setembro de 2026
 
 Esta pasta registra as decisões arquiteturais e evidências por etapa. Ela não autoriza provisionamento de produção, contratação, cadastro de cartão ou publicação de conteúdo.
 
@@ -26,12 +26,14 @@ Em conflito visual, `design_system.html` prevalece sobre o Resider. Em conflito 
 - [Matriz de acesso da Etapa 2](access-control-matrix-stage-2.md)
 - [Inventário de dados/LGPD](data-inventory-lgpd-stage-2.md)
 - [Runbook de backup e restauração](backup-restore-runbook.md)
+- [Plano operacional pendente de backup](backup-operational-plan.md)
 - [Handoff da Etapa 2](handoff-stage-2.md)
 - [Handoff da Etapa 3](handoff-stage-3.md)
 - [Manual operacional da área administrativa](admin-operations-runbook.md)
 - [Projeto Supabase da Etapa 4](supabase-project-stage-4.md)
 - [Handoff da Etapa 4](handoff-stage-4.md)
 - [Handoff da Etapa 5](handoff-stage-5.md)
+- [Consistência do reenvio de convites](member-invitation-consistency.md)
 - [Auditoria integral do produto — 9 de setembro de 2026](full-product-audit-2026-09-09.md)
 - [Runbook de lançamento, rollback e incidente](production-launch-runbook.md)
 - [Evidência corrente de go-live de produção](production-go-live-evidence.md)
@@ -50,6 +52,23 @@ Em conflito visual, `design_system.html` prevalece sobre o Resider. Em conflito 
 - [ADR-0007 — Vídeo somente por URL allowlisted e já tratada](adr/0007-allowlisted-treated-video-urls.md)
 - [ADR-0008 — Hierarquia visual e uso do Resider](adr/0008-visual-source-hierarchy.md)
 - [ADR-0009 — Não persistir leads sem decisão legal](adr/0009-no-persisted-leads-until-legal-decision.md)
+- [ADR-0010 — Backup operacional adiado no lançamento inicial](adr/0010-deferred-operational-backup.md)
+
+## Estado corrente e riscos não resolvidos
+
+O checkpoint de produção em [`production-go-live-evidence.md`](production-go-live-evidence.md)
+registra `GO` técnico em 9 de setembro de 2026. As melhorias iniciadas em 13 de
+setembro foram implantadas na versão `9cce9c6b-8642-4004-977e-274e97fb1504`,
+sem alterar a evidência histórica daquele checkpoint.
+
+- não existe backup próprio operacional nem RPO/RTO definidos ou garantidos;
+- 251 requisitos ASVS 5.0.0 L2 continuam sem evidência formal; não há alegação de
+  conformidade ASVS;
+- foto, biografia, textos legais e qualquer afirmação comercial ou operacional
+  nova continuam sujeitos à validação humana apropriada;
+- SMTP próprio, titularidade definitiva e recuperação das contas permanecem
+  melhorias operacionais;
+- o catálogo não persiste leads, analytics, pixels ou dados de formulário.
 
 ## Convenções dos ADRs
 

@@ -1085,7 +1085,7 @@ img {
 	place-items: center;
 	border: 1px solid var(--cc-border);
 	background: var(--cc-ink);
-	color: var(--cc-accent);
+	color: color-mix(in srgb, var(--cc-accent) 70%, white);
 	font-family: var(--cc-font-mono);
 	font-size: clamp(4rem, 10vw, 8rem);
 	font-weight: 700;
@@ -2495,6 +2495,12 @@ img {
 	margin: 0;
 }
 
+.cc-regions-cta__inner > div > p:last-child {
+	max-width: 45rem;
+	margin-top: 1rem;
+	color: rgb(255 255 255 / 70%);
+}
+
 /* Seller editorial */
 .cc-sell-hero__grid {
 	position: relative;
@@ -2630,6 +2636,34 @@ img {
 
 .cc-sell-contact__intro p:not(.site-eyebrow) {
 	color: var(--cc-text-muted);
+}
+
+.cc-sell-contact__privacy {
+	padding: 1.5rem;
+	border-top: 3px solid var(--cc-accent);
+	background: var(--cc-bg-muted);
+}
+
+.cc-sell-contact__privacy > p {
+	color: var(--cc-text);
+}
+
+.cc-contact-options__privacy {
+	color: var(--cc-text-muted);
+}
+
+.cc-sell-checklist {
+	margin: 1.5rem 0 0;
+	padding-left: 1.25rem;
+}
+
+.cc-sell-checklist li + li {
+	margin-top: 0.6rem;
+}
+
+.cc-contact-options__privacy {
+	max-width: 48rem;
+	margin: 2rem 0 0;
 }
 
 @media (max-width: 64rem) {

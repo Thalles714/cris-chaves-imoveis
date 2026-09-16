@@ -32,3 +32,16 @@ export class AdminPropertyConflictError extends Error {
 		this.name = "AdminPropertyConflictError";
 	}
 }
+
+export type AdminPropertyDuplicateField = "publicCode" | "slug";
+
+export class AdminPropertyDuplicateError extends Error {
+	constructor(readonly field: AdminPropertyDuplicateField) {
+		super(
+			field === "publicCode"
+				? "Este código do imóvel já está em uso."
+				: "Este endereço amigável já está em uso.",
+		);
+		this.name = "AdminPropertyDuplicateError";
+	}
+}

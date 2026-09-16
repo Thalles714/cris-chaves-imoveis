@@ -1,6 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 const widths = [320, 375, 390, 768, 1024, 1280, 1440] as const;
+const requiredPublicViewports = [
+	{ width: 390, height: 844 },
+	{ width: 768, height: 1024 },
+	{ width: 1440, height: 900 },
+	{ width: 1920, height: 1080 },
+] as const;
 const expectedCreci = ["CRECI-RS", "89448"].join(" ");
 const themes = [
 	"horizonte",
@@ -88,6 +94,27 @@ test.describe("qualidade visual e desempenho público", () => {
 				await expect(page.getByLabel("Finalidade")).toBeVisible();
 				await page.keyboard.press("Escape");
 				await expect(page.getByLabel("Finalidade")).toBeHidden();
+			}
+		}
+	});
+
+	test("mantém as quatro páginas editoriais na matriz responsiva exigida", async ({
+		page,
+	}) => {
+		for (const viewport of requiredPublicViewports) {
+			await page.setViewportSize(viewport);
+			for (const path of ["/regioes", "/sobre-cris", "/anuncie-seu-imovel", "/contato"]) {
+				await page.goto(path, { waitUntil: "domcontentloaded" });
+				const dimensions = await page.evaluate(() => ({
+					client: document.documentElement.clientWidth,
+					scroll: document.documentElement.scrollWidth,
+					h1Count: document.querySelectorAll("h1").length,
+				}));
+				expect(
+					dimensions.scroll,
+					`overflow em ${path} a ${viewport.width}×${viewport.height}`,
+				).toBeLessThanOrEqual(dimensions.client);
+				expect(dimensions.h1Count, `H1 em ${path}`).toBe(1);
 			}
 		}
 	});

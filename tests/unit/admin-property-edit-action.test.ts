@@ -41,6 +41,7 @@ vi.mock("~/routes/admin-route-helpers.server", () => ({
 	requireAdminRoute,
 }));
 
+import { AdminPropertyDuplicateError } from "~/modules/properties/admin/index.server";
 import { action, loader } from "~/routes/admin-property-edit";
 
 const propertyId = "fcd5e63b-2be3-4079-8c8d-378d352ae759";
@@ -111,6 +112,37 @@ describe("administrative property transitions", () => {
 			}),
 		);
 		expect(response.headers.get("location")).toBe(`/admin/imoveis/${propertyId}?salvo=1`);
+	});
+
+	it("explains a duplicate public code instead of reporting a stale edit", async () => {
+		update.mockRejectedValue(new AdminPropertyDuplicateError("publicCode"));
+		const request = new Request(`http://localhost/admin/imoveis/${propertyId}`, {
+			method: "POST",
+			body: new URLSearchParams({
+				intent: "update",
+				expectedVersion: "3",
+				publicCode: "DEMO-004",
+				title: "Imóvel demonstrativo 004",
+				slug: "imovel-demonstrativo-004",
+				purpose: "sale",
+				propertyType: "Casa",
+				city: "Cidreira",
+				neighborhood: "Centro",
+				priceDisplay: "on_request",
+				description: "Casa ótima",
+			}),
+		});
+
+		const response = await action({
+			request,
+			context: {},
+			params: { propertyId },
+		} as unknown as Parameters<typeof action>[0]);
+
+		expect("data" in response && response.data).toEqual({
+			error: "Este código do imóvel já está em uso.",
+		});
+		expect("init" in response && response.init?.status).toBe(409);
 	});
 
 	it("opens a recoverable deleted property without requesting active-only media", async () => {

@@ -1,58 +1,128 @@
+import { buildWhatsAppUrl } from "~/lib/public-site/config";
+import { loadPublicSiteContext } from "~/lib/public-site/loader.server";
 import { publicMeta } from "~/lib/public-site/meta";
 
 import type { Route } from "./+types/about";
 
+export function loader({ request, context }: Route.LoaderArgs) {
+	return loadPublicSiteContext(request, context);
+}
+
 export function meta({ matches }: Route.MetaArgs) {
 	return publicMeta(matches, [
-		{ title: "Sobre Cris | Cris Chaves" },
+		{ title: "Sobre Cris Chaves | Corretor no Litoral Norte" },
 		{
 			name: "description",
 			content:
-				"Conheça o atendimento pessoal de Cris Chaves para comprar, alugar ou anunciar imóveis no Litoral Norte Gaúcho.",
+				"Conheça a forma de atendimento de Cris Chaves para comprar, alugar ou anunciar imóveis no Litoral Norte Gaúcho.",
 		},
 	]);
 }
 
-export default function About() {
+export default function About({ loaderData: site }: Route.ComponentProps) {
+	const whatsappUrl = buildWhatsAppUrl(site.whatsappNumber);
+
 	return (
-		<main id="conteudo">
+		<main id="conteudo" className="cc-sell">
 			<section className="about-hero page-hero">
 				<div className="cc-container about-hero__grid">
 					<div>
 						<p className="site-eyebrow">Prazer, sou o Cris</p>
-						<h1>Seu próximo imóvel começa com uma boa conversa.</h1>
+						<h1>
+							Uma decisão importante pede alguém que escute antes de mostrar opções.
+						</h1>
 					</div>
 					<div className="about-hero__statement">
 						<p>
-							Meu trabalho está concentrado em Cidreira, Tramandaí, Balneário Pinhal,
-							Magistério e Quintão. É aqui que acompanho oportunidades e pessoas.
-						</p>
-						<p>
-							Quero que você entenda cada opção com clareza e se sinta à vontade para
-							perguntar. Comprar, alugar ou anunciar um imóvel é uma decisão importante —
-							e não precisa ser uma experiência impessoal.
+							Atendo pessoas que querem comprar, alugar ou anunciar imóveis em Cidreira,
+							Tramandaí, Balneário Pinhal, Magistério e Quintão. Meu papel é entender o
+							que você procura, apresentar as informações com clareza e ajudar a tornar o
+							próximo passo mais simples.
 						</p>
 					</div>
 				</div>
 			</section>
+
+			{/* Pendência editorial: foto e biografia só entram após material aprovado. */}
+			<section
+				className="site-section cc-container cc-sell-benefits"
+				aria-labelledby="como-trabalho-title"
+			>
+				<header className="cc-sell-section-heading">
+					<p className="site-eyebrow">Atendimento pessoal</p>
+					<h2 id="como-trabalho-title">Como eu trabalho</h2>
+				</header>
+				<div className="cc-sell-benefits__grid">
+					<article>
+						<span className="cc-mono">01</span>
+						<h3>Primeiro, eu entendo o contexto</h3>
+						<p>
+							Antes de falar em imóveis, quero saber o que você precisa, como pretende
+							usar o imóvel e quais pontos realmente importam para você.
+						</p>
+					</article>
+					<article>
+						<span className="cc-mono">02</span>
+						<h3>Depois, organizamos as opções</h3>
+						<p>
+							Você recebe informações objetivas para comparar os imóveis publicados e
+							perguntar o que ainda não ficou claro.
+						</p>
+					</article>
+					<article>
+						<span className="cc-mono">03</span>
+						<h3>A conversa continua no seu ritmo</h3>
+						<p>
+							Sem atendimento impessoal ou pressão para decidir. O próximo passo acontece
+							quando fizer sentido para você.
+						</p>
+					</article>
+				</div>
+			</section>
+
 			<section
 				className="certification-fold cc-container"
-				aria-labelledby="certificacao-title"
+				aria-labelledby="atuacao-title"
 			>
 				<div className="certification-fold__mark" aria-hidden="true">
 					CC
 				</div>
 				<div>
-					<p className="site-eyebrow">Meu compromisso</p>
-					<h2 id="certificacao-title">Informação clara, cuidado e responsabilidade.</h2>
+					<p className="site-eyebrow">Onde eu atuo</p>
+					<h2 id="atuacao-title">Atendimento no Litoral Norte Gaúcho</h2>
 					<p>
-						Eu apresento somente anúncios autorizados e preservo informações que não
-						precisam ser públicas. Meu registro profissional acompanha a marca para que
-						você saiba com quem está falando desde o primeiro contato.
+						Minha atuação está concentrada em Cidreira, Tramandaí, Balneário Pinhal,
+						Magistério e Quintão. Esse recorte deixa claro onde posso acompanhar sua busca
+						ou conversar sobre o seu imóvel.
 					</p>
-					<a className="text-link" href="/contato">
-						Falar comigo <span aria-hidden="true">→</span>
-					</a>
+					<p>
+						<strong>Cris Chaves — Corretor de Imóveis</strong>
+						{site.creci && (
+							<>
+								<br />
+								{site.creci}
+							</>
+						)}
+					</p>
+					<p>
+						Os anúncios publicados utilizam somente as informações autorizadas para
+						divulgação. Dados como endereço exato, contato do proprietário e observações
+						internas permanecem fora do catálogo público.
+					</p>
+					{whatsappUrl ? (
+						<a
+							className="cc-button cc-button--primary"
+							href={whatsappUrl}
+							target="_blank"
+							rel="noreferrer"
+						>
+							Falar diretamente com o Cris
+						</a>
+					) : (
+						<a className="text-link" href="/contato">
+							Ver canais de contato <span aria-hidden="true">→</span>
+						</a>
+					)}
 				</div>
 			</section>
 		</main>

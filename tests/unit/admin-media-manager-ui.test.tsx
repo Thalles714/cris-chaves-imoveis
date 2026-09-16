@@ -12,7 +12,7 @@ const mediaSpies = vi.hoisted(() => ({
 
 vi.mock("~/modules/media", async (importOriginal) => {
 	const actual = await importOriginal<typeof import("~/modules/media")>();
-	return { ...actual, processImageInBrowser: mediaSpies.processImage };
+	return { ...actual, processImagePairInBrowser: mediaSpies.processImage };
 });
 
 vi.mock("@supabase/supabase-js", () => ({
@@ -45,6 +45,13 @@ function processedImage(checksum: string) {
 			width: 800,
 			height: 600,
 		},
+	};
+}
+
+function processedPair() {
+	return {
+		original: processedImage("a".repeat(64)),
+		publicDerivative: processedImage("b".repeat(64)),
 	};
 }
 
@@ -97,18 +104,15 @@ describe("admin media privacy workflow", () => {
 		mediaSpies.upload.mockResolvedValue({ data: {}, error: null });
 	});
 
-	it("makes the first photo the cover and requires a privacy review", () => {
+	it("makes the first photo the cover and asks for publication confirmation", () => {
 		render(<AdminMediaManager propertyId={propertyId} items={[]} maxImages={30} />);
 
 		expect(
 			screen.getByRole("checkbox", { name: "Usar a primeira foto como capa" }),
 		).toBeChecked();
 		expect(
-			screen.getByRole("checkbox", {
-				name: /Revisei todas as fotos e confirmo/u,
-			}),
+			screen.getByRole("checkbox", { name: /Revisei as fotos e confirmo/u }),
 		).toBeRequired();
-		expect(screen.getByText(/Não use fotos com pessoas reconhecíveis/u)).toBeVisible();
 	});
 
 	it("lets the administrator prepare several supported photos at once", async () => {
@@ -123,18 +127,23 @@ describe("admin media privacy workflow", () => {
 		expect(fileInput).toHaveAttribute("multiple");
 		expect(fileInput).toHaveAttribute(
 			"accept",
-			"image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp",
+			"image/png,image/jpeg,image/jpg,image/pjpeg,image/webp,.png,.jpg,.jpeg,.jfif,.webp",
 		);
 
 		await user.upload(fileInput, [
-			new File(["frente"], "casa-frente.png", { type: "image/png" }),
+			new File(["frente"], "casa-frente.jpg", { type: "image/jpeg" }),
 			new File(["lateral"], "casa-lateral.jpg", { type: "image/jpeg" }),
+			new File(["cozinha"], "casa.cozinha.01.jpeg"),
 		]);
 
-		expect(screen.getByRole("img", { name: "Prévia de casa-frente.png" })).toBeVisible();
+		expect(screen.getByRole("img", { name: "Prévia de casa-frente.jpg" })).toBeVisible();
 		expect(screen.getByRole("img", { name: "Prévia de casa-lateral.jpg" })).toBeVisible();
-		expect(screen.getByLabelText("Descrição de casa-frente.png")).toBeVisible();
+		expect(
+			screen.getByRole("img", { name: "Prévia de casa.cozinha.01.jpeg" }),
+		).toBeVisible();
+		expect(screen.getByLabelText("Descrição de casa-frente.jpg")).toBeVisible();
 		expect(screen.getByLabelText("Descrição de casa-lateral.jpg")).toBeVisible();
+		expect(screen.getByLabelText("Descrição de casa.cozinha.01.jpeg")).toBeVisible();
 	});
 
 	it("keeps the current and remaining photos queued when a sequential upload fails", async () => {
@@ -157,7 +166,7 @@ describe("admin media privacy workflow", () => {
 		]);
 		await user.type(screen.getByLabelText("Descrição de casa-frente.jpg"), "Frente");
 		await user.type(screen.getByLabelText("Descrição de casa-lateral.webp"), "Lateral");
-		await user.click(screen.getByRole("checkbox", { name: /Revisei todas as fotos/u }));
+		await user.click(screen.getByRole("checkbox", { name: /Revisei as fotos/u }));
 		await user.click(screen.getByRole("button", { name: "Preparar e enviar 2 fotos" }));
 
 		expect(await screen.findByText("Enviando foto 1 de 2")).toBeVisible();
@@ -181,8 +190,7 @@ describe("admin media privacy workflow", () => {
 	it("removes confirmed photos, revalidates and does not assign a second cover on retry", async () => {
 		const user = userEvent.setup();
 		mediaSpies.processImage
-			.mockResolvedValueOnce(processedImage("a".repeat(64)))
-			.mockResolvedValueOnce(processedImage("b".repeat(64)))
+			.mockResolvedValueOnce(processedPair())
 			.mockRejectedValueOnce({ code: "SOURCE_TOO_LARGE" });
 		vi.spyOn(URL, "createObjectURL")
 			.mockReturnValueOnce("blob:casa-frente")
@@ -206,7 +214,7 @@ describe("admin media privacy workflow", () => {
 			"Frente da casa",
 		);
 		await user.type(screen.getByLabelText("Descrição de casa-lateral.jpg"), "Lateral");
-		await user.click(screen.getByRole("checkbox", { name: /Revisei todas as fotos/u }));
+		await user.click(screen.getByRole("checkbox", { name: /Revisei as fotos/u }));
 		await user.click(screen.getByRole("button", { name: "Preparar e enviar 2 fotos" }));
 
 		expect(
@@ -228,6 +236,7 @@ describe("admin media privacy workflow", () => {
 		);
 		expect(firstPlanBody).toBeInstanceOf(URLSearchParams);
 		expect((firstPlanBody as URLSearchParams).get("isCover")).toBe("true");
+		expect(mediaSpies.processImage).toHaveBeenCalledTimes(2);
 	});
 
 	it("shows an authenticated preview and asks before hiding an existing photo", async () => {

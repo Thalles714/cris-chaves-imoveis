@@ -18,6 +18,13 @@ export interface AdminMemberRepository {
 		expectedVersion: number;
 	}): Promise<void>;
 	disable(input: { userId: string; expectedVersion: number }): Promise<void>;
+	recordInvitationRecoveryFailure(
+		userId: string,
+		reason:
+			| "directory_delete_and_membership_restore_failed"
+			| "invite_failed_after_previous_removal"
+			| "membership_create_failed_after_invite",
+	): Promise<void>;
 }
 
 function toAdminMemberRow(row: {
@@ -133,6 +140,22 @@ export class SupabaseAdminMemberRepository implements AdminMemberRepository {
 			.maybeSingle();
 		if (result.error || !result.data) {
 			throw new AdminMemberOperationError("CONFLICT");
+		}
+	}
+
+	async recordInvitationRecoveryFailure(
+		userId: string,
+		reason:
+			| "directory_delete_and_membership_restore_failed"
+			| "invite_failed_after_previous_removal"
+			| "membership_create_failed_after_invite",
+	): Promise<void> {
+		const result = await this.client.rpc("record_member_invitation_recovery_failure", {
+			target_user_id: userId,
+			failure_reason: reason,
+		});
+		if (result.error) {
+			throw new AdminMemberOperationError("MEMBERSHIP_UNAVAILABLE");
 		}
 	}
 }

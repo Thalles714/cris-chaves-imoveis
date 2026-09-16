@@ -6,6 +6,17 @@ export const approvedRegions = [
 	"Quintão",
 ] as const;
 
+export const regionEditorialContent: Record<
+	(typeof approvedRegions)[number],
+	{ description?: string }
+> = {
+	Cidreira: {},
+	Tramandaí: {},
+	"Balneário Pinhal": {},
+	Magistério: {},
+	Quintão: {},
+};
+
 export interface PublicSiteConfig {
 	brandName: "Cris Chaves Corretor de Imóveis";
 	shortBrandName: "Cris Chaves";
@@ -19,10 +30,13 @@ export interface PublicSiteConfig {
 
 export function buildWhatsAppUrl(
 	number: string | null,
-	options: { propertyCode?: string; canonicalUrl?: string } = {},
+	options: { propertyCode?: string; canonicalUrl?: string; message?: string } = {},
 ) {
 	if (!number) return null;
-	const parts = ["Olá, Cris. Encontrei seu site e gostaria de conversar sobre imóveis."];
+	const parts = [
+		options.message ??
+			"Olá, Cris. Encontrei seu site e gostaria de conversar sobre imóveis.",
+	];
 	if (options.propertyCode) parts.push(`Código: ${options.propertyCode}.`);
 	if (options.canonicalUrl) parts.push(`Link: ${options.canonicalUrl}`);
 	return `https://wa.me/${number}?text=${encodeURIComponent(parts.join(" "))}`;

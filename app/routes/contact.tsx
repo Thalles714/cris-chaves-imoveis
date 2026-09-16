@@ -1,14 +1,8 @@
-import { ContactForm } from "~/components/public";
 import { buildWhatsAppUrl } from "~/lib/public-site/config";
 import { loadPublicSiteContext } from "~/lib/public-site/loader.server";
 import { publicMeta } from "~/lib/public-site/meta";
 
-import { disabledContactAction } from "./contact-action.server";
 import type { Route } from "./+types/contact";
-
-export function action() {
-	return disabledContactAction();
-}
 
 export function loader({ request, context }: Route.LoaderArgs) {
 	return loadPublicSiteContext(request, context);
@@ -16,45 +10,86 @@ export function loader({ request, context }: Route.LoaderArgs) {
 
 export function meta({ matches }: Route.MetaArgs) {
 	return publicMeta(matches, [
-		{ title: "Contato | Cris Chaves" },
+		{ title: "Contato direto com Cris Chaves" },
 		{
 			name: "description",
-			content: "Fale diretamente com Cris Chaves sobre imóveis no Litoral Norte Gaúcho.",
+			content:
+				"Escolha o assunto e converse diretamente com Cris Chaves pelo WhatsApp sobre imóveis no Litoral Norte Gaúcho.",
 		},
 	]);
 }
 
-export default function Contact({ loaderData: site }: Route.ComponentProps) {
-	const whatsappUrl = buildWhatsAppUrl(site.whatsappNumber);
+const contactOptions = [
+	{
+		title: "Quero encontrar um imóvel",
+		description: "Conte a região, o tipo de imóvel e o que é importante para você.",
+		message: "Olá, Cris. Quero ajuda para encontrar um imóvel no Litoral Norte.",
+	},
+	{
+		title: "Quero falar sobre um anúncio",
+		description:
+			"Envie o link ou o código do imóvel para que ele seja identificado rapidamente.",
+		message: "Olá, Cris. Tenho interesse no imóvel [código ou link].",
+	},
+	{
+		title: "Quero anunciar meu imóvel",
+		description: "Diga a cidade e se pretende vender ou alugar.",
+		message: "Olá, Cris. Quero conversar sobre anunciar um imóvel em [cidade].",
+	},
+] as const;
 
+export default function Contact({ loaderData: site }: Route.ComponentProps) {
 	return (
-		<main id="conteudo">
+		<main id="conteudo" className="cc-regions">
 			<header className="page-hero">
 				<div className="cc-container contact-intro">
 					<div>
-						<p className="site-eyebrow">Fale comigo</p>
-						<h1>Quero entender o que faz sentido para você.</h1>
+						<p className="site-eyebrow">Fale diretamente com o Cris</p>
+						<h1>Qual é o próximo passo que você quer organizar?</h1>
 					</div>
 					<p>
-						Pode chegar com uma ideia pronta ou apenas com as primeiras dúvidas. Eu ajudo
-						a organizar a busca e o próximo passo.
+						Escolha o assunto e continue pelo WhatsApp. Você pode chegar com uma decisão
+						pronta, um código de imóvel ou apenas uma dúvida inicial.
 					</p>
 				</div>
 			</header>
-			<section className="site-section cc-container contact-layout">
-				<div className="contact-layout__aside">
-					<p className="site-eyebrow">Onde eu atuo</p>
-					<h2>Perto de você no Litoral Norte Gaúcho</h2>
-					<p>Cidreira · Tramandaí · Balneário Pinhal · Magistério · Quintão</p>
-					<div className="contact-code-note">
-						<span className="cc-mono">Já encontrou um imóvel?</span>
-						<p>
-							Envie o link ou o código do anúncio. Assim eu identifico a opção rapidamente
-							sem expor o endereço exato.
-						</p>
-					</div>
+
+			<section
+				className="site-section cc-container cc-regions-directory cc-contact-options"
+				aria-labelledby="contact-options-title"
+			>
+				<header className="cc-regions-section-heading">
+					<p className="site-eyebrow">Escolha o assunto</p>
+					<h2 id="contact-options-title">Comece pela conversa certa</h2>
+				</header>
+				<div className="cc-regions-directory__grid">
+					{contactOptions.map((option, index) => {
+						const whatsappUrl = buildWhatsAppUrl(site.whatsappNumber, {
+							message: option.message,
+						});
+						return (
+							<article className="cc-regions-card" key={option.title}>
+								<span className="cc-mono">{String(index + 1).padStart(2, "0")}</span>
+								<h3>{option.title}</h3>
+								<p>{option.description}</p>
+								{whatsappUrl && (
+									<a
+										className="text-link"
+										href={whatsappUrl}
+										target="_blank"
+										rel="noreferrer"
+									>
+										Continuar pelo WhatsApp <span aria-hidden="true">→</span>
+									</a>
+								)}
+							</article>
+						);
+					})}
 				</div>
-				<ContactForm intent="general" whatsappUrl={whatsappUrl} />
+				<p className="cc-contact-options__privacy" id="canais">
+					Você será direcionado ao WhatsApp e decide quais informações deseja
+					compartilhar. Nenhum dado é armazenado em formulário neste site.
+				</p>
 			</section>
 		</main>
 	);

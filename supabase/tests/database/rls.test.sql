@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(58);
+select plan(63);
 
 -- Synthetic identities only; none can sign in.
 insert into auth.users (id, raw_user_meta_data)
@@ -191,6 +191,14 @@ select throws_ok(
   'anon cannot read audit events'
 );
 select is((select count(*) from storage.objects), 0::bigint, 'anon cannot list private Storage objects');
+select throws_ok(
+  $$select public.record_member_invitation_recovery_failure(
+    '30000000-0000-4000-8000-000000000003',
+    'invite_failed_after_previous_removal'
+  )$$,
+  '42501', 'permission denied for function record_member_invitation_recovery_failure',
+  'anon cannot write invitation recovery audit events'
+);
 
 reset role;
 set local role authenticated;
@@ -229,6 +237,30 @@ select is(
   'aal1 editor cannot read a registered original by its exact object key'
 );
 select set_config('storage.operation', '', true);
+select throws_ok(
+  $$select public.record_member_invitation_recovery_failure(
+    '30000000-0000-4000-8000-000000000003',
+    'invite_failed_after_previous_removal'
+  )$$,
+  '42501', 'owner AAL2 required',
+  'aal1 editor cannot write invitation recovery audit events'
+);
+
+reset role;
+set local role authenticated;
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"10000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1"}',
+  true
+);
+select throws_ok(
+  $$select public.record_member_invitation_recovery_failure(
+    '30000000-0000-4000-8000-000000000003',
+    'invite_failed_after_previous_removal'
+  )$$,
+  '42501', 'owner AAL2 required',
+  'aal1 owner cannot write invitation recovery audit events'
+);
 
 reset role;
 set local role authenticated;
@@ -477,6 +509,24 @@ select set_config(
   'request.jwt.claims',
   '{"sub":"10000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',
   true
+);
+select lives_ok(
+  $$select public.record_member_invitation_recovery_failure(
+    '30000000-0000-4000-8000-000000000003',
+    'invite_failed_after_previous_removal'
+  )$$,
+  'aal2 owner can write an allowlisted invitation recovery audit event'
+);
+select is(
+  (
+    select details ->> 'operation'
+    from public.audit_events
+    where action = 'admin_members.invitation_recovery_failed'
+    order by occurred_at desc
+    limit 1
+  ),
+  'invite_failed_after_previous_removal',
+  'invitation recovery audit stores only the allowlisted operation reason'
 );
 select is(
   (

@@ -79,6 +79,7 @@ const privilegedDirectoryConfigSchema = z
 export interface AdminAuthDirectory {
 	invite(email: string): Promise<{ userId: string }>;
 	findEmails(userIds: string[]): Promise<ReadonlyMap<string, string>>;
+	findPendingUserByEmail(email: string): Promise<{ userId: string } | null>;
 	deleteInvitedUser(userId: string): Promise<void>;
 	deleteInvitedUserStrict(userId: string): Promise<void>;
 }
@@ -117,6 +118,22 @@ export class SupabasePrivilegedAuthDirectory implements AdminAuthDirectory {
 					return allowed.has(user.id) && email ? [[user.id, email] as const] : [];
 				}),
 			);
+		} catch {
+			throw new AdminMemberOperationError("DIRECTORY_UNAVAILABLE");
+		}
+	}
+
+	async findPendingUserByEmail(email: string): Promise<{ userId: string } | null> {
+		try {
+			const result = await this.client.auth.admin.listUsers({ page: 1, perPage: 1000 });
+			if (result.error) throw result.error;
+			const normalizedEmail = email.trim().toLowerCase();
+			const user = result.data.users.find(
+				(candidate) =>
+					candidate.email?.trim().toLowerCase() === normalizedEmail &&
+					!candidate.email_confirmed_at,
+			);
+			return user ? { userId: user.id } : null;
 		} catch {
 			throw new AdminMemberOperationError("DIRECTORY_UNAVAILABLE");
 		}

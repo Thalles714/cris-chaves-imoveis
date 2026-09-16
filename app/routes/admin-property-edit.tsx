@@ -17,6 +17,7 @@ import {
 } from "~/modules/properties/admin";
 import {
 	AdminPropertyConflictError,
+	AdminPropertyDuplicateError,
 	SupabaseAdminPropertyRepository,
 } from "~/modules/properties/admin/index.server";
 import { propertyIdSchema } from "~/modules/properties/validation/property-schema";
@@ -212,15 +213,15 @@ export async function action({ request, context, params }: Route.ActionArgs) {
 			headers: adminResponseHeaders(responseHeaders),
 		});
 	} catch (error) {
+		const knownConflict =
+			error instanceof AdminPropertyConflictError ||
+			error instanceof AdminPropertyDuplicateError;
 		return data(
 			{
-				error:
-					error instanceof AdminPropertyConflictError
-						? error.message
-						: "Não foi possível salvar esta alteração.",
+				error: knownConflict ? error.message : "Não foi possível salvar esta alteração.",
 			},
 			{
-				status: error instanceof AdminPropertyConflictError ? 409 : 400,
+				status: knownConflict ? 409 : 400,
 				headers: adminResponseHeaders(responseHeaders),
 			},
 		);

@@ -4,6 +4,7 @@ import {
 	redirect,
 	useActionData,
 	useLoaderData,
+	useNavigation,
 	type ActionFunctionArgs,
 	type LoaderFunctionArgs,
 } from "react-router";
@@ -11,7 +12,8 @@ import { useState } from "react";
 
 import { AdminEmpty, AdminMutationFeedback, AdminPageHeader } from "~/components/admin";
 import { Modal } from "~/components/ui";
-import { redactAdminMemberReference } from "~/modules/members";
+import { hasRecentSecondFactor } from "~/modules/auth/index.server";
+import { redactAdminMemberReference, type AdminMemberDto } from "~/modules/members";
 import {
 	adminMemberActionIntentSchema,
 	AdminMemberOperationError,
@@ -66,6 +68,16 @@ export async function action({ request, context }: ActionFunctionArgs) {
 		context,
 		operation,
 	);
+	if (!hasRecentSecondFactor(session)) {
+		return data(
+			{
+				error:
+					"Confirme novamente a autenticação em duas etapas para alterar a equipe. A confirmação vale por cinco minutos.",
+				requiresMfa: true,
+			},
+			{ status: 403, headers: adminResponseHeaders(responseHeaders) },
+		);
+	}
 	const service = new AdminMemberService(
 		new SupabaseAdminMemberRepository(client),
 		createPrivilegedAuthDirectory(adminBindings(context)),
@@ -112,7 +124,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
 						: error instanceof AdminMemberOperationError &&
 							  error.code === "EMAIL_RATE_LIMITED"
 							? "O limite de e-mails do Supabase foi atingido. Aguarde cerca de 30 minutos antes de tentar novamente."
-							: "Não foi possível concluir a alteração da equipe.",
+							: error instanceof AdminMemberOperationError &&
+								  error.code === "INVITATION_RECOVERY_REQUIRED"
+								? "O convite não pôde ser recomposto automaticamente. O acesso continua bloqueado; revise a auditoria antes de tentar novamente."
+								: "Não foi possível concluir a alteração da equipe.",
+				requiresMfa: false,
 			},
 			{ status: 409, headers: adminResponseHeaders(responseHeaders) },
 		);
@@ -127,13 +143,22 @@ function memberStatus(status: "invited" | "active" | "disabled") {
 			: "Desativado";
 }
 
-function MemberDisableButton({ userId, version }: { userId: string; version: number }) {
+function MemberDisableButton({
+	userId,
+	version,
+	busy,
+}: {
+	userId: string;
+	version: number;
+	busy: boolean;
+}) {
 	const [open, setOpen] = useState(false);
 	return (
 		<>
 			<button
 				className="cc-button cc-button--danger"
 				type="button"
+				disabled={busy}
 				onClick={() => setOpen(true)}
 			>
 				Desativar
@@ -157,8 +182,12 @@ function MemberDisableButton({ userId, version }: { userId: string; version: num
 							<input type="hidden" name="userId" value={userId} />
 							<input type="hidden" name="expectedVersion" value={version} />
 							<input type="hidden" name="confirmation" value="confirmed" />
-							<button className="cc-button cc-button--danger" type="submit">
-								Sim, desativar
+							<button
+								className="cc-button cc-button--danger"
+								type="submit"
+								disabled={busy}
+							>
+								{busy ? "Desativando…" : "Sim, desativar"}
 							</button>
 						</Form>
 					</>
@@ -173,9 +202,11 @@ function MemberDisableButton({ userId, version }: { userId: string; version: num
 function PendingInvitationActions({
 	userId,
 	version,
+	busy,
 }: {
 	userId: string;
 	version: number;
+	busy: boolean;
 }) {
 	const [open, setOpen] = useState(false);
 	return (
@@ -185,13 +216,14 @@ function PendingInvitationActions({
 				<input type="hidden" name="userId" value={userId} />
 				<input type="hidden" name="expectedVersion" value={version} />
 				<input type="hidden" name="confirmation" value="confirmed" />
-				<button className="cc-button cc-button--secondary" type="submit">
-					Reenviar
+				<button className="cc-button cc-button--secondary" type="submit" disabled={busy}>
+					{busy ? "Enviando…" : "Reenviar"}
 				</button>
 			</Form>
 			<button
 				className="cc-button cc-button--danger"
 				type="button"
+				disabled={busy}
 				onClick={() => setOpen(true)}
 			>
 				Cancelar convite
@@ -215,8 +247,12 @@ function PendingInvitationActions({
 							<input type="hidden" name="userId" value={userId} />
 							<input type="hidden" name="expectedVersion" value={version} />
 							<input type="hidden" name="confirmation" value="confirmed" />
-							<button className="cc-button cc-button--danger" type="submit">
-								Sim, cancelar
+							<button
+								className="cc-button cc-button--danger"
+								type="submit"
+								disabled={busy}
+							>
+								{busy ? "Cancelando…" : "Sim, cancelar"}
 							</button>
 						</Form>
 					</>
@@ -228,9 +264,80 @@ function PendingInvitationActions({
 	);
 }
 
+function MemberRoleChangeButton({
+	member,
+	busy,
+}: {
+	member: AdminMemberDto;
+	busy: boolean;
+}) {
+	const [open, setOpen] = useState(false);
+	const currentRole = member.role === "owner" ? "Proprietário" : "Editor";
+	const newRole = member.role === "owner" ? "Editor" : "Proprietário";
+	const newRoleValue = member.role === "owner" ? "editor" : "owner";
+	const accessExplanation =
+		newRoleValue === "owner"
+			? "A pessoa poderá gerenciar membros e consultar a auditoria, além de operar imóveis."
+			: "A pessoa continuará operando imóveis, mas não poderá gerenciar membros nem consultar a auditoria.";
+
+	return (
+		<>
+			<button
+				className="cc-button cc-button--secondary"
+				type="button"
+				disabled={busy}
+				onClick={() => setOpen(true)}
+			>
+				Tornar {newRole.toLowerCase()}
+			</button>
+			<Modal
+				open={open}
+				onOpenChange={setOpen}
+				title="Confirmar mudança de função?"
+				description={`Membro ${redactAdminMemberReference(member.userId)}`}
+				footer={
+					<>
+						<button
+							className="cc-button cc-button--secondary"
+							type="button"
+							disabled={busy}
+							onClick={() => setOpen(false)}
+						>
+							Cancelar
+						</button>
+						<Form method="post">
+							<input type="hidden" name="intent" value="change-role" />
+							<input type="hidden" name="userId" value={member.userId} />
+							<input type="hidden" name="expectedVersion" value={member.version} />
+							<input type="hidden" name="role" value={newRoleValue} />
+							<button
+								className="cc-button cc-button--primary"
+								type="submit"
+								disabled={busy}
+							>
+								{busy ? "Confirmando…" : "Confirmar alteração"}
+							</button>
+						</Form>
+					</>
+				}
+			>
+				<p>
+					Função atual: <strong>{currentRole}</strong>
+				</p>
+				<p>
+					Nova função: <strong>{newRole}</strong>
+				</p>
+				<p>{accessExplanation}</p>
+			</Modal>
+		</>
+	);
+}
+
 export default function AdminMembers() {
 	const loaderData = useLoaderData<typeof loader>();
 	const actionData = useActionData<typeof action>();
+	const navigation = useNavigation();
+	const busy = navigation.state !== "idle";
 	return (
 		<>
 			<AdminPageHeader
@@ -240,7 +347,12 @@ export default function AdminMembers() {
 			/>
 			{actionData?.error && (
 				<AdminMutationFeedback tone="error" title="Alteração não concluída">
-					{actionData.error}
+					<p>{actionData.error}</p>
+					{"requiresMfa" in actionData && actionData.requiresMfa === true && (
+						<a className="cc-button cc-button--primary" href="/admin/mfa?renovar=1">
+							Confirmar MFA novamente
+						</a>
+					)}
 				</AdminMutationFeedback>
 			)}
 			<section className="admin-form-section" aria-labelledby="invite-title">
@@ -251,7 +363,7 @@ export default function AdminMembers() {
 						<p>O cadastro público permanece fechado.</p>
 					</div>
 				</header>
-				<Form method="post" className="admin-inline-form">
+				<Form method="post" className="admin-inline-form" aria-busy={busy}>
 					<input type="hidden" name="intent" value="invite" />
 					<label className="cc-field">
 						<span className="cc-field__label">E-mail</span>
@@ -260,18 +372,24 @@ export default function AdminMembers() {
 							type="email"
 							name="email"
 							maxLength={254}
+							disabled={busy}
 							required
 						/>
 					</label>
 					<label className="cc-field">
 						<span className="cc-field__label">Função</span>
-						<select className="cc-field__control" name="role" defaultValue="editor">
+						<select
+							className="cc-field__control"
+							name="role"
+							defaultValue="editor"
+							disabled={busy}
+						>
 							<option value="editor">Editor</option>
 							<option value="owner">Proprietário</option>
 						</select>
 					</label>
-					<button className="cc-button cc-button--primary" type="submit">
-						Enviar convite
+					<button className="cc-button cc-button--primary" type="submit" disabled={busy}>
+						{busy ? "Enviando…" : "Enviar convite"}
 					</button>
 				</Form>
 			</section>
@@ -308,34 +426,17 @@ export default function AdminMembers() {
 												<PendingInvitationActions
 													userId={member.userId}
 													version={member.version}
+													busy={busy}
 												/>
 											</div>
 										)}
 										{member.status === "active" && (
 											<div className="admin-member-actions__controls">
-												<Form method="post">
-													<input type="hidden" name="intent" value="change-role" />
-													<input type="hidden" name="userId" value={member.userId} />
-													<input
-														type="hidden"
-														name="expectedVersion"
-														value={member.version}
-													/>
-													<input
-														type="hidden"
-														name="role"
-														value={member.role === "owner" ? "editor" : "owner"}
-													/>
-													<button
-														className="cc-button cc-button--secondary"
-														type="submit"
-													>
-														Tornar {member.role === "owner" ? "editor" : "proprietário"}
-													</button>
-												</Form>
+												<MemberRoleChangeButton member={member} busy={busy} />
 												<MemberDisableButton
 													userId={member.userId}
 													version={member.version}
+													busy={busy}
 												/>
 											</div>
 										)}

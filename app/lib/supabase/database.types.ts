@@ -516,6 +516,10 @@ export type Database = {
 			[_ in never]: never;
 		};
 		Functions: {
+			record_member_invitation_recovery_failure: {
+				Args: { failure_reason: string; target_user_id: string };
+				Returns: undefined;
+			};
 			activate_own_admin_membership: {
 				Args: Record<PropertyKey, never>;
 				Returns: boolean;

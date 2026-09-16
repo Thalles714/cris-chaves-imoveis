@@ -38,6 +38,15 @@ export function hasRecentSecondFactor(
 	);
 }
 
+export function requireRecentSecondFactor(
+	session: AdminSession,
+	nowInMilliseconds = Date.now(),
+): void {
+	if (!hasRecentSecondFactor(session, nowInMilliseconds)) {
+		throw new AdminAccessError("RECENT_AAL2_REQUIRED");
+	}
+}
+
 export async function requireAdminTargetOperation(
 	request: Request,
 	operation: AdminOperation,

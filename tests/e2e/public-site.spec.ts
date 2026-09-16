@@ -101,11 +101,10 @@ test.describe("site público", () => {
 		page,
 	}) => {
 		await page.goto("/anuncie-seu-imovel", { waitUntil: "domcontentloaded" });
-		await expect(page.getByText("Atendimento direto")).toBeVisible();
-		await expect(page.locator(".contact-form-panel__cta")).toHaveAttribute(
-			"href",
-			/^https:\/\/wa\.me\//u,
-		);
+		await expect(page.getByText("O que ajuda a iniciar a conversa")).toBeVisible();
+		await expect(
+			page.getByRole("link", { name: "Apresentar meu imóvel pelo WhatsApp" }),
+		).toHaveAttribute("href", /^https:\/\/wa\.me\//u);
 		await expect(page.locator("form")).toHaveCount(0);
 		await expect(page.getByLabel("Nome")).toHaveCount(0);
 	});
@@ -170,6 +169,7 @@ test.describe("site público", () => {
 			"/",
 			"/home",
 			"/regioes",
+			"/sobre-cris",
 			"/anuncie-seu-imovel",
 			"/contato",
 			"/privacidade",

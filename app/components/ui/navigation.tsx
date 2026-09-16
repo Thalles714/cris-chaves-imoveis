@@ -401,6 +401,9 @@ export function AdminNav({
 		<aside className={cx("cc-admin-nav", className)} {...props}>
 			<div className="cc-admin-nav__brand">{brand}</div>
 			{user && <div className="cc-admin-nav__user">{user}</div>}
+			<p className="cc-admin-nav__scroll-hint" aria-hidden="true">
+				Deslize para ver todas as opções →
+			</p>
 			<nav aria-label="Navegação administrativa">
 				{sections.map((section, sectionIndex) => (
 					<div className="cc-admin-nav__section" key={sectionIndex}>

@@ -25,30 +25,18 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
 	const metrics = hasProperties
 		? [
 				{
-					id: "total",
-					label: "Imóveis ativos",
-					value: loaderData.total,
-					description: "Todos os registros não excluídos",
-				},
-				{
-					id: "published",
-					label: "Publicados",
-					value: loaderData.published,
-					description: "Visíveis no catálogo público",
-					tone: "success" as const,
-				},
-				{
 					id: "drafts",
-					label: "Rascunhos",
+					label: "Rascunhos para concluir",
 					value: loaderData.drafts,
-					description: "Ainda não publicados",
+					description: "Ainda precisam de informações, mídia ou revisão",
 					tone: "warning" as const,
 				},
 				{
-					id: "archived",
-					label: "Arquivados",
-					value: loaderData.archived,
-					description: "Fora do catálogo",
+					id: "awaiting-review",
+					label: "Aguardando revisão",
+					value: loaderData.awaitingReview,
+					description: "Com descrição e capa aprovada para conferência final",
+					tone: "info" as const,
 				},
 			]
 		: [];
@@ -66,6 +54,7 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
 				}
 			/>
 			<AdminDashboardSummary
+				title="Pendências operacionais"
 				metrics={metrics}
 				emptyTitle="Nenhum imóvel cadastrado"
 				emptyDescription="Crie o primeiro rascunho. Ele só aparecerá no site depois de uma publicação confirmada."
@@ -75,6 +64,60 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
 					</a>
 				}
 			/>
+			{hasProperties && (
+				<div className="admin-dashboard-worklists">
+					<section className="admin-dashboard-list" aria-labelledby="draft-work-title">
+						<div className="admin-dashboard-list__header">
+							<div>
+								<p className="admin-publication-checklist__eyebrow">Próxima ação</p>
+								<h2 id="draft-work-title">Continuar um cadastro</h2>
+							</div>
+							<a className="text-link" href="/admin/imoveis?status=draft">
+								Ver rascunhos
+							</a>
+						</div>
+						{loaderData.draftsToContinue.length > 0 ? (
+							<ul>
+								{loaderData.draftsToContinue.map((property) => (
+									<li key={property.id}>
+										<a href={`/admin/imoveis/${property.id}`}>
+											<strong>{property.publicCode}</strong>
+											<span>{property.title}</span>
+										</a>
+									</li>
+								))}
+							</ul>
+						) : (
+							<p className="admin-dashboard-list__empty">Nenhum rascunho pendente.</p>
+						)}
+					</section>
+
+					<section className="admin-dashboard-list" aria-labelledby="recent-work-title">
+						<div className="admin-dashboard-list__header">
+							<div>
+								<p className="admin-publication-checklist__eyebrow">Histórico recente</p>
+								<h2 id="recent-work-title">Últimos imóveis alterados</h2>
+							</div>
+						</div>
+						<ul>
+							{loaderData.recentlyUpdated.map((property) => (
+								<li key={property.id}>
+									<a href={`/admin/imoveis/${property.id}/revisar`}>
+										<strong>{property.publicCode}</strong>
+										<span>{property.title}</span>
+										<time dateTime={property.updatedAt}>
+											{new Intl.DateTimeFormat("pt-BR", {
+												dateStyle: "short",
+												timeZone: "America/Sao_Paulo",
+											}).format(new Date(property.updatedAt))}
+										</time>
+									</a>
+								</li>
+							))}
+						</ul>
+					</section>
+				</div>
+			)}
 		</>
 	);
 }

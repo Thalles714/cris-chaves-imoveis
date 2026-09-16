@@ -26,6 +26,7 @@ vi.mock("~/routes/admin-route-helpers.server", () => ({
 }));
 
 import { action } from "~/routes/admin-property-new";
+import { AdminPropertyDuplicateError } from "~/modules/properties/admin/index.server";
 
 describe("new property workflow", () => {
 	beforeEach(() => {
@@ -69,4 +70,41 @@ describe("new property workflow", () => {
 			`/admin/imoveis/${propertyId}/midia?criado=1`,
 		);
 	});
+
+	it.each([
+		["publicCode", "Este código do imóvel já está em uso."],
+		["slug", "Este endereço amigável já está em uso."],
+	] as const)(
+		"returns a field-level message when %s is duplicated",
+		async (field, message) => {
+			createDraft.mockRejectedValue(new AdminPropertyDuplicateError(field));
+			const request = new Request("http://localhost/admin/imoveis/novo", {
+				method: "POST",
+				body: new URLSearchParams({
+					publicCode: "CC-001",
+					title: "Casa demonstrativa",
+					slug: "casa-demonstrativa",
+					purpose: "sale",
+					propertyType: "Casa",
+					city: "Cidreira",
+					neighborhood: "Centro",
+					priceDisplay: "on_request",
+					description: "",
+					features: "",
+				}),
+			});
+
+			const response = await action({
+				request,
+				context: {},
+				params: {},
+			} as unknown as Parameters<typeof action>[0]);
+
+			expect("data" in response && response.data).toMatchObject({
+				error: message,
+				errorField: field,
+			});
+			expect("init" in response && response.init?.status).toBe(409);
+		},
+	);
 });

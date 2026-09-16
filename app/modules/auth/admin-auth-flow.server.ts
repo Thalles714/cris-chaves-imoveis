@@ -277,9 +277,9 @@ export class SupabaseAdminAuthFlow {
 		}
 	}
 
-	async getMfaState(): Promise<AdminMfaState> {
+	async getMfaState(forceChallenge = false): Promise<AdminMfaState> {
 		const session = await this.requireActiveMember();
-		if (session.authenticationLevel === "aal2") return "ready";
+		if (session.authenticationLevel === "aal2" && !forceChallenge) return "ready";
 		return (await this.readVerifiedTotpFactors()).length > 0
 			? "challenge_required"
 			: "enrollment_required";
