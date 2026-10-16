@@ -1,6 +1,10 @@
 # Cris Chaves Imóveis
 
-Fundação técnica, site público e área administrativa de Cris Chaves. As Etapas 1, 2, 3 e 4 estão concluídas; o UAT final aprovou MFA, cadastro, mídia tratada, publicação, privacidade, arquivamento e restauração, e a Etapa 5 está em validação final de produção. Anúncios demonstrativos claramente identificados como placeholders foram autorizados para avaliação pública e poderão ser arquivados pelo cliente quando os imóveis reais forem cadastrados.
+Site público e painel administrativo desenvolvidos para cliente, com React Router, TypeScript, Supabase e PostgreSQL. O fluxo inclui autenticação, permissões, tratamento de mídia e publicação de imóveis.
+
+**[Visitar o site](https://crischaves.com.br/)** · [Autor](https://github.com/Thalles714)
+
+O catálogo pode conter anúncios demonstrativos identificados. O estado operacional, as pendências e as evidências de publicação devem ser consultados na documentação; a presença de testes no repositório não representa uma garantia de aprovação atual.
 
 ## Fontes de verdade
 
@@ -64,6 +68,6 @@ As fronteiras completas e as decisões pendentes estão em [`docs/architecture/R
 - nenhum endereço exato no contrato público;
 - formulário público inativo até aprovação do fluxo LGPD e destino operacional;
 - painel administrativo implementado e validado com o primeiro proprietário real; o fluxo foi simplificado para três passos, com seis temas, esquemas Claro/Escuro/Sistema preservados e o novo Black preto/branco com CTA azul, rascunho guiado, prévias autenticadas, marca d'água central `Cris Chaves`, ocultação recuperável de mídia e checklist de publicação;
-- 268 testes unitários/arquiteturais e 34 cenários E2E estão verdes; as 16 migrations foram reconstruídas do zero, o contrato de publicação entre as migrations 14 e 15 foi revalidado em transação, o histórico remoto está alinhado em 16/16 e a suíte remota atual de 62 controles pgTAP passou com `ROLLBACK` (58 de autorização/RLS e 4 de busca pública);
+- suítes unitárias, arquiteturais, E2E e SQL estão no projeto; conferir os relatórios e a integração contínua para o estado da revisão avaliada;
 - `crischaves.com.br` está delegado à Cloudflare, com TLS e Worker de produção implantados. O go-live ainda depende da validação pós-deploy registrada em [`docs/architecture/production-go-live-evidence.md`](docs/architecture/production-go-live-evidence.md);
 - não há backup próprio nesta fase: o risco temporário de recadastro manual foi aceito na ADR-0010 e deve ser revisto quando qualquer gatilho ali definido ocorrer.
